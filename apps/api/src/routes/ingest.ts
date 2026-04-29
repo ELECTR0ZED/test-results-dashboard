@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 
 const app = new Hono<{ Bindings: Env }>();
 
-app.get('/ingest', async(c) => {
+app.post('/ingest', async(c) => {
     return c.text('Hello, World!');
 });
 
