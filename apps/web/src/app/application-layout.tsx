@@ -1,0 +1,51 @@
+'use client'
+
+import { Navbar } from '@/components/catalyst/navbar';
+import {
+  Sidebar,
+  SidebarBody,
+  SidebarHeader,
+  SidebarItem,
+  SidebarLabel,
+  SidebarSection,
+} from '@/components/catalyst/sidebar';
+import { SidebarLayout } from '@/components/catalyst/sidebar-layout';
+import {
+  HomeIcon,
+} from '@heroicons/react/20/solid';
+import { usePathname } from 'next/navigation';
+
+export function ApplicationLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  let pathname = usePathname()
+
+  return (
+    <SidebarLayout
+      navbar={
+        <Navbar></Navbar>
+      }
+      sidebar={
+        <Sidebar>
+          <SidebarHeader>
+            <SidebarItem href="/">
+              <SidebarLabel>Starter App</SidebarLabel>
+            </SidebarItem>
+          </SidebarHeader>
+          <SidebarBody>
+            <SidebarSection>
+              <SidebarItem href="/" current={pathname === '/'}>
+                <HomeIcon />
+                <SidebarLabel>Home</SidebarLabel>
+              </SidebarItem>
+            </SidebarSection>
+          </SidebarBody>
+        </Sidebar>
+      }
+    >
+      {children}
+    </SidebarLayout>
+  )
+}
