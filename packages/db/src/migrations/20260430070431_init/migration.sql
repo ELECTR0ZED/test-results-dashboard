@@ -1,0 +1,49 @@
+-- CreateTable
+CREATE TABLE "Run" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "publicId" TEXT NOT NULL,
+    "framework" TEXT NOT NULL,
+    "frameworkVersion" TEXT NOT NULL,
+    "browser" TEXT NOT NULL,
+    "browserVersion" TEXT NOT NULL,
+    "os" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Spec" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "runId" INTEGER NOT NULL,
+    "filename" TEXT NOT NULL,
+    "tests" INTEGER NOT NULL,
+    "passed" INTEGER NOT NULL,
+    "failed" INTEGER NOT NULL,
+    "pending" INTEGER NOT NULL,
+    "skipped" INTEGER NOT NULL,
+    "duration" INTEGER NOT NULL,
+    "startedAt" DATETIME NOT NULL,
+    "endedAt" DATETIME NOT NULL,
+    CONSTRAINT "Spec_runId_fkey" FOREIGN KEY ("runId") REFERENCES "Run" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SpecTest" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "specId" INTEGER NOT NULL,
+    "title" TEXT NOT NULL,
+    "status" TEXT NOT NULL,
+    "duration" INTEGER NOT NULL,
+    CONSTRAINT "SpecTest_specId_fkey" FOREIGN KEY ("specId") REFERENCES "Spec" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "SpecTestAttempt" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "specTestId" INTEGER NOT NULL,
+    "status" TEXT NOT NULL,
+    CONSTRAINT "SpecTestAttempt_specTestId_fkey" FOREIGN KEY ("specTestId") REFERENCES "SpecTest" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Run_publicId_key" ON "Run"("publicId");

@@ -3,4 +3,13 @@
   "name": "test-results-dashboard-api",
   "compatibility_date": "2026-01-28",
   "main": "src/index.ts",
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  },
+  "secrets": {
+    "required": ["INGESTION_SECRET"]
+  }
 }

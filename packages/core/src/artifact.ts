@@ -1,7 +1,11 @@
-export interface Artifact {
-    name?: string;
-    path?: string;
-    type?: string;
-    contentType?: string;
-    size?: number;
-}
+import { z } from "zod";
+
+export const ArtifactSchema = z.object({
+    name: z.string().optional(),
+    path: z.string().optional(),
+    type: z.string().optional(),
+    contentType: z.string().optional(),
+    size: z.number().optional(),
+});
+
+export type Artifact = z.infer<typeof ArtifactSchema>;

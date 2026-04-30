@@ -31,5 +31,8 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/electr0zed/test-results-dashboard.git"
+  },
+  "dependencies": {
+    "zod": "^4.4.1"
   }
 }

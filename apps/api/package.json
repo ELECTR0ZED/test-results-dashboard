@@ -2,12 +2,14 @@
   "name": "@electr0zed/test-results-dashboard-api",
   "type": "module",
   "scripts": {
+    "build": "tsc --noEmit",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy --minify",
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
     "@electr0zed/test-results-dashboard-core": "^0.1.0",
+    "@electr0zed/test-results-dashboard-db": "^1.0.0",
     "hono": "^4.11.9"
   },
   "devDependencies": {

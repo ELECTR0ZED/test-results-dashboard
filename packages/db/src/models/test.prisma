@@ -1,0 +1,49 @@
+model Run {
+  id               Int      @id @default(autoincrement())
+  publicId         String   @unique
+  framework        String
+  frameworkVersion String
+  browser          String
+  browserVersion   String
+  os               String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  specs            Spec[]
+}
+
+model Spec {
+  id        Int      @id @default(autoincrement())
+  runId     Int
+  filename  String
+  tests     Int
+  passed    Int
+  failed    Int
+  pending   Int
+  skipped   Int
+  duration  Int
+  startedAt DateTime
+  endedAt   DateTime
+
+  run       Run        @relation(fields: [runId], references: [id])
+  specTests SpecTest[]
+}
+
+model SpecTest {
+  id       Int    @id @default(autoincrement())
+  specId   Int
+  title    String
+  status   String
+  duration Int
+
+  spec             Spec              @relation(fields: [specId], references: [id])
+  specTestAttempts SpecTestAttempt[]
+}
+
+model SpecTestAttempt {
+  id         Int    @id @default(autoincrement())
+  specTestId Int
+  status     String
+
+  specTest SpecTest @relation(fields: [specTestId], references: [id])
+}

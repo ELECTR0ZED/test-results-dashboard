@@ -10,7 +10,8 @@
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
     "build": "npm run generate",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "publish:d1": "npx wrangler d1 execute dbname --remote --file=./src/migrations/20260430070431_init/migration.sql"
   },
   "dependencies": {
     "@prisma/adapter-d1": "^7.8.0",
