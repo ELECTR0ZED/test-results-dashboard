@@ -24,7 +24,7 @@
     "@electr0zed/test-results-dashboard-core": "^0.1.0"
   },
   "devDependencies": {
-    "cypress": "^15.14.1",
+    "cypress": "^15.17.0",
     "typescript": "^5.9.3"
   },
   "repository": {
