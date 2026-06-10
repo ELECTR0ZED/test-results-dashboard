@@ -1,6 +1,6 @@
 {
   "name": "@electr0zed/test-results-dashboard-db",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "license": "ISC",
   "type": "module",
   "main": "dist/client.js",
@@ -28,11 +28,8 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/electr0zed/test-results-dashboard.git"
+    "url": "git+https://github.com/electr0zed/test-results-dashboard.git"
   }
 }

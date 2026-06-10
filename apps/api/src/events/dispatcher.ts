@@ -1,11 +1,11 @@
 import type { DashboardEvent } from '@electr0zed/test-results-dashboard-core';
-import type { IngestionContext } from './ingestion-context';
 import { handleRunStart } from './handlers/runStart.handler';
 import { handleSpecFinish } from './handlers/specFinish.handler';
 import { handleRunFinish } from './handlers/runFinish.handler';
+import { AppCtx } from '../services/context';
 
 export async function dispatchEvent(
-	ctx: IngestionContext,
+	ctx: AppCtx,
 	event: DashboardEvent,
 ): Promise<void> {
 	switch (event.type) {

@@ -1,6 +1,9 @@
 import type { IngestEventRequest, IngestEventResponse } from '@electr0zed/test-results-dashboard-core';
 import { Hono } from 'hono';
 import { dispatchEvent } from '../events/dispatcher';
+import { IngestEventRequestSchema } from '@electr0zed/test-results-dashboard-core';
+import { createAppContext } from '../services/context';
+
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -15,7 +18,14 @@ app.post('/ingest', async(c) => {
     }
 
     const body = await c.req.json<IngestEventRequest>();
-    await dispatchEvent(c.env, body.event);
+    const parseResult = IngestEventRequestSchema.safeParse(body);
+    if (!parseResult.success) {
+        return c.json({ error: 'Invalid request body' }, 400);
+    }
+
+    const appContext = createAppContext(c.env);
+
+    await dispatchEvent(appContext, body.event);
 
     return c.json<IngestEventResponse>({ ok: true });
 });

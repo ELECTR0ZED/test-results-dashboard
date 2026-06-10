@@ -27,11 +27,8 @@
     "cypress": "^15.14.1",
     "typescript": "^5.9.3"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/electr0zed/test-results-dashboard.git"
+    "url": "git+https://github.com/electr0zed/test-results-dashboard.git"
   }
 }

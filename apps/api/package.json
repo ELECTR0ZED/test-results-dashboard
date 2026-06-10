@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@electr0zed/test-results-dashboard-core": "^0.1.0",
-    "@electr0zed/test-results-dashboard-db": "^1.0.0",
-    "hono": "^4.11.9"
+    "@electr0zed/test-results-dashboard-db": "^0.1.0",
+    "@prisma/adapter-d1": "^7.8.0",
+    "hono": "^4.11.9",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

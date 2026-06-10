@@ -1,15 +1,20 @@
 model Run {
-  id               Int      @id @default(autoincrement())
-  publicId         String   @unique
+  id               Int    @id @default(autoincrement())
+  publicId         String @unique
   framework        String
   frameworkVersion String
   browser          String
   browserVersion   String
   os               String
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
 
-  specs            Spec[]
+  status    String    @default("running")
+  startedAt DateTime
+  endedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  specs Spec[]
 }
 
 model Spec {
@@ -25,8 +30,13 @@ model Spec {
   startedAt DateTime
   endedAt   DateTime
 
+  status  String? @default("running")
+  message String?
+
   run       Run        @relation(fields: [runId], references: [id])
   specTests SpecTest[]
+
+  @@unique([runId, filename])
 }
 
 model SpecTest {
@@ -36,6 +46,9 @@ model SpecTest {
   status   String
   duration Int
 
+  message String?
+  trace   String?
+
   spec             Spec              @relation(fields: [specId], references: [id])
   specTestAttempts SpecTestAttempt[]
 }
@@ -44,6 +57,9 @@ model SpecTestAttempt {
   id         Int    @id @default(autoincrement())
   specTestId Int
   status     String
+
+  message String?
+  trace   String?
 
   specTest SpecTest @relation(fields: [specTestId], references: [id])
 }
