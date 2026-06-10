@@ -10,10 +10,10 @@
   },
   "dependencies": {
     "@electr0zed/test-results-dashboard-core": "^0.1.0",
-    "hono": "^4.12.18"
+    "hono": "^4.12.25"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
-    "wrangler": "^4.64.0"
+    "wrangler": "^4.99.0"
   }
 }
