@@ -7,6 +7,9 @@ CREATE TABLE "Run" (
     "browser" TEXT NOT NULL,
     "browserVersion" TEXT NOT NULL,
     "os" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'running',
+    "startedAt" DATETIME NOT NULL,
+    "endedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" DATETIME NOT NULL
 );
@@ -24,6 +27,8 @@ CREATE TABLE "Spec" (
     "duration" INTEGER NOT NULL,
     "startedAt" DATETIME NOT NULL,
     "endedAt" DATETIME NOT NULL,
+    "status" TEXT DEFAULT 'running',
+    "message" TEXT,
     CONSTRAINT "Spec_runId_fkey" FOREIGN KEY ("runId") REFERENCES "Run" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -34,6 +39,8 @@ CREATE TABLE "SpecTest" (
     "title" TEXT NOT NULL,
     "status" TEXT NOT NULL,
     "duration" INTEGER NOT NULL,
+    "message" TEXT,
+    "trace" TEXT,
     CONSTRAINT "SpecTest_specId_fkey" FOREIGN KEY ("specId") REFERENCES "Spec" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
@@ -42,8 +49,13 @@ CREATE TABLE "SpecTestAttempt" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "specTestId" INTEGER NOT NULL,
     "status" TEXT NOT NULL,
+    "message" TEXT,
+    "trace" TEXT,
     CONSTRAINT "SpecTestAttempt_specTestId_fkey" FOREIGN KEY ("specTestId") REFERENCES "SpecTest" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Run_publicId_key" ON "Run"("publicId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Spec_runId_filename_key" ON "Spec"("runId", "filename");

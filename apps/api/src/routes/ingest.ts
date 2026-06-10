@@ -17,15 +17,19 @@ app.post('/ingest', async(c) => {
         return c.json({ error: 'Forbidden' }, 403);
     }
 
-    const body = await c.req.json<IngestEventRequest>();
-    const parseResult = IngestEventRequestSchema.safeParse(body);
-    if (!parseResult.success) {
-        return c.json({ error: 'Invalid request body' }, 400);
+    try {
+        const body = await c.req.json<IngestEventRequest>();
+        const parseResult = IngestEventRequestSchema.safeParse(body);
+        if (!parseResult.success) {
+            return c.json({ error: 'Invalid request body' }, 400);
+        }
+    } catch (error) {
+        return c.json({ error: 'Invalid JSON' }, 400);
     }
 
     const appContext = createAppContext(c.env);
 
-    await dispatchEvent(appContext, body.event);
+    await dispatchEvent(appContext, parseResult.data.event);
 
     return c.json<IngestEventResponse>({ ok: true });
 });
