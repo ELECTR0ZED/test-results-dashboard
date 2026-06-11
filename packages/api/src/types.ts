@@ -1,18 +1,18 @@
 import type { PrismaClient } from '@electr0zed/test-results-dashboard-db';
 
 export type Config = {
-	basePath?: string;
+    basePath?: string;
     ingestionSecret: string;
     d1: D1Database;
 };
 
 export type AppCtx = {
     cfg: Config;
-	db: PrismaClient
+    db: PrismaClient;
 }
 
 export type HonoEnv = {
-	Variables: {
-		ctx: AppCtx;
-	};
+    Variables: {
+        ctx: AppCtx;
+    };
 };

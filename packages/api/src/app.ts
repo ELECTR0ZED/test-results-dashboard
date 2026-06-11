@@ -4,7 +4,7 @@ import ingestRoute from './routes/ingest';
 import { createAppContext } from './services/context';
 
 export function createApp(config: Config) {
-	const app = new Hono<HonoEnv>().basePath(config.basePath || '/api');
+	const app = new Hono<HonoEnv>().basePath(config.basePath ?? '/api');
 
 	const appCtx = createAppContext(config);
 
