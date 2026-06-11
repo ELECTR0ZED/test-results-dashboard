@@ -1,38 +1,49 @@
-import type { RunInfo, SpecInfo, TestInfo } from './run.js';
+import { z } from 'zod';
+import { RunInfoSchema, SpecInfoSchema, TestInfoSchema } from './run.js';
 
-export type DashboardEvent =
-    | RunStartEvent
-    | SpecFinishEvent
-    | RunFinishEvent;
+export const RunStartEventSchema = z.object({
+    type: z.literal('run:start'),
+    payload: RunInfoSchema,
+});
 
-export interface RunStartEvent {
-    type: 'run:start';
-    payload: RunInfo;
-}
+export type RunStartEvent = z.infer<typeof RunStartEventSchema>;
 
-export interface SpecFinishEvent {
-    type: 'spec:finish';
-    payload: {
-        runId: string;
-        project?: string;
-        spec: SpecInfo;
-        tests: TestInfo[];
-    };
-}
+export const SpecFinishEventSchema = z.object({
+    type: z.literal('spec:finish'),
+    payload: z.object({
+        runId: z.string(),
+        project: z.string().optional(),
+        spec: SpecInfoSchema,
+        tests: TestInfoSchema.array(),
+    }),
+});
 
-export interface RunFinishEvent {
-    type: 'run:finish';
-    payload:
-        | {
-                runId: string;
-                project?: string;
-                run: RunInfo;
-                specs: SpecInfo[];
-            }
-        | {
-                runId: string;
-                project?: string;
-                failures: number;
-                message: string;
-            };
-}
+export type SpecFinishEvent = z.infer<typeof SpecFinishEventSchema>;
+
+export const RunFinishEventSchema = z.object({
+    type: z.literal('run:finish'),
+    payload: z.union([
+        z.object({
+            runId: z.string(),
+            project: z.string().optional(),
+            run: RunInfoSchema,
+            specs: SpecInfoSchema.array(),
+        }),
+        z.object({
+            runId: z.string(),
+            project: z.string().optional(),
+            failures: z.number(),
+            message: z.string(),
+        }),
+    ]),
+});
+
+export type RunFinishEvent = z.infer<typeof RunFinishEventSchema>;
+
+export const DashboardEventSchema = z.union([
+    RunStartEventSchema,
+    SpecFinishEventSchema,
+    RunFinishEventSchema,
+]);
+
+export type DashboardEvent = z.infer<typeof DashboardEventSchema>;

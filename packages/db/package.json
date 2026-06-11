@@ -1,6 +1,6 @@
 {
   "name": "@electr0zed/test-results-dashboard-db",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "license": "ISC",
   "type": "module",
   "main": "dist/client.js",
@@ -10,7 +10,8 @@
     "migrate:deploy": "prisma migrate deploy",
     "studio": "prisma studio",
     "build": "npm run generate",
-    "clean": "rimraf dist"
+    "clean": "rimraf dist",
+    "publish:d1": "npx wrangler d1 execute dbname --remote --file=./src/migrations/20260430070431_init/migration.sql"
   },
   "dependencies": {
     "@prisma/adapter-d1": "^7.8.0",
@@ -27,11 +28,8 @@
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/electr0zed/test-results-dashboard.git"
+    "url": "git+https://github.com/electr0zed/test-results-dashboard.git"
   }
 }

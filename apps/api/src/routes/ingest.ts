@@ -1,14 +1,40 @@
 import type { IngestEventRequest, IngestEventResponse } from '@electr0zed/test-results-dashboard-core';
 import { Hono } from 'hono';
+import { dispatchEvent } from '../events/dispatcher';
+import { IngestEventRequestSchema } from '@electr0zed/test-results-dashboard-core';
+import { createAppContext } from '../services/context';
+
 
 const app = new Hono<{ Bindings: Env }>();
 
 app.post('/ingest', async(c) => {
-    const body = await c.req.json() as IngestEventRequest;
-    console.log('Received event:', body);
+    const authHeader = c.req.header('authorization');
+    if (!authHeader) {
+        return c.json({ error: 'Unauthorized' }, 401);
+    }
 
-    return c.json({ ok: true } as IngestEventResponse);
+    if (authHeader !== `Bearer ${c.env.INGESTION_SECRET}`) {
+        return c.json({ error: 'Forbidden' }, 403);
+    }
 
+    let body: IngestEventRequest;
+
+    try {
+        body = await c.req.json<IngestEventRequest>();
+    } catch (error) {
+        return c.json({ error: 'Invalid JSON' }, 400);
+    }
+
+    const parseResult = IngestEventRequestSchema.safeParse(body);
+    if (!parseResult.success) {
+        return c.json({ error: 'Invalid request body' }, 400);
+    }
+
+    const appContext = createAppContext(c.env);
+
+    await dispatchEvent(appContext, parseResult.data.event);
+
+    return c.json<IngestEventResponse>({ ok: true });
 });
 
 export default app;
