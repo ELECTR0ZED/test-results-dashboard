@@ -2,18 +2,19 @@ import type { IngestEventRequest, IngestEventResponse } from '@electr0zed/test-r
 import { Hono } from 'hono';
 import { dispatchEvent } from '../events/dispatcher';
 import { IngestEventRequestSchema } from '@electr0zed/test-results-dashboard-core';
-import { createAppContext } from '../services/context';
+import type { HonoEnv } from '../types';
 
-
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<HonoEnv>();
 
 app.post('/ingest', async(c) => {
+	const ctx = c.get('ctx');
+
     const authHeader = c.req.header('authorization');
     if (!authHeader) {
         return c.json({ error: 'Unauthorized' }, 401);
     }
 
-    if (authHeader !== `Bearer ${c.env.INGESTION_SECRET}`) {
+    if (authHeader !== `Bearer ${ctx.cfg.ingestionSecret}`) {
         return c.json({ error: 'Forbidden' }, 403);
     }
 
@@ -30,9 +31,7 @@ app.post('/ingest', async(c) => {
         return c.json({ error: 'Invalid request body' }, 400);
     }
 
-    const appContext = createAppContext(c.env);
-
-    await dispatchEvent(appContext, parseResult.data.event);
+    await dispatchEvent(ctx, parseResult.data.event);
 
     return c.json<IngestEventResponse>({ ok: true });
 });

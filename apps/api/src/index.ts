@@ -1,9 +1,10 @@
-import { Hono } from 'hono';
+import { createWorker } from '@electr0zed/test-results-dashboard-api';
+import { env } from 'cloudflare:workers';
 
-import ingestRoute from './routes/ingest';
-
-const app = new Hono<{ Bindings: Env }>().basePath('/api');
-
-app.route('/', ingestRoute);
+const app = createWorker({
+	basePath: '/api',
+	ingestionSecret: env.INGESTION_SECRET,
+	d1: env.DB,
+});
 
 export default app;

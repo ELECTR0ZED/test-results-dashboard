@@ -2,7 +2,7 @@ import type { DashboardEvent } from '@electr0zed/test-results-dashboard-core';
 import { handleRunStart } from './handlers/runStart.handler';
 import { handleSpecFinish } from './handlers/specFinish.handler';
 import { handleRunFinish } from './handlers/runFinish.handler';
-import type { AppCtx } from '../services/context';
+import { AppCtx } from '../types';
 
 export async function dispatchEvent(
 	ctx: AppCtx,
