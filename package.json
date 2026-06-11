@@ -5,7 +5,7 @@
     "apps/*",
     "packages/*"
   ],
-  "packageManager": "npm@8.5.0",
+  "packageManager": "npm@11.9.0",
   "scripts": {
     "build": "turbo build",
     "changeset": "changeset",
