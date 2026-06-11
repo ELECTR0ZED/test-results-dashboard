@@ -5,14 +5,15 @@
     "apps/*",
     "packages/*"
   ],
+  "packageManager": "npm@11.9.0",
   "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "test": "npm run test --workspaces --if-present",
+    "build": "turbo build",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "^2.31.0"
+    "@changesets/cli": "^2.31.0",
+    "turbo": "^2.9.18"
   }
 }
