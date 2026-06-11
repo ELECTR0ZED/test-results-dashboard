@@ -8,7 +8,7 @@
   "baseBranch": "master",
   "updateInternalDependencies": "patch",
   "ignore": [
-    "@electr0zed/test-results-dashboard-web",
-    "@electr0zed/test-results-dashboard-api"
+    "@electr0zed/test-results-dashboard-web-example",
+    "@electr0zed/test-results-dashboard-api-example"
   ]
 }

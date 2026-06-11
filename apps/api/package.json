@@ -1,5 +1,5 @@
 {
-  "name": "@electr0zed/test-results-dashboard-api",
+  "name": "@electr0zed/test-results-dashboard-api-example",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,11 +10,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@electr0zed/test-results-dashboard-core": "^0.1.0",
-    "@electr0zed/test-results-dashboard-db": "^0.1.0",
-    "@prisma/adapter-d1": "^7.8.0",
-    "hono": "^4.11.9",
-    "zod": "^4.4.3"
+    "@electr0zed/test-results-dashboard-api": "^0.1.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

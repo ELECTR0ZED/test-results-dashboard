@@ -1,5 +1,5 @@
 {
-  "name": "@electr0zed/test-results-dashboard-web",
+  "name": "@electr0zed/test-results-dashboard-web-example",
   "version": "0.1.0",
   "private": true,
   "scripts": {

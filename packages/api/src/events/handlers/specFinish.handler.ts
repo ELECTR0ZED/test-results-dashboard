@@ -1,5 +1,5 @@
 import type { SpecFinishEvent } from '@electr0zed/test-results-dashboard-core';
-import type { AppCtx } from '../../services/context';
+import type { AppCtx } from '../../types';
 
 export async function handleSpecFinish(
 	ctx: AppCtx,
