@@ -1,4 +1,4 @@
-import { TestStatus } from '@electr0zed/test-results-dashboard-core';
+import type { TestStatus } from '@electr0zed/test-results-dashboard-core';
 import type { CypressAfterRunResult } from './types.js';
 
 export function createRunId(): string {
