@@ -1,0 +1,14 @@
+packages:
+  - 'apps/*'
+  - 'packages/*'
+allowBuilds:
+  '@prisma/engines': true
+  cypress: true
+  esbuild: true
+  prisma: true
+  sharp: true
+  unrs-resolver: true
+  workerd: true
+minimumReleaseAgeExclude:
+  - '@electr0zed/test-results-dashboard-api-ingest@0.1.0'
+  - '@electr0zed/test-results-dashboard-api-dashboard@0.1.0'

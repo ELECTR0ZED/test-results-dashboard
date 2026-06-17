@@ -21,20 +21,20 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v6
+      - uses: pnpm/action-setup@v6
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
           registry-url: https://registry.npmjs.org/
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm run build
+      - run: pnpm build
 
       - uses: changesets/action@v1
         with:
-          version: npm run version-packages
-          publish: npm run release
+          version: pnpm run version-packages
+          publish: pnpm run release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -49,27 +49,35 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v6
+      - uses: pnpm/action-setup@v6
         with:
           node-version: 24
-          cache: npm
+          cache: pnpm
           registry-url: https://registry.npmjs.org/
 
-      - run: npm ci
+      - run: pnpm install --frozen-lockfile
 
-      - run: npm run build
+      - run: pnpm build
 
       - name: Deploy Web Worker
-        run: npm run deploy
+        run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         working-directory: apps/web
 
-      - name: Deploy API Worker
+      - name: Deploy Ingestion API Worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/api
+          workingDirectory: apps/api-ingest
+          command: deploy --minify
+
+      - name: Deploy Dashboard API Worker
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: apps/api-dashboard
           command: deploy --minify
