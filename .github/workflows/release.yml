@@ -53,7 +53,7 @@ jobs:
 
       - run: pnpm install
 
-      - run: pnpm run build:examples
+      - run: pnpm run build:all
 
       - name: Deploy Web Worker
         run: pnpm run deploy
