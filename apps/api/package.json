@@ -1,5 +1,5 @@
 {
-  "name": "@electr0zed/test-results-dashboard-api-example",
+  "name": "@electr0zed/test-results-dashboard-api-ingest-example",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@electr0zed/test-results-dashboard-api": "^0.1.0"
+    "@electr0zed/test-results-dashboard-api-ingest": "^0.1.0"
   },
   "devDependencies": {
     "typescript": "^5.9.3",

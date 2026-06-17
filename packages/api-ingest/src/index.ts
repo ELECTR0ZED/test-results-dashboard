@@ -1,7 +1,7 @@
 import { createApp } from './app';
 import type { Config } from './types';
 
-export function createWorker(cfg: Config): ExportedHandler {
+export function createIngestionWorker(cfg: Config): ExportedHandler {
 	const app = createApp(cfg);
 
 	return {
