@@ -23,12 +23,11 @@ jobs:
 
       - uses: pnpm/action-setup@v6
         with:
-          node-version: 24
           cache: true
 
       - run: pnpm install
 
-      - run: pnpm build
+      - run: pnpm run build
 
       - uses: changesets/action@v1
         with:
@@ -50,26 +49,25 @@ jobs:
 
       - uses: pnpm/action-setup@v6
         with:
-          node-version: 24
           cache: true
 
       - run: pnpm install
 
-      - run: pnpm build
+      - run: pnpm run build:examples
 
       - name: Deploy Web Worker
         run: pnpm run deploy
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        working-directory: apps/web
+        working-directory: examples/web
 
       - name: Deploy Ingestion API Worker
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/api-ingest
+          workingDirectory: examples/api-ingest
           command: deploy --minify
 
       - name: Deploy Dashboard API Worker
@@ -77,5 +75,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: apps/api-dashboard
+          workingDirectory: examples/api-dashboard
           command: deploy --minify

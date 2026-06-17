@@ -21,7 +21,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@electr0zed/test-results-dashboard-core": "^0.1.0"
+    "@electr0zed/test-results-dashboard-core": "workspace:*"
   },
   "devDependencies": {
     "cypress": "^15.17.0",
