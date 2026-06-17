@@ -1,11 +1,7 @@
 {
   "name": "@electr0zed/test-results-dashboard",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "packageManager": "npm@11.9.0",
+  "packageManager": "pnpm@11.7.0",
   "scripts": {
     "build": "turbo build",
     "changeset": "changeset",
