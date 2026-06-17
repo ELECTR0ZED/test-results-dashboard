@@ -1,8 +1,8 @@
-import { createWorker } from '@electr0zed/test-results-dashboard-api';
+import { createIngestionWorker } from '@electr0zed/test-results-dashboard-api-ingest';
 import { env } from 'cloudflare:workers';
 
-const app = createWorker({
-	basePath: '/api',
+const app = createIngestionWorker({
+	basePath: '/ingest',
 	ingestionSecret: env.INGESTION_SECRET,
 	d1: env.DB,
 });
