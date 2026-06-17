@@ -1,0 +1,19 @@
+{
+  "name": "@electr0zed/test-results-dashboard-api-dashboard-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "@electr0zed/test-results-dashboard-api-dashboard": "^0.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "wrangler": "^4.99.0"
+  }
+}
