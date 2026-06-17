@@ -1,8 +1,9 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
+  "$schema": "../../node_modules/wrangler/config-schema.json",
   "name": "test-results-dashboard-api",
   "compatibility_date": "2026-01-28",
   "main": "src/index.ts",
+  "workers_dev": false,
   "observability": {
     "logs": {
       "enabled": true,
@@ -10,7 +11,7 @@
     }
   },
   "secrets": {
-    "required": ["INGESTION_SECRET"]
+    "required": ["INGESTION_SECRET"],
   },
   "d1_databases": [
     {
