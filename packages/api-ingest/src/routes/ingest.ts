@@ -6,7 +6,7 @@ import type { HonoEnv } from '../types';
 
 const app = new Hono<HonoEnv>();
 
-app.post('/ingest', async(c) => {
+app.post('/events', async(c) => {
 	const ctx = c.get('ctx');
 
     const authHeader = c.req.header('authorization');

@@ -2,7 +2,7 @@ import { createIngestionWorker } from '@electr0zed/test-results-dashboard-api-in
 import { env } from 'cloudflare:workers';
 
 const app = createIngestionWorker({
-	basePath: '/api',
+	basePath: '/ingest',
 	ingestionSecret: env.INGESTION_SECRET,
 	d1: env.DB,
 });
