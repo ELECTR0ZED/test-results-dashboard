@@ -24,8 +24,7 @@ jobs:
       - uses: pnpm/action-setup@v6
         with:
           node-version: 24
-          cache: pnpm
-          registry-url: https://registry.npmjs.org/
+          cache: true
 
       - run: pnpm install --frozen-lockfile
 
@@ -52,8 +51,7 @@ jobs:
       - uses: pnpm/action-setup@v6
         with:
           node-version: 24
-          cache: pnpm
-          registry-url: https://registry.npmjs.org/
+          cache: true
 
       - run: pnpm install --frozen-lockfile
 
