@@ -5,6 +5,7 @@
   "scripts": {
     "build": "turbo build --continue=always --filter='./packages/*'",
     "build:examples": "turbo build --continue=always --filter='./examples/*'",
+    "build:all": "turbo build --continue=always",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
