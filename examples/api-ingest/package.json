@@ -10,7 +10,7 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@electr0zed/test-results-dashboard-api-ingest": "^0.1.0"
+    "@electr0zed/test-results-dashboard-api-ingest": "^0.1.1"
   },
   "devDependencies": {
     "typescript": "^5.9.3",
