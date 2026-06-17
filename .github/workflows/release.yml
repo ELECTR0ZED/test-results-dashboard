@@ -58,7 +58,6 @@ jobs:
       - run: npm ci
 
       - run: npm run build
-        working-directory: apps/web
 
       - name: Deploy Web Worker
         run: npm run deploy
