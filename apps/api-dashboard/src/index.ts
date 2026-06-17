@@ -3,6 +3,7 @@ import { env } from 'cloudflare:workers';
 
 const app = createAPIWorker({
 	basePath: '/ingest',
+	ingestionSecret: 'temp',
 	d1: env.DB,
 });
 
