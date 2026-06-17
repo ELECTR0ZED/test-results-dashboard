@@ -6,6 +6,7 @@
         "nodejs_compat",
         "global_fetch_strictly_public"
     ],
+    "workers_dev": false,
     "main": ".open-next/worker.js",
     "assets": {
         "directory": ".open-next/assets",
