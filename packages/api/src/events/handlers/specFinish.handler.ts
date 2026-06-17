@@ -20,90 +20,88 @@ export async function handleSpecFinish(
 		throw new Error(`Run not found: ${event.payload.runId}`);
 	}
 
-	await db.$transaction(async (tx) => {
-		const filename = getSpecFilename(event.payload.spec);
+	const filename = getSpecFilename(event.payload.spec);
 
-		const spec = await tx.spec.upsert({
-			where: {
-				runId_filename: {
-					runId: run.id,
-					filename,
-				},
-			},
-			create: {
+	const spec = await db.spec.upsert({
+		where: {
+			runId_filename: {
 				runId: run.id,
 				filename,
-				tests: event.payload.spec.tests,
-				passed: event.payload.spec.passes,
-				failed: event.payload.spec.failures,
-				pending: event.payload.spec.pending,
-				skipped: event.payload.spec.skipped,
-				duration: event.payload.spec.duration ?? 0,
-				startedAt: new Date(event.payload.spec.startedAt),
-				endedAt: new Date(event.payload.spec.endedAt),
-				status: getSpecStatus(event),
-				message: getSpecMessage(event),
 			},
-			update: {
-				tests: event.payload.spec.tests,
-				passed: event.payload.spec.passes,
-				failed: event.payload.spec.failures,
-				pending: event.payload.spec.pending,
-				skipped: event.payload.spec.skipped,
-				duration: event.payload.spec.duration ?? 0,
-				startedAt: new Date(event.payload.spec.startedAt),
-				endedAt: new Date(event.payload.spec.endedAt),
-				status: getSpecStatus(event),
-				message: getSpecMessage(event),
+		},
+		create: {
+			runId: run.id,
+			filename,
+			tests: event.payload.spec.tests,
+			passed: event.payload.spec.passes,
+			failed: event.payload.spec.failures,
+			pending: event.payload.spec.pending,
+			skipped: event.payload.spec.skipped,
+			duration: event.payload.spec.duration ?? 0,
+			startedAt: new Date(event.payload.spec.startedAt),
+			endedAt: new Date(event.payload.spec.endedAt),
+			status: getSpecStatus(event),
+			message: getSpecMessage(event),
+		},
+		update: {
+			tests: event.payload.spec.tests,
+			passed: event.payload.spec.passes,
+			failed: event.payload.spec.failures,
+			pending: event.payload.spec.pending,
+			skipped: event.payload.spec.skipped,
+			duration: event.payload.spec.duration ?? 0,
+			startedAt: new Date(event.payload.spec.startedAt),
+			endedAt: new Date(event.payload.spec.endedAt),
+			status: getSpecStatus(event),
+			message: getSpecMessage(event),
+		},
+		select: {
+			id: true,
+		},
+	});
+
+	await db.specTestAttempt.deleteMany({
+		where: {
+			specTest: {
+				specId: spec.id,
+			},
+		},
+	});
+
+	await db.specTest.deleteMany({
+		where: {
+			specId: spec.id,
+		},
+	});
+
+	for (const test of event.payload.tests) {
+		const specTest = await db.specTest.create({
+			data: {
+				specId: spec.id,
+				title: test.title.join(' > '),
+				status: test.status,
+				duration: test.duration ?? 0,
+				message: test.displayError,
 			},
 			select: {
 				id: true,
 			},
 		});
 
-		await tx.specTestAttempt.deleteMany({
-			where: {
-				specTest: {
-					specId: spec.id,
-				},
-			},
-		});
-
-		await tx.specTest.deleteMany({
-			where: {
-				specId: spec.id,
-			},
-		});
-
-		for (const test of event.payload.tests) {
-			const specTest = await tx.specTest.create({
-				data: {
-					specId: spec.id,
-					title: test.title.join(' > '),
-					status: test.status,
-					duration: test.duration ?? 0,
-					message: test.displayError,
-				},
-				select: {
-					id: true,
-				},
-			});
-
-			if (!test.attempts?.length) {
-				continue;
-			}
-
-			await tx.specTestAttempt.createMany({
-				data: test.attempts.map((attempt) => ({
-					specTestId: specTest.id,
-					status: attempt.state ?? test.status,
-					message: attempt.state === 'failed'
-						? test.displayError
-						: undefined,
-				})),
-			});
+		if (!test.attempts?.length) {
+			continue;
 		}
-	});
+
+		await db.specTestAttempt.createMany({
+			data: test.attempts.map((attempt) => ({
+				specTestId: specTest.id,
+				status: attempt.state ?? test.status,
+				message: attempt.state === 'failed'
+					? test.displayError
+					: undefined,
+			})),
+		});
+	}
 }
 
 function getSpecFilename(spec: SpecFinishEvent['payload']['spec']): string {
