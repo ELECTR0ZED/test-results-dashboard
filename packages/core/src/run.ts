@@ -5,7 +5,7 @@ import { RunnerNameSchema, TestStatusSchema } from './runner.js';
 export const RunMetadataSchema = z.object({
     id: z.string(),
     runner: RunnerNameSchema,
-    project: z.string().optional(),
+    projectId: z.string(),
     branch: z.string().optional(),
     commitSha: z.string().optional(),
     commitMessage: z.string().optional(),
