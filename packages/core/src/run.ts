@@ -50,7 +50,7 @@ export const SpecInfoSchema = z.object({
 export type SpecInfo = z.infer<typeof SpecInfoSchema>;
 
 export const TestAttemptSchema = z.object({
-    state: z.string().optional(),
+    state: z.union([TestStatusSchema, z.string()]),
 });
 
 export type TestAttempt = z.infer<typeof TestAttemptSchema>;
