@@ -15,7 +15,7 @@ export async function handleRunStart(
 
 	if (!project) {
 		throw new Error(
-			`Project with projectId "${event.payload.projectId}" not found.`,
+			`Project with publicId "${event.payload.projectId}" not found.`,
 		);
 	}
 
