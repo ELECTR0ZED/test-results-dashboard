@@ -1,5 +1,12 @@
 # @electr0zed/test-results-dashboard-api-dashboard
 
+## 0.2.2
+
+### Patch Changes
+
+- Updated dependencies [38af6aa]
+  - @electr0zed/test-results-dashboard-core@0.1.1
+
 ## 0.2.1
 
 ### Patch Changes

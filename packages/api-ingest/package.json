@@ -1,6 +1,6 @@
 {
   "name": "@electr0zed/test-results-dashboard-api-ingest",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "ISC",
   "type": "module",
   "main": "dist/index.js",
