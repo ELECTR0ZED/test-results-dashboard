@@ -3,6 +3,7 @@ import { Hono } from 'hono';
 import { dispatchEvent } from '../events/dispatcher';
 import { IngestEventRequestSchema } from '@electr0zed/test-results-dashboard-core';
 import type { HonoEnv } from '../types';
+import { z } from 'zod';
 
 const app = new Hono<HonoEnv>();
 
@@ -28,7 +29,7 @@ app.post('/events', async(c) => {
 
     const parseResult = IngestEventRequestSchema.safeParse(body);
     if (!parseResult.success) {
-        return c.json({ error: 'Invalid request body' }, 400);
+        return c.json({ error: 'Invalid request body', details: z.flattenError(parseResult.error) }, 400);
     }
 
     await dispatchEvent(ctx, parseResult.data.event);
