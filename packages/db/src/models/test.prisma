@@ -68,7 +68,7 @@ model SpecTestAttempt {
 
 model Project {
   id        Int      @id @default(autoincrement())
-  projectId String   @unique
+  publicId String   @unique
   name      String   @unique
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
