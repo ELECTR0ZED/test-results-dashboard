@@ -31,7 +31,7 @@ export function ApplicationLayout({
         <Sidebar>
           <SidebarHeader>
             <SidebarItem href="/">
-              <SidebarLabel>Starter App</SidebarLabel>
+              <SidebarLabel>Test Results</SidebarLabel>
             </SidebarItem>
           </SidebarHeader>
           <SidebarBody>
