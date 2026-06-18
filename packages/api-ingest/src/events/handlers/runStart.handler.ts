@@ -7,11 +7,24 @@ export async function handleRunStart(
 ): Promise<void> {
 	const { db } = ctx;
 
+	const project = await db.project.findUnique({
+		where: {
+			publicId: event.payload.projectId,
+		},
+	});
+
+	if (!project) {
+		throw new Error(
+			`Project with publicId "${event.payload.projectId}" not found.`,
+		);
+	}
+
 	await db.run.upsert({
 		where: {
 			publicId: event.payload.id,
 		},
 		create: {
+			projectId: project.id,
 			publicId: event.payload.id,
 			framework: event.payload.runner,
 			frameworkVersion: event.payload.runnerVersion ?? 'unknown',
@@ -22,6 +35,7 @@ export async function handleRunStart(
 			startedAt: parseOptionalDate(event.payload.startedAt) ?? new Date(),
 		},
 		update: {
+			projectId: project.id,
 			framework: event.payload.runner,
 			frameworkVersion: event.payload.runnerVersion ?? 'unknown',
 			browser: event.payload.browserName ?? 'unknown',

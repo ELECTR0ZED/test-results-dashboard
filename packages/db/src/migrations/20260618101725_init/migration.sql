@@ -2,6 +2,7 @@
 CREATE TABLE "Run" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "publicId" TEXT NOT NULL,
+    "projectId" INTEGER NOT NULL,
     "framework" TEXT NOT NULL,
     "frameworkVersion" TEXT NOT NULL,
     "browser" TEXT NOT NULL,
@@ -11,7 +12,8 @@ CREATE TABLE "Run" (
     "startedAt" DATETIME NOT NULL,
     "endedAt" DATETIME,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updatedAt" DATETIME NOT NULL
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "Run_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
 -- CreateTable
@@ -54,8 +56,24 @@ CREATE TABLE "SpecTestAttempt" (
     CONSTRAINT "SpecTestAttempt_specTestId_fkey" FOREIGN KEY ("specTestId") REFERENCES "SpecTest" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "Project" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "publicId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Run_publicId_key" ON "Run"("publicId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Spec_runId_filename_key" ON "Spec"("runId", "filename");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_publicId_key" ON "Project"("publicId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Project_name_key" ON "Project"("name");

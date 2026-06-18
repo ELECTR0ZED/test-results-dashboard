@@ -2,7 +2,7 @@
 export interface CypressReporterOptions {
     endpoint: string;
     token?: string;
-    project?: string;
+    projectId: string;
     runId?: string;
     branch?: string;
     commitSha?: string;

@@ -62,7 +62,7 @@ export function mapBeforeRun(
     const run: RunInfo = {
         id: runId,
         runner: 'cypress',
-        project: options.project,
+        projectId: options.projectId,
         branch: options.branch,
         commitSha: options.commitSha,
         commitMessage: options.commitMessage,
@@ -96,7 +96,7 @@ export function mapAfterSpec(
         type: 'spec:finish',
         payload: {
             runId,
-            project: options.project,
+            projectId: options.projectId,
             spec,
             tests,
         },
@@ -113,7 +113,7 @@ export function mapAfterRun(
             type: 'run:finish',
             payload: {
                 runId,
-                project: options.project,
+                projectId: options.projectId,
                 failures: result.failures,
                 message: result.message,
             },
@@ -123,7 +123,7 @@ export function mapAfterRun(
     const run: RunInfo = {
         id: runId,
         runner: 'cypress',
-        project: options.project,
+        projectId: options.projectId,
         branch: options.branch,
         commitSha: options.commitSha,
         commitMessage: options.commitMessage,
@@ -160,7 +160,7 @@ export function mapAfterRun(
         type: 'run:finish',
         payload: {
             runId,
-            project: options.project,
+            projectId: options.projectId,
             run,
             specs,
         },

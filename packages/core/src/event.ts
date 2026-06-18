@@ -12,7 +12,7 @@ export const SpecFinishEventSchema = z.object({
     type: z.literal('spec:finish'),
     payload: z.object({
         runId: z.string(),
-        project: z.string().optional(),
+        projectId: z.string(),
         spec: SpecInfoSchema,
         tests: TestInfoSchema.array(),
     }),
@@ -25,13 +25,13 @@ export const RunFinishEventSchema = z.object({
     payload: z.union([
         z.object({
             runId: z.string(),
-            project: z.string().optional(),
+            projectId: z.string(),
             run: RunInfoSchema,
             specs: SpecInfoSchema.array(),
         }),
         z.object({
             runId: z.string(),
-            project: z.string().optional(),
+            projectId: z.string(),
             failures: z.number(),
             message: z.string(),
         }),
