@@ -9,11 +9,9 @@ import {
   SidebarLabel,
   SidebarSection,
   SidebarSpacer,
-  SidebarDivider,
 } from '@/components/catalyst/sidebar';
 import { SidebarLayout } from '@/components/catalyst/sidebar-layout';
 import {
-  HomeIcon,
   ArrowLeftIcon,
   ChartBarIcon,
   ClockIcon,
