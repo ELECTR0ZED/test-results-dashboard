@@ -2,11 +2,11 @@ import { z } from 'zod';
 
 export const ProjectSchema = z.object({
     id: z.number(),
-    publicId: z.uuid().default(() => crypto.randomUUID()),
+    publicId: z.uuid(),
     name: z.string(),
-    active: z.boolean().default(true),
-    createdAt: z.date().default(() => new Date()),
-    updatedAt: z.date().default(() => new Date()),
+    active: z.boolean(),
+    createdAt: z.date(),
+    updatedAt: z.date(),
 });
 
 export type Project = z.infer<typeof ProjectSchema>;

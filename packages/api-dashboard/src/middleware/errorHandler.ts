@@ -1,17 +1,17 @@
-// src/middleware/error-handler.ts
 import type { ErrorHandler } from 'hono';
 import { ZodError } from 'zod';
 import { ApiError, InternalServerError, ValidationError } from '../services/errors';
-import { ApiFailure, ErrorCode } from '@electr0zed/test-results-dashboard-api-types';
+import type { ApiFailure } from '@electr0zed/test-results-dashboard-api-types';
 import { z } from 'zod';
 
 export const errorHandler: ErrorHandler = (err, c) => {
 	if (err instanceof ZodError) {
+		const validationError = new ValidationError();
 		return c.json<ApiFailure>({
 			success: false,
 			error: {
-				code: new ValidationError().code,
-				message: new ValidationError().message,
+				code: validationError.code,
+				message: validationError.message,
 				details: z.flattenError(err),
 			},
 		}, 400);
@@ -30,11 +30,12 @@ export const errorHandler: ErrorHandler = (err, c) => {
 
 	console.error(err);
 
+	const internalServerError = new InternalServerError();
 	return c.json<ApiFailure>({
 		success: false,
 		error: {
-			code: new InternalServerError().code,
-			message: new InternalServerError().message,
+			code: internalServerError.code,
+			message: internalServerError.message,
 		},
-	}, new InternalServerError().status);
+	}, internalServerError.status);
 };

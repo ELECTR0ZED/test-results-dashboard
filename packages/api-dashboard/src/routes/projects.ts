@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
 import type { Project, ApiSuccess, CreateProject, EditProject } from '@electr0zed/test-results-dashboard-api-types';
 import { CreateProjectSchema, GetProjectSchema, EditProjectSchema } from '@electr0zed/test-results-dashboard-api-types';
-import { NotFoundError } from '../services/errors';
+import { NotFoundError, ValidationError } from '../services/errors';
 
 const app = new Hono<HonoEnv>();
 
@@ -39,8 +39,15 @@ app.get('/:publicId', async(c) => {
 
 app.post('/', async(c) => {
     const ctx = c.get('ctx');
+    
+    let body: CreateProject;
 
-    const body = await c.req.json<CreateProject>();
+    try {
+         body = await c.req.json<CreateProject>();
+    } catch (error) {
+        throw new ValidationError('Invalid JSON body.', error);
+    }
+    
     const parsedBody = CreateProjectSchema.safeParse(body);
 
     if (!parsedBody.success) {
@@ -66,7 +73,14 @@ app.patch('/:publicId', async(c) => {
         throw parsedParams.error;
     }
 
-    const body = await c.req.json<Partial<EditProject>>();
+    let body: Partial<EditProject>;
+
+    try {
+        body = await c.req.json<Partial<EditProject>>();
+    } catch (error) {
+        throw new ValidationError('Invalid JSON body.', error);
+    }
+
     const parsedBody = EditProjectSchema.partial().safeParse(body);
 
     if (!parsedBody.success) {
