@@ -3,9 +3,9 @@
   "private": true,
   "packageManager": "pnpm@11.7.0",
   "scripts": {
-    "build": "turbo build --continue=always --filter='./packages/*'",
+    "build:packages": "turbo build --continue=always --filter='./packages/*'",
     "build:examples": "turbo build --continue=always --filter='./examples/*'",
-    "build:all": "turbo build --continue=always",
+    "build": "turbo build --continue=always",
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "changeset publish"
