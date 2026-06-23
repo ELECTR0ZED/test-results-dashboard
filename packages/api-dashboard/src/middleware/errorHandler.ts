@@ -1,8 +1,7 @@
 import type { ErrorHandler } from 'hono';
-import { ZodError } from 'zod';
 import { ApiError, InternalServerError, ValidationError } from '../services/errors';
 import type { ApiFailure } from '@electr0zed/test-results-dashboard-api-types';
-import { z } from 'zod';
+import { z, ZodError } from 'zod';
 
 export const errorHandler: ErrorHandler = (err, c) => {
 	if (err instanceof ZodError) {
