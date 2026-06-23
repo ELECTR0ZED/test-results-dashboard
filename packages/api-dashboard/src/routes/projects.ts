@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
 import type { Project, ApiSuccess, CreateProject, EditProject } from '@electr0zed/test-results-dashboard-api-types';
 import { CreateProjectSchema, GetProjectSchema, EditProjectSchema } from '@electr0zed/test-results-dashboard-api-types';
-import { NotFoundError, ValidationError } from '../services/errors';
+import { AlreadyExistsError, NotFoundError, ValidationError } from '../services/errors';
 
 const app = new Hono<HonoEnv>();
 
@@ -61,7 +61,7 @@ app.post('/', async(c) => {
     });
 
     if (existingProject) {
-        throw new ValidationError(`A project with the name "${parsedBody.data.name}" already exists.`);
+        throw new AlreadyExistsError(`A project with the name "${parsedBody.data.name}" already exists.`);
     }
 
     const project = await ctx.db.project.create({
@@ -91,7 +91,7 @@ app.patch('/:publicId', async(c) => {
         throw new ValidationError('Invalid JSON body.', error);
     }
 
-    const parsedBody = EditProjectSchema.partial().safeParse(body);
+    const parsedBody = EditProjectSchema.safeParse(body);
 
     if (!parsedBody.success) {
         throw parsedBody.error;
@@ -115,7 +115,7 @@ app.patch('/:publicId', async(c) => {
         });
 
         if (existingProject) {
-            throw new ValidationError(`A project with the name "${parsedBody.data.name}" already exists.`);
+            throw new AlreadyExistsError(`A project with the name "${parsedBody.data.name}" already exists.`);
         }
     }
 
