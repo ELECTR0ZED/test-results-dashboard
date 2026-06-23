@@ -13,7 +13,6 @@
     "clean": "rimraf dist"
   },
   "dependencies": {
-    "@electr0zed/test-results-dashboard-core": "workspace:*",
     "@electr0zed/test-results-dashboard-db": "workspace:*",
     "@electr0zed/test-results-dashboard-api-types": "workspace:*",
     "@prisma/adapter-d1": "^7.8.0",

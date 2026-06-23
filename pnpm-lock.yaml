@@ -43,6 +43,9 @@ importers:
 
   examples/web:
     dependencies:
+      '@electr0zed/test-results-dashboard-api-types':
+        specifier: workspace:*
+        version: link:../../packages/api-types
       '@headlessui/react':
         specifier: ^2.2.6
         version: 2.2.10(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -113,9 +116,6 @@ importers:
       '@electr0zed/test-results-dashboard-api-types':
         specifier: workspace:*
         version: link:../api-types
-      '@electr0zed/test-results-dashboard-core':
-        specifier: workspace:*
-        version: link:../core
       '@electr0zed/test-results-dashboard-db':
         specifier: workspace:*
         version: link:../db

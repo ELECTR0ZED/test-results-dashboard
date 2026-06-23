@@ -1,6 +1,5 @@
 import '@/styles/tailwind.css';
 import type { Metadata } from 'next';
-import { ApplicationLayout } from './application-layout';
 
 export const metadata: Metadata = {
   title: {
@@ -22,9 +21,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
       </head>
       <body>
-        <ApplicationLayout>
-          {children}
-        </ApplicationLayout>
+        {children}
       </body>
     </html>
   )

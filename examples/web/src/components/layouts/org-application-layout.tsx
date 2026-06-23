@@ -11,11 +11,11 @@ import {
 } from '@/components/catalyst/sidebar';
 import { SidebarLayout } from '@/components/catalyst/sidebar-layout';
 import {
-  HomeIcon,
+  FolderIcon,
 } from '@heroicons/react/20/solid';
 import { usePathname } from 'next/navigation';
 
-export function ApplicationLayout({
+export function OrgApplicationLayout({
   children,
 }: {
   children: React.ReactNode
@@ -37,8 +37,8 @@ export function ApplicationLayout({
           <SidebarBody>
             <SidebarSection>
               <SidebarItem href="/" current={pathname === '/'}>
-                <HomeIcon />
-                <SidebarLabel>Home</SidebarLabel>
+                <FolderIcon />
+                <SidebarLabel>Projects</SidebarLabel>
               </SidebarItem>
             </SidebarSection>
           </SidebarBody>

@@ -18,7 +18,8 @@
     "motion": "^12.23.11",
     "next": "^15.5.18",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "@electr0zed/test-results-dashboard-api-types": "workspace:*"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.15",
