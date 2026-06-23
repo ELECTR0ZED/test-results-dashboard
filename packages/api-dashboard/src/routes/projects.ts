@@ -54,6 +54,16 @@ app.post('/', async(c) => {
         throw parsedBody.error;
     }
 
+    const existingProject = await ctx.db.project.findUnique({
+        where: {
+            name: parsedBody.data.name,
+        },
+    });
+
+    if (existingProject) {
+        throw new ValidationError(`A project with the name "${parsedBody.data.name}" already exists.`);
+    }
+
     const project = await ctx.db.project.create({
         data: {
             name: parsedBody.data.name,
@@ -95,6 +105,18 @@ app.patch('/:publicId', async(c) => {
 
     if (!project) {
         throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+    }
+
+    if (parsedBody.data.name && parsedBody.data.name !== project.name) {
+        const existingProject = await ctx.db.project.findUnique({
+            where: {
+                name: parsedBody.data.name,
+            },
+        });
+
+        if (existingProject) {
+            throw new ValidationError(`A project with the name "${parsedBody.data.name}" already exists.`);
+        }
     }
 
     const updatedProject = await ctx.db.project.update({

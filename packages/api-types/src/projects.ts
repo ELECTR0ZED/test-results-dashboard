@@ -5,14 +5,14 @@ export const ProjectSchema = z.object({
     publicId: z.uuid(),
     name: z.string(),
     active: z.boolean(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
+    createdAt: z.coerce.date(),
+    updatedAt: z.coerce.date(),
 });
 
 export type Project = z.infer<typeof ProjectSchema>;
 
 export const GetProjectSchema = z.object({
-    publicId: z.string(),
+    publicId: z.uuid(),
 });
 
 export type GetProject = z.infer<typeof GetProjectSchema>;
