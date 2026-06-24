@@ -15,6 +15,7 @@ import {
   ArrowLeftIcon,
   ChartBarIcon,
   ClockIcon,
+  Cog8ToothIcon,
 } from '@heroicons/react/20/solid';
 import { usePathname } from 'next/navigation';
 
@@ -62,12 +63,20 @@ export function ProjectApplicationLayout({
                 <ClockIcon />
                 <SidebarLabel>Runs</SidebarLabel>
               </SidebarItem>
+
+              <SidebarItem
+                href={`${baseHref}/settings`}
+                current={pathname.startsWith(`${baseHref}/settings`)}
+              >
+                <Cog8ToothIcon />
+                <SidebarLabel>Settings</SidebarLabel>
+              </SidebarItem>
             </SidebarSection>
 
             <SidebarSpacer />
 
             <SidebarSection>
-              <SidebarItem href="/" current={pathname === '/'}>
+              <SidebarItem href="/projects">
                 <ArrowLeftIcon />
                 <SidebarLabel>Back to Projects</SidebarLabel>
               </SidebarItem>

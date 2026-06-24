@@ -36,7 +36,7 @@ export function OrgApplicationLayout({
           </SidebarHeader>
           <SidebarBody>
             <SidebarSection>
-              <SidebarItem href="/" current={pathname === '/'}>
+              <SidebarItem href="/projects" current={pathname === '/projects'}>
                 <FolderIcon />
                 <SidebarLabel>Projects</SidebarLabel>
               </SidebarItem>

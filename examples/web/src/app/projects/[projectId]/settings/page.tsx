@@ -1,17 +1,17 @@
 import React from 'react';
+import { Metadata } from 'next';
 import { Divider } from '@/components/catalyst/divider';
 import { Heading } from '@/components/catalyst/heading';
-import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Project Overview',
+  title: 'Project Settings',
 }
 
-export default async function ProjectOverview() {
+export default async function ProjectSettings() {
 
   return (
     <>
-      <Heading>Project Overview</Heading>
+      <Heading>Project Settings</Heading>
       <Divider className="my-10 mt-6" />
     </>
   )
