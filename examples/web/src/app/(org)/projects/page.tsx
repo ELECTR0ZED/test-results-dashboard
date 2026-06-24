@@ -5,7 +5,7 @@ import { ApiSuccess, Project } from '@electr0zed/test-results-dashboard-api-type
 import Link from 'next/link';
 
 async function getProjects(): Promise<Project[]> {
-	const response = await fetch('http://localhost:8787/api/projects', {
+	const response = await fetch('/api/projects', {
 		cache: 'no-store',
 	});
 

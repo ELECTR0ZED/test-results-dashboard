@@ -1,0 +1,20 @@
+{
+	"name": "@electr0zed/test-results-dashboard-gateway-example",
+	"version": "0.0.0",
+	"private": true,
+	"scripts": {
+		"deploy": "wrangler deploy",
+		"dev": "wrangler dev",
+		"start": "wrangler dev",
+		"cf-typegen": "wrangler types",
+		"check-types": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@types/node": "^24.10.0",
+		"typescript": "^5.5.2",
+		"wrangler": "^4.95.0"
+	},
+	"dependencies": {
+		"@electr0zed/auth-gateway-cf": "^0.1.0"
+	}
+}
