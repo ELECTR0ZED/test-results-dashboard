@@ -140,7 +140,7 @@ export default function ProjectSettings() {
                     <Button type="button" onClick={closeDialog} className='cursor-pointer' plain disabled={deleting}>
                         Cancel
                     </Button>
-                    <Button type="button" onClick={handleDeleteProject} className='cursor-pointer' disabled={deleting}>
+                    <Button type="button" onClick={handleDeleteProject} className='cursor-pointer' color="red" disabled={deleting}>
                         Delete Project
                     </Button>
                 </DialogActions>
