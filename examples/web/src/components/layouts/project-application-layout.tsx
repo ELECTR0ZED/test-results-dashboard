@@ -11,6 +11,7 @@ import {
   SidebarSpacer,
 } from '@/components/catalyst/sidebar';
 import { SidebarLayout } from '@/components/catalyst/sidebar-layout';
+import { useProject } from '@/contexts/projectContext';
 import {
   ArrowLeftIcon,
   ChartBarIcon,
@@ -27,6 +28,7 @@ export function ProjectApplicationLayout({
   projectId: string;
 }) {
   let pathname = usePathname()
+  const { project } = useProject();
   const baseHref = `/projects/${projectId}`;
 
   return (
@@ -45,7 +47,7 @@ export function ProjectApplicationLayout({
           <SidebarBody>
             <SidebarSection>
               <SidebarItem>
-                <SidebarLabel>Project Name</SidebarLabel>
+                <SidebarLabel>{project.name}</SidebarLabel>
               </SidebarItem>
 
               <SidebarItem

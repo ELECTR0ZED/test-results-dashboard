@@ -1,4 +1,9 @@
+import 'server-only';
+
 import { ProjectApplicationLayout } from '@/components/layouts/project-application-layout';
+import { ProjectProvider } from '@/contexts/projectContext';
+import { getProject } from '@/lib/api/projects.server';
+import { notFound } from 'next/navigation';
 
 export default async function ProjectLayout({
     children,
@@ -11,9 +16,19 @@ export default async function ProjectLayout({
 }) {
     const { projectId } = await params;
 
+    let project;
+
+	try {
+		project = await getProject(projectId);
+	} catch {
+		notFound();
+	}
+
     return (
-        <ProjectApplicationLayout projectId={projectId}>
-            {children}
-        </ProjectApplicationLayout>
+        <ProjectProvider projectId={projectId} initialProject={project}>
+            <ProjectApplicationLayout projectId={projectId}>
+                {children}
+            </ProjectApplicationLayout>
+        </ProjectProvider>
     );
 }

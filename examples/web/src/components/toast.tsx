@@ -28,7 +28,7 @@ export default function ToastContainer({ toasts, removeToast }: ToastContainerPr
   if (!mounted) return null;
 
   return createPortal(
-    <div className="pointer-events-none fixed bottom-5 right-0 sm:right-5 flex flex-col items-center sm:items-end space-y-4 sm:space-y-2 w-full px-4 sm:px-0 z-[9999]">
+    <div role="status" aria-live="polite" className="pointer-events-none fixed bottom-5 right-0 sm:right-5 flex flex-col items-center sm:items-end space-y-4 sm:space-y-2 w-full px-4 sm:px-0 z-9999">
       {toasts.map((toast) => (
         <Toast key={toast.id} {...toast} onClose={() => removeToast(toast.id)} />
       ))}
