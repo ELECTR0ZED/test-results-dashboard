@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-api-dashboard
 
+## 0.3.1
+
+### Patch Changes
+
+- 5787777: Remove unused dependency
+
 ## 0.3.0
 
 ### Minor Changes
