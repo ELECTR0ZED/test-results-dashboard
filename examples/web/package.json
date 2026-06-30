@@ -8,9 +8,10 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
-    "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
+    "cf-typegen": "wrangler types --env-interface CloudflareEnv"
   },
   "dependencies": {
+    "@electr0zed/test-results-dashboard-api-types": "workspace:*",
     "@headlessui/react": "^2.2.6",
     "@heroicons/react": "^2.2.0",
     "@opennextjs/cloudflare": "^1.16.4",
@@ -18,7 +19,8 @@
     "motion": "^12.23.11",
     "next": "^15.5.18",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.15",

@@ -24,7 +24,7 @@ export const Select = forwardRef(function Select(
       ])}
     >
       <Headless.Select
-        ref={ref}
+        ref={ref as React.Ref<HTMLElement>}
         multiple={multiple}
         {...props}
         className={clsx([
