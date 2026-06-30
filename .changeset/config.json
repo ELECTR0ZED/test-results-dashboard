@@ -10,6 +10,7 @@
   "ignore": [
     "@electr0zed/test-results-dashboard-web-example",
     "@electr0zed/test-results-dashboard-api-ingest-example",
-    "@electr0zed/test-results-dashboard-api-dashboard-example"
+    "@electr0zed/test-results-dashboard-api-dashboard-example",
+    "@electr0zed/test-results-dashboard-gateway-example"
   ]
 }

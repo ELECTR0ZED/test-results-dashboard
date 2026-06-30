@@ -16,7 +16,11 @@
         {
             "binding": "SELF",
             "service": "test-results-dashboard-web",
-        }
+        },
+        {
+            "binding": "API",
+            "service": "test-results-dashboard-api-dashboard",
+        },
     ],
     // "r2_buckets": [
     //     {
