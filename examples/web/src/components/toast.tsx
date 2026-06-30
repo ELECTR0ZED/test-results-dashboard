@@ -45,7 +45,7 @@ function Toast({ id, message, description, type = 'success', onClose }: ToastPro
         setShow(false);
         setTimeout(onClose, 300);
     }, 5000);
-  })
+  }, [onClose]);
 
   const iconMap = {
     success: <CheckCircleIcon className="size-6 text-green-400" />,
