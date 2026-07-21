@@ -29,10 +29,10 @@ app.post('/events', async(c) => {
         return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body', details: z.flattenError(parseResult.error) }, 400);
     }
 
-    const projectId = parseResult.data.event.payload.projectId;
+    const projectPublicId = parseResult.data.event.payload.projectId;
     const apiKey = authHeader.slice('Bearer '.length).trim();
 
-    const isValid = await verifyProjectIngestionSecret(ctx, projectId, apiKey);
+    const isValid = await verifyProjectIngestionSecret(ctx, projectPublicId, apiKey);
     if (!isValid) {
         return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
     }

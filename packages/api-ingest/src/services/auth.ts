@@ -1,4 +1,4 @@
-import type { AppCtx } from "../types";
+import type { AppCtx } from '../types';
 
 export async function verifyProjectIngestionSecret(
     ctx: AppCtx,
@@ -29,15 +29,15 @@ export async function verifyProjectIngestionSecret(
     }
 
     // Update lastUsedAt periodically to avoid a write on every ingest request.
-     if (
-         !matchingKey.lastUsedAt ||
-         matchingKey.lastUsedAt.getTime() < now.getTime() - 5 * 60 * 1000
-     ) {
-         await db.ingestKey.update({
-             where: { id: matchingKey.id },
-             data: { lastUsedAt: now },
-         });
-     }
+    if (
+        !matchingKey.lastUsedAt ||
+        matchingKey.lastUsedAt.getTime() < now.getTime() - 5 * 60 * 1000
+    ) {
+        await db.ingestKey.update({
+            where: { id: matchingKey.id },
+            data: { lastUsedAt: now },
+        });
+    }
 
     return true;
 }

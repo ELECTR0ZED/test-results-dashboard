@@ -16,8 +16,9 @@ export async function hashApiKey(apiKey: string): Promise<string> {
 
 export async function verifyApiKey(apiKey: string, expectedHash: string): Promise<boolean> {
     const hash = await hashApiKey(apiKey);
-
-    return hash === expectedHash;
+	if (hash.length !== expectedHash.length) return false;
+ 	let diff = 0; for (let i = 0; i < hash.length; i++) diff |= hash.charCodeAt(i) ^ expectedHash.charCodeAt(i);
+ 	return diff === 0;
 }
 
 function base64UrlEncode(bytes: Uint8Array): string {
