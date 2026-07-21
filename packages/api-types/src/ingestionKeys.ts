@@ -6,7 +6,7 @@ export const IngestKeySchema = z.object({
     projectId: z.number(),
     name: z.string(),
     prefix: z.string(),
-    keyhash: z.string(),
+    keyHash: z.string(),
     lastUsedAt: z.coerce.date().nullable(),
     expiresAt: z.coerce.date().nullable(),
     revokedAt: z.coerce.date().nullable(),

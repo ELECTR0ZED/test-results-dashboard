@@ -30,7 +30,7 @@ app.post('/events', async(c) => {
     }
 
     const projectId = parseResult.data.event.payload.projectId;
-    const apiKey = authHeader.slice('Bearer '.length);
+    const apiKey = authHeader.slice('Bearer '.length).trim();
 
     const isValid = await verifyProjectIngestionSecret(ctx, projectId, apiKey);
     if (!isValid) {

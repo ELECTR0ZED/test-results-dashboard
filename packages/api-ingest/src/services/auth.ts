@@ -28,11 +28,16 @@ export async function verifyProjectIngestionSecret(
         return false;
     }
 
-    // Update lastUsedAt timestamp
-    await db.ingestKey.update({
-        where: { id: matchingKey.id },
-        data: { lastUsedAt: now },
-    });
+    // Update lastUsedAt periodically to avoid a write on every ingest request.
+     if (
+         !matchingKey.lastUsedAt ||
+         matchingKey.lastUsedAt.getTime() < now.getTime() - 5 * 60 * 1000
+     ) {
+         await db.ingestKey.update({
+             where: { id: matchingKey.id },
+             data: { lastUsedAt: now },
+         });
+     }
 
     return true;
 }

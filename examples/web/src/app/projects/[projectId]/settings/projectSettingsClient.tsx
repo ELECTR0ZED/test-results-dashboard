@@ -107,8 +107,8 @@ export default function ProjectSettings() {
                 </section>
                 <section>
                     <div>
-                        <Heading level={2}>Ingestion Key</Heading>
-                        <Subheading>Your ingestion key is used to send test results to this project.</Subheading>
+                        <Heading level={2}>Ingestion Keys</Heading>
+                        <Subheading>Ingestion keys are used to send test results to this project.</Subheading>
                         <Divider className="mb-4" />
                     </div>
                     <div className="space-y-2 mx-auto">
