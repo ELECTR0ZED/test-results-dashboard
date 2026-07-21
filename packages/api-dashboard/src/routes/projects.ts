@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
 import type { Project, ApiSuccess, CreateProject, EditProject, PublicIngestKey, IngestKey, IngestionKeyCreatedResponse } from '@electr0zed/test-results-dashboard-api-types';
-import { CreateProjectSchema, GetProjectSchema, EditProjectSchema, GetProjectIngestionKeysSchema, ModifyIngestionKeySchema, CreateIngestionKeySchema } from '@electr0zed/test-results-dashboard-api-types';
+import { CreateProjectSchema, GetProjectSchema, EditProjectSchema, GetProjectIngestionKeysSchema, ModifyIngestionKeySchema, CreateIngestionKeySchema, IngestionKeyCreatedResponseSchema } from '@electr0zed/test-results-dashboard-api-types';
 import { AlreadyExistsError, NotFoundError, ValidationError } from '../services/errors';
 import { generateApiKey, hashApiKey } from '../services/keys';
 
@@ -173,6 +173,19 @@ app.get('/:publicId/ingestion-keys', async(c) => {
         throw parsedParams.error;
     }
 
+    const project = await ctx.db.project.findUnique({
+        where: {
+            publicId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!project) {
+         throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+    }
+
     const ingestionKeys = await ctx.db.ingestKey.findMany({
         select: {
             publicId: true,
@@ -185,15 +198,9 @@ app.get('/:publicId/ingestion-keys', async(c) => {
             updatedAt: true,
         },
         where: {
-            project: {
-                publicId: publicId,
-            }
+            projectId: project.id,
         }
     });
-
-    if (!ingestionKeys) {
-        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
-    }
 
     return c.json<ApiSuccess<PublicIngestKey[]>>({ success: true, data: ingestionKeys });
 });
@@ -246,7 +253,12 @@ app.post('/:publicId/ingestion-keys', async(c) => {
         },
     });
 
-    return c.json<ApiSuccess<IngestionKeyCreatedResponse>>({ success: true, data: { ...ingestionKey, apiKey } }, 201);
+    const responseData = IngestionKeyCreatedResponseSchema.parse({
+        ...ingestionKey,
+        apiKey,
+    });
+
+    return c.json<ApiSuccess<IngestionKeyCreatedResponse>>({ success: true, data: responseData }, 201);
 });
 
 app.post('/:publicId/ingestion-keys/:keyPublicId/revoke', async(c) => {

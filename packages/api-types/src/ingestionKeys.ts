@@ -42,7 +42,7 @@ export const CreateIngestionKeySchema = z.object({
 
 export type CreateIngestionKey = z.infer<typeof CreateIngestionKeySchema>;
 
-export const IngestionKeyCreatedResponseSchema = IngestKeySchema.extend({
+export const IngestionKeyCreatedResponseSchema = PublicIngestKeySchema.extend({
     apiKey: z.string(),
 });
 

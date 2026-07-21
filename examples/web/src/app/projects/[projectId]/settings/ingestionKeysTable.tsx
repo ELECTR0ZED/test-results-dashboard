@@ -92,12 +92,12 @@ export default function IngestionKeysTable() {
             );
         } finally {
             setCreating(false);
-            closeCreateDialog();
+            closeCreateDialog(true);
         }
     }
 
-    const closeCreateDialog = () => {
-        if (creating) return;
+    const closeCreateDialog = (force?: boolean) => {
+        if (creating && !force) return;
         setIsCreateOpen(false);
         setKeyName('');
         setExpiresAt('');
@@ -151,7 +151,7 @@ export default function IngestionKeysTable() {
                 </TableBody>
             </Table>
             <div className="flex mt-4">
-                <Button type="submit" className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
+                <Button type="button" className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
                     Create New Ingestion Key
                 </Button>
             </div>
@@ -173,7 +173,7 @@ export default function IngestionKeysTable() {
                     </Fieldset>
                 </DialogBody>
                 <DialogActions>
-                    <Button type="button" onClick={closeCreateDialog} className='cursor-pointer' plain disabled={creating}>
+                    <Button type="button" onClick={() => closeCreateDialog()} className='cursor-pointer' plain disabled={creating}>
                         Cancel
                     </Button>
                     <Button type="button" onClick={handleCreateIngestionKey} className='cursor-pointer' disabled={creating}>

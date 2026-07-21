@@ -75,7 +75,7 @@ model Project {
   updatedAt DateTime @updatedAt
 
   runs       Run[]
-  IngestKeys IngestKey[]
+  ingestKeys IngestKey[]
 }
 
 model IngestKey {

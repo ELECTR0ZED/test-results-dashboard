@@ -99,7 +99,10 @@ export default function ProjectSettings() {
                         <Divider className="mb-4" />
                     </div>
                     <div className="max-w-lg space-y-2">
-                        <p><strong>Project ID:</strong> <CopyBox value={project.publicId} /></p>
+                        <div className="flex items-center gap-2">
+                            <strong>Project ID:</strong>
+                            <CopyBox value={project.publicId} />
+                        </div>
                     </div>
                 </section>
                 <section>

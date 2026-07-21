@@ -7,24 +7,16 @@ export async function verifyProjectIngestionSecret(
 ): Promise<boolean> {
     const { db } = ctx;
 
-    const project = await db.project.findUnique({
-        where: {
-            publicId: projectId,
-        },
-        include: {
-            IngestKeys: {
-                where: {
-                    keyhash: providedSecret,
-                },
-            },
-        },
-    });
-    
-    if (!project) {
-        return false;
-    }
+    const hashedProvidedSecret = await hashApiKey(providedSecret);
 
-    const matchingKey = project.IngestKeys.find(key => key.keyhash === providedSecret);
+    const matchingKey = await db.ingestKey.findFirst({
+        where: {
+            keyhash: hashedProvidedSecret,
+            project: {
+                publicId: projectId,
+            },
+        }
+    });
 
     if (!matchingKey) {
         return false;
@@ -32,7 +24,7 @@ export async function verifyProjectIngestionSecret(
 
     // Check if the key is expired or revoked
     const now = new Date();
-    if ((matchingKey.expiresAt && matchingKey.expiresAt < now) || (matchingKey.revokedAt && matchingKey.revokedAt < now)) {
+    if ((matchingKey.expiresAt && matchingKey.expiresAt <= now) || (matchingKey.revokedAt && matchingKey.revokedAt <= now)) {
         return false;
     }
 
@@ -43,4 +35,24 @@ export async function verifyProjectIngestionSecret(
     });
 
     return true;
+}
+
+async function hashApiKey(apiKey: string): Promise<string> {
+	const encoded = new TextEncoder().encode(apiKey);
+	const digest = await crypto.subtle.digest('SHA-256', encoded);
+
+	return base64UrlEncode(new Uint8Array(digest));
+}
+
+function base64UrlEncode(bytes: Uint8Array): string {
+	let binary = '';
+
+	for (const byte of bytes) {
+		binary += String.fromCharCode(byte);
+	}
+
+	return btoa(binary)
+		.replace(/\+/g, '-')
+		.replace(/\//g, '_')
+		.replace(/=+$/, '');
 }
