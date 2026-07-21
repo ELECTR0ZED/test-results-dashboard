@@ -11,13 +11,15 @@ export function CopyBox({ value }: CopyBoxProps) {
 	const [copied, setCopied] = useState(false);
 
 	async function handleCopy() {
-		await navigator.clipboard.writeText(value);
-
-		setCopied(true);
-
-		window.setTimeout(() => {
+		try {
+			await navigator.clipboard.writeText(value);
+			setCopied(true);
+			window.setTimeout(() => {
+				setCopied(false);
+			}, 1500);
+		} catch (error) {
 			setCopied(false);
-		}, 1500);
+		}
 	}
 
 	return (

@@ -1,4 +1,4 @@
-import { AppCtx } from "../types";
+import type { AppCtx } from "../types";
 
 export async function verifyProjectIngestionSecret(
     ctx: AppCtx,
@@ -11,7 +11,7 @@ export async function verifyProjectIngestionSecret(
 
     const matchingKey = await db.ingestKey.findFirst({
         where: {
-            keyhash: hashedProvidedSecret,
+            keyHash: hashedProvidedSecret,
             project: {
                 publicId: projectId,
             },

@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import type { Project, ApiSuccess, CreateProject, EditProject, PublicIngestKey, IngestKey, IngestionKeyCreatedResponse } from '@electr0zed/test-results-dashboard-api-types';
+import type { Project, ApiSuccess, PublicIngestKey, IngestionKeyCreatedResponse } from '@electr0zed/test-results-dashboard-api-types';
 import { CreateProjectSchema, GetProjectSchema, EditProjectSchema, GetProjectIngestionKeysSchema, ModifyIngestionKeySchema, CreateIngestionKeySchema, IngestionKeyCreatedResponseSchema } from '@electr0zed/test-results-dashboard-api-types';
 import { AlreadyExistsError, NotFoundError, ValidationError } from '../services/errors';
 import { generateApiKey, hashApiKey } from '../services/keys';
@@ -239,6 +239,19 @@ app.post('/:publicId/ingestion-keys', async(c) => {
         throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
     }
 
+    const existingKey = await ctx.db.ingestKey.findFirst({
+         where: {
+             projectId: project.id,
+             name: parsedBody.data.name,
+         },
+         select: { id: true },
+     });
+     if (existingKey) {
+         throw new AlreadyExistsError(
+             `An ingestion key with the name "${parsedBody.data.name}" already exists.`,
+         );
+     }
+
     const apiKey = generateApiKey();
     const apiKeyPrefix = apiKey.slice(0, 16);
     const apiKeyHash = await hashApiKey(apiKey);
@@ -247,7 +260,7 @@ app.post('/:publicId/ingestion-keys', async(c) => {
         data: {
             name: parsedBody.data.name,
             prefix: apiKeyPrefix,
-            keyhash: apiKeyHash,
+            keyHash: apiKeyHash,
             expiresAt: parsedBody.data.expiresAt,
             projectId: project.id,
         },
