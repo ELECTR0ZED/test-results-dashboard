@@ -1,0 +1,34 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/catalyst/button';
+
+type CopyBoxProps = {
+	value: string;
+};
+
+export function CopyBox({ value }: CopyBoxProps) {
+	const [copied, setCopied] = useState(false);
+
+	async function handleCopy() {
+		await navigator.clipboard.writeText(value);
+
+		setCopied(true);
+
+		window.setTimeout(() => {
+			setCopied(false);
+		}, 1500);
+	}
+
+	return (
+		<div className="flex items-center gap-2 rounded-lg border border-zinc-950/10 bg-zinc-50 p-2 dark:border-white/10 dark:bg-white/5">
+			<code className="min-w-0 flex-1 truncate px-2 text-sm text-zinc-700 dark:text-zinc-300">
+				{value}
+			</code>
+
+			<Button type="button" onClick={handleCopy} className="cursor-pointer text-sm">
+				{copied ? 'Copied' : 'Copy'}
+			</Button>
+		</div>
+	);
+}

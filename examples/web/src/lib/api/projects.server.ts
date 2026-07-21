@@ -12,6 +12,10 @@ import {
 	getProject as getProjectBase,
 	getProjects as getProjectsBase,
 	deleteProject as deleteProjectBase,
+	getProjectIngestionKeys as getProjectIngestionKeysBase,
+	createIngestionKey as createIngestionKeyBase,
+	revokeIngestionKey as revokeIngestionKeyBase,
+	deleteIngestionKey as deleteIngestionKeyBase,
 } from './projects';
 
 const serviceBindingFetcher: ApiFetcher = (path, init) => {
@@ -52,4 +56,38 @@ export function deleteProject(publicId: string) {
     return deleteProjectBase(publicId, {
         apiFetcher: serviceBindingFetcher,
     });
+}
+
+export function getProjectIngestionKeys(publicId: string) {
+	return getProjectIngestionKeysBase(publicId, {
+		apiFetcher: serviceBindingFetcher,
+	});
+}
+
+export function createIngestionKey(
+	publicId: string,
+	name: string,
+	expiresAt: Date | null,
+) {
+	return createIngestionKeyBase(publicId, name, expiresAt, {
+		apiFetcher: serviceBindingFetcher,
+	});
+}
+
+export function revokeIngestionKey(
+	publicId: string,
+	keyPublicId: string,
+) {
+	return revokeIngestionKeyBase(publicId, keyPublicId, {
+		apiFetcher: serviceBindingFetcher,
+	});
+}
+
+export function deleteIngestionKey(
+	publicId: string,
+	keyPublicId: string,
+) {
+	return deleteIngestionKeyBase(publicId, keyPublicId, {
+		apiFetcher: serviceBindingFetcher,
+	});
 }

@@ -1,8 +1,9 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import type { Project, ApiSuccess, CreateProject, EditProject } from '@electr0zed/test-results-dashboard-api-types';
-import { CreateProjectSchema, GetProjectSchema, EditProjectSchema } from '@electr0zed/test-results-dashboard-api-types';
+import type { Project, ApiSuccess, CreateProject, EditProject, PublicIngestKey, IngestKey, IngestionKeyCreatedResponse } from '@electr0zed/test-results-dashboard-api-types';
+import { CreateProjectSchema, GetProjectSchema, EditProjectSchema, GetProjectIngestionKeysSchema, ModifyIngestionKeySchema, CreateIngestionKeySchema } from '@electr0zed/test-results-dashboard-api-types';
 import { AlreadyExistsError, NotFoundError, ValidationError } from '../services/errors';
+import { generateApiKey, hashApiKey } from '../services/keys';
 
 const app = new Hono<HonoEnv>();
 
@@ -40,10 +41,10 @@ app.get('/:publicId', async(c) => {
 app.post('/', async(c) => {
     const ctx = c.get('ctx');
     
-    let body: CreateProject;
+    let body: unknown;
 
     try {
-         body = await c.req.json<CreateProject>();
+         body = await c.req.json();
     } catch (error) {
         throw new ValidationError('Invalid JSON body.', error);
     }
@@ -83,10 +84,10 @@ app.patch('/:publicId', async(c) => {
         throw parsedParams.error;
     }
 
-    let body: Partial<EditProject>;
+    let body: unknown;
 
     try {
-        body = await c.req.json<Partial<EditProject>>();
+        body = await c.req.json();
     } catch (error) {
         throw new ValidationError('Invalid JSON body.', error);
     }
@@ -155,6 +156,162 @@ app.delete('/:publicId', async(c) => {
     await ctx.db.project.delete({
         where: {
             publicId,
+        },
+    });
+
+    return c.json<ApiSuccess<null>>({ success: true, data: null });
+});
+
+
+app.get('/:publicId/ingestion-keys', async(c) => {
+    const ctx = c.get('ctx');
+
+    const publicId = c.req.param('publicId');
+    const parsedParams = GetProjectIngestionKeysSchema.safeParse({ publicId });
+
+    if (!parsedParams.success) {
+        throw parsedParams.error;
+    }
+
+    const ingestionKeys = await ctx.db.ingestKey.findMany({
+        select: {
+            publicId: true,
+            name: true,
+            prefix: true,
+            lastUsedAt: true,
+            expiresAt: true,
+            revokedAt: true,
+            createdAt: true,
+            updatedAt: true,
+        },
+        where: {
+            project: {
+                publicId: publicId,
+            }
+        }
+    });
+
+    if (!ingestionKeys) {
+        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+    }
+
+    return c.json<ApiSuccess<PublicIngestKey[]>>({ success: true, data: ingestionKeys });
+});
+
+app.post('/:publicId/ingestion-keys', async(c) => {
+    const ctx = c.get('ctx');
+
+    const publicId = c.req.param('publicId');
+    const parsedParams = GetProjectIngestionKeysSchema.safeParse({ publicId });
+    
+    if (!parsedParams.success) {
+        throw parsedParams.error;
+    }
+
+    let body: unknown;
+
+    try {
+         body = await c.req.json();
+    } catch (error) {
+        throw new ValidationError('Invalid JSON body.', error);
+    }
+    
+    const parsedBody = CreateIngestionKeySchema.safeParse(body);
+
+    if (!parsedBody.success) {
+        throw parsedBody.error;
+    }
+
+    const project = await ctx.db.project.findUnique({
+        where: {
+            publicId,
+        },
+    });
+
+    if (!project) {
+        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+    }
+
+    const apiKey = generateApiKey();
+    const apiKeyPrefix = apiKey.slice(0, 16);
+    const apiKeyHash = await hashApiKey(apiKey);
+
+    const ingestionKey = await ctx.db.ingestKey.create({
+        data: {
+            name: parsedBody.data.name,
+            prefix: apiKeyPrefix,
+            keyhash: apiKeyHash,
+            expiresAt: parsedBody.data.expiresAt,
+            projectId: project.id,
+        },
+    });
+
+    return c.json<ApiSuccess<IngestionKeyCreatedResponse>>({ success: true, data: { ...ingestionKey, apiKey } }, 201);
+});
+
+app.post('/:publicId/ingestion-keys/:keyPublicId/revoke', async(c) => {
+    const ctx = c.get('ctx');
+
+    const publicId = c.req.param('publicId');
+    const keyPublicId = c.req.param('keyPublicId');
+    const parsedParams = ModifyIngestionKeySchema.safeParse({ publicId, keyPublicId });
+    
+    if (!parsedParams.success) {
+        throw parsedParams.error;
+    }
+
+    const ingestionKey = await ctx.db.ingestKey.findFirst({
+        where: {
+            publicId: keyPublicId,
+            project: {
+                publicId: publicId,
+            }
+        }
+    });
+
+    if (!ingestionKey) {
+        throw new NotFoundError(`Ingestion key with publicId "${keyPublicId}" not found for project with publicId "${publicId}".`);
+    }
+
+    await ctx.db.ingestKey.update({
+        where: {
+            publicId: keyPublicId,
+        },
+        data: {
+            revokedAt: new Date(),
+        },
+    });
+
+    return c.json<ApiSuccess<null>>({ success: true, data: null });
+});
+
+app.delete('/:publicId/ingestion-keys/:keyPublicId', async(c) => {
+    const ctx = c.get('ctx');
+
+    const publicId = c.req.param('publicId');
+    const keyPublicId = c.req.param('keyPublicId');
+    const parsedParams = ModifyIngestionKeySchema.safeParse({ publicId, keyPublicId });
+    
+    if (!parsedParams.success) {
+        throw parsedParams.error;
+    }
+
+    const ingestionKey = await ctx.db.ingestKey.findFirst({
+        where: {
+            publicId: keyPublicId,
+            project: {
+                publicId: publicId,
+            }
+        }
+    });
+
+    if (!ingestionKey) {
+        throw new NotFoundError(`Ingestion key with publicId "${keyPublicId}" not found for project with publicId "${publicId}".`);
+    }
+
+    await ctx.db.ingestKey.delete({
+        where: {
+            publicId: keyPublicId,
         },
     });
 
