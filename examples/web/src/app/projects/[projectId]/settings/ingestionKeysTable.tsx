@@ -42,7 +42,7 @@ export default function IngestionKeysTable() {
 
     useEffect(() => {
         fetchIngestionKeys();
-    }, [fetchIngestionKeys]);
+    }, [fetchIngestionKeys, addToast]);
 
     async function handleRevoke(keyId: string) {
         try {
