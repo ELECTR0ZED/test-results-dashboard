@@ -55,7 +55,6 @@ export class CypressReporter {
                 'after:run'
             );
         });
-
     }
 
     private async safePost(event: DashboardEvent, hook: string): Promise<void> {

@@ -10,6 +10,9 @@
       "invocation_logs": true
     }
   },
+  "secrets": {
+    "required": ["INGESTION_SECRET"]
+  },
   "d1_databases": [
     {
       "binding": "DB",
