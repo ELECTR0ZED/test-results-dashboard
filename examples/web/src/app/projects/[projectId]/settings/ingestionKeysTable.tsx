@@ -34,7 +34,7 @@ export default function IngestionKeysTable() {
             const ingestionKeys = await getProjectIngestionKeys(project.publicId);
             setKeys(ingestionKeys);
         } catch (error) {
-            console.error('Failed to fetch ingestion keys:', error);
+            addToast('Failed to fetch ingestion keys', error instanceof Error ? error.message : 'Unknown error', 'error');
         } finally {
             setLoading(false);
         }
@@ -54,7 +54,7 @@ export default function IngestionKeysTable() {
             );
             addToast('Ingestion key revoked', 'The ingestion key has been revoked successfully.', 'success');
         } catch (error) {
-            console.error('Failed to revoke ingestion key:', error);
+            addToast('Failed to revoke ingestion key', error instanceof Error ? error.message : 'Unknown error', 'error');
         }
     }
 
@@ -64,7 +64,7 @@ export default function IngestionKeysTable() {
             setKeys((prevKeys) => prevKeys.filter((key) => key.publicId !== keyId));
             addToast('Ingestion key deleted', 'The ingestion key has been deleted successfully.', 'success');
         } catch (error) {
-            console.error('Failed to delete ingestion key:', error);
+            addToast('Failed to delete ingestion key', error instanceof Error ? error.message : 'Unknown error', 'error');
         }
     }
 
@@ -83,8 +83,6 @@ export default function IngestionKeysTable() {
             setNewKey(newIngestionKey.apiKey);
             setIsKeyOpen(true);
         } catch (error) {
-            console.error(error);
-
             addToast(
                 'Failed to create ingestion key',
                 error instanceof Error ? error.message : 'Unknown error',

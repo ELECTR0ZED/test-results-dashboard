@@ -2,7 +2,7 @@ import type { AppCtx } from '../types';
 
 export async function verifyProjectIngestionSecret(
     ctx: AppCtx,
-    projectId: string,
+    projectPublicId: string,
     providedSecret: string,
 ): Promise<boolean> {
     const { db } = ctx;
@@ -13,7 +13,7 @@ export async function verifyProjectIngestionSecret(
         where: {
             keyHash: hashedProvidedSecret,
             project: {
-                publicId: projectId,
+                publicId: projectPublicId,
             },
         }
     });
