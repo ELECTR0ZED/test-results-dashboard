@@ -8,9 +8,21 @@ export const IngestEventRequestSchema = z.object({
 
 export type IngestEventRequest = z.infer<typeof IngestEventRequestSchema>;
 
-export const IngestEventResponseSchema = z.object({
+export const IngestEventSuccessResponseSchema = z.object({
     ok: z.literal(true),
 });
+
+export type IngestEventSuccessResponse = z.infer<typeof IngestEventSuccessResponseSchema>;
+
+export const IngestEventErrorResponseSchema = z.object({
+    ok: z.literal(false),
+    error: z.string(),
+    details: z.any().optional(),
+});
+
+export type IngestEventErrorResponse = z.infer<typeof IngestEventErrorResponseSchema>;
+
+export const IngestEventResponseSchema = z.union([IngestEventSuccessResponseSchema, IngestEventErrorResponseSchema]);
 
 export type IngestEventResponse = z.infer<typeof IngestEventResponseSchema>;
 

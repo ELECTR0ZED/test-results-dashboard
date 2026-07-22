@@ -68,11 +68,33 @@ model SpecTestAttempt {
 
 model Project {
   id        Int      @id @default(autoincrement())
-  publicId String   @unique @default(uuid())
+  publicId  String   @unique @default(uuid())
   name      String   @unique
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  runs Run[]
+  runs       Run[]
+  ingestKeys IngestKey[]
+}
+
+model IngestKey {
+  id       Int    @id @default(autoincrement())
+  publicId String @unique @default(uuid())
+
+  projectId Int
+  name      String
+  prefix    String
+  keyHash   String @unique
+
+  lastUsedAt DateTime?
+  expiresAt  DateTime?
+  revokedAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, name])
 }
