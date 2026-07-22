@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-db
 
+## 0.4.0
+
+### Minor Changes
+
+- 81971ec: Introduce per project ingestion keys
+
 ## 0.3.0
 
 ### Minor Changes

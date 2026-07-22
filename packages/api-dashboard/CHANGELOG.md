@@ -1,5 +1,17 @@
 # @electr0zed/test-results-dashboard-api-dashboard
 
+## 0.4.0
+
+### Minor Changes
+
+- 81971ec: Introduce per project ingestion keys
+
+### Patch Changes
+
+- Updated dependencies [81971ec]
+  - @electr0zed/test-results-dashboard-api-types@0.4.0
+  - @electr0zed/test-results-dashboard-db@0.4.0
+
 ## 0.3.1
 
 ### Patch Changes

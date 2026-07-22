@@ -1,5 +1,17 @@
 # @electr0zed/test-results-dashboard-api-ingest
 
+## 0.3.0
+
+### Minor Changes
+
+- 81971ec: Introduce per project ingestion keys
+
+### Patch Changes
+
+- Updated dependencies [81971ec]
+  - @electr0zed/test-results-dashboard-core@0.3.0
+  - @electr0zed/test-results-dashboard-db@0.4.0
+
 ## 0.2.1
 
 ### Patch Changes
