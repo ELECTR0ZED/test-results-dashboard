@@ -38,11 +38,11 @@ export default function IngestionKeysTable() {
         } finally {
             setLoading(false);
         }
-    }, [project.publicId, addToast]);
+    }, [project.publicId]);
 
     useEffect(() => {
         fetchIngestionKeys();
-    }, [fetchIngestionKeys]);
+    }, [fetchIngestionKeys, addToast]);
 
     async function handleRevoke(keyId: string) {
         try {
