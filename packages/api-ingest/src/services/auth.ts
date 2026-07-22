@@ -33,10 +33,14 @@ export async function verifyProjectIngestionSecret(
         !matchingKey.lastUsedAt ||
         matchingKey.lastUsedAt.getTime() < now.getTime() - 5 * 60 * 1000
     ) {
-        await db.ingestKey.update({
-            where: { id: matchingKey.id },
-            data: { lastUsedAt: now },
-        });
+        try {
+            await db.ingestKey.update({
+                where: { id: matchingKey.id },
+                data: { lastUsedAt: now },
+            });
+        } catch (error) {
+            console.error('Failed to update lastUsedAt for ingest key:', error);
+        }
     }
 
     return true;
