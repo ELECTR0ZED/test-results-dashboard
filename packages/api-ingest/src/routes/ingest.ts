@@ -1,10 +1,9 @@
-import type { IngestEventSuccessResponse, IngestEventErrorResponse } from '@electr0zed/test-results-dashboard-core';
+import type { IngestEventRequest, IngestEventResponse } from '@electr0zed/test-results-dashboard-core';
 import { Hono } from 'hono';
 import { dispatchEvent } from '../events/dispatcher';
 import { IngestEventRequestSchema } from '@electr0zed/test-results-dashboard-core';
 import type { HonoEnv } from '../types';
 import { z } from 'zod';
-import { verifyProjectIngestionSecret } from '../services/auth';
 
 const app = new Hono<HonoEnv>();
 
@@ -12,34 +11,30 @@ app.post('/events', async(c) => {
 	const ctx = c.get('ctx');
 
     const authHeader = c.req.header('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
+    if (!authHeader) {
+        return c.json({ error: 'Unauthorized' }, 401);
     }
 
-    let body: unknown;
+    if (authHeader !== `Bearer ${ctx.cfg.ingestionSecret}`) {
+        return c.json({ error: 'Forbidden' }, 403);
+    }
+
+    let body: IngestEventRequest;
 
     try {
-        body = await c.req.json();
+        body = await c.req.json<IngestEventRequest>();
     } catch (error) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body' }, 400);
+        return c.json({ error: 'Invalid JSON' }, 400);
     }
 
     const parseResult = IngestEventRequestSchema.safeParse(body);
     if (!parseResult.success) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body', details: z.flattenError(parseResult.error) }, 400);
-    }
-
-    const projectPublicId = parseResult.data.event.payload.projectId;
-    const apiKey = authHeader.slice('Bearer '.length).trim();
-
-    const isValid = await verifyProjectIngestionSecret(ctx, projectPublicId, apiKey);
-    if (!isValid) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
+        return c.json({ error: 'Invalid request body', details: z.flattenError(parseResult.error) }, 400);
     }
 
     await dispatchEvent(ctx, parseResult.data.event);
 
-    return c.json<IngestEventSuccessResponse>({ ok: true });
+    return c.json<IngestEventResponse>({ ok: true });
 });
 
 export default app;
