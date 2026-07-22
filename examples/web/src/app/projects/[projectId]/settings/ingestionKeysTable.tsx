@@ -38,7 +38,7 @@ export default function IngestionKeysTable() {
         } finally {
             setLoading(false);
         }
-    }, [project.publicId, addToast]);
+    }, [project.publicId]);
 
     useEffect(() => {
         fetchIngestionKeys();
