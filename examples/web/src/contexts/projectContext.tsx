@@ -35,7 +35,7 @@ export function ProjectProvider({
 	const refreshProject = useCallback(async () => {
 		const project = await getProject(projectId);
 
-		setProject(project);
+		setProject(project.data);
 	}, [projectId]);
 
 	const value = useMemo(() => ({

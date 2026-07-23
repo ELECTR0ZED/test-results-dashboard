@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import type { ApiResponse } from '@electr0zed/test-results-dashboard-api-types';
+import type { ApiResponse, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export type ApiFetcher = (
 	path: string,
@@ -15,11 +16,22 @@ const defaultFetcher: ApiFetcher = (path, init) => {
 	return fetch(path, init);
 };
 
+export type Options = {
+	apiFetcher?: ApiFetcher;
+};
+
+export const serviceBindingFetcher: ApiFetcher = (path, init) => {
+	const { env } = getCloudflareContext();
+	const url = new URL(path, 'https://api.internal');
+
+	return env.API.fetch(new Request(url, init));
+};
+
 export async function apiRequest<T>(
 	path: string,
 	schema: z.Schema<T>,
 	options: ApiRequestOptions = {},
-): Promise<T> {
+): Promise<ApiSuccess<T>> {
 	const {
 		body,
 		apiFetcher = defaultFetcher,
@@ -47,7 +59,11 @@ export async function apiRequest<T>(
 	}
 
 	try {
-		return schema.parse(json.data);
+		const data = schema.parse(json.data);
+		return {
+			...json,
+			data,
+		}
 	} catch (error) {
 		console.error('Failed to parse API response:', error);
 		throw new Error('Failed to parse API response');
