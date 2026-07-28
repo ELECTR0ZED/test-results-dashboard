@@ -2,7 +2,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useProject } from '@/contexts/projectContext';
-import { PaginationMeta, Run } from '@electr0zed/test-results-dashboard-api-types';
+import { DEFAULT_PAGE_SIZE, PaginationMeta, Run } from '@electr0zed/test-results-dashboard-api-types';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { useToast } from '@/contexts/toastContext';
 import { getProjectRuns } from '@/lib/api/runs';
@@ -16,7 +16,7 @@ export default function ProjectRunsTable() {
     const [runs, setRuns] = useState<Run[]>([]);
     const [pagination, setPagination] = useState<PaginationMeta>({
         page: 1,
-        pageSize: 25,
+        pageSize: DEFAULT_PAGE_SIZE,
         total: 0,
         totalPages: 0,
     });
@@ -26,7 +26,7 @@ export default function ProjectRunsTable() {
         setLoading(true);
         setRuns([]);
         try {
-            const response = await getProjectRuns(project.publicId, page, 25);
+            const response = await getProjectRuns(project.publicId, page, pagination.pageSize);
             setRuns(response.data);
             setPagination(response.meta.pagination);
         } catch (error) {
@@ -34,7 +34,7 @@ export default function ProjectRunsTable() {
         } finally {
             setLoading(false);
         }
-    }, [project.publicId, addToast]);
+    }, [project.publicId, addToast, pagination.pageSize]);
 
     useEffect(() => {
         const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
