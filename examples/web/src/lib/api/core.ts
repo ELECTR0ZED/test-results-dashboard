@@ -1,6 +1,5 @@
 import { z } from 'zod';
-import type { ApiResponse, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
+import type { ApiMeta, ApiResponse, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
 
 export type ApiFetcher = (
 	path: string,
@@ -20,18 +19,14 @@ export type Options = {
 	apiFetcher?: ApiFetcher;
 };
 
-export const serviceBindingFetcher: ApiFetcher = (path, init) => {
-	const { env } = getCloudflareContext();
-	const url = new URL(path, 'https://api.internal');
-
-	return env.API.fetch(new Request(url, init));
-};
-
-export async function apiRequest<T>(
+export async function apiRequest<
+	T,
+	TMeta extends ApiMeta | undefined = undefined,
+>(
 	path: string,
 	schema: z.Schema<T>,
 	options: ApiRequestOptions = {},
-): Promise<ApiSuccess<T>> {
+): Promise<ApiSuccess<T, TMeta>> {
 	const {
 		body,
 		apiFetcher = defaultFetcher,
@@ -52,18 +47,23 @@ export async function apiRequest<T>(
 			: JSON.stringify(body),
 	});
 
-	const json = await response.json() as ApiResponse<unknown>;
+	const json = await response.json() as ApiResponse<unknown, TMeta>;
 
 	if (!response.ok || !json.success) {
-		throw new Error(!json.success ? json.error.message : 'API request failed');
+		throw new Error(
+			!json.success
+				? json.error.message
+				: 'API request failed',
+		);
 	}
 
 	try {
 		const data = schema.parse(json.data);
+
 		return {
 			...json,
 			data,
-		}
+		} as ApiSuccess<T, TMeta>;
 	} catch (error) {
 		console.error('Failed to parse API response:', error);
 		throw new Error('Failed to parse API response');

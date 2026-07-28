@@ -4,7 +4,7 @@ import type {
 	CreateProject,
 	EditProject,
 } from '@electr0zed/test-results-dashboard-api-types';
-import { serviceBindingFetcher } from './core';
+import { serviceBindingFetcher } from './core.server';
 import {
 	createProject as createProjectBase,
 	editProject as editProjectBase,

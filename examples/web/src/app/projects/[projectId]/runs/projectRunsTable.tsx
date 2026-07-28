@@ -6,13 +6,11 @@ import { PaginationMeta, Run } from '@electr0zed/test-results-dashboard-api-type
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { useToast } from '@/contexts/toastContext';
 import { getProjectRuns } from '@/lib/api/runs';
+import { useSearchParams } from "next/navigation";
 import { Paginator } from '@/components/paginator';
 
-type ProjectRunsTableProps = {
-	currentPage: number;
-};
-
-export default function ProjectRunsTable({ currentPage }: ProjectRunsTableProps) {
+export default function ProjectRunsTable() {
+    const searchParams = useSearchParams();
     const { project } = useProject();
     const { addToast } = useToast();
     const [runs, setRuns] = useState<Run[]>([]);
@@ -30,7 +28,7 @@ export default function ProjectRunsTable({ currentPage }: ProjectRunsTableProps)
         try {
             const response = await getProjectRuns(project.publicId, page, 25);
             setRuns(response.data);
-            setPagination(response.meta?.pagination!);
+            setPagination(response.meta.pagination);
         } catch (error) {
             addToast('Failed to fetch runs', error instanceof Error ? error.message : 'Unknown error', 'error');
         } finally {
@@ -39,8 +37,9 @@ export default function ProjectRunsTable({ currentPage }: ProjectRunsTableProps)
     }, [project.publicId, addToast]);
 
     useEffect(() => {
+        const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
         fetchRuns(currentPage);
-    }, [fetchRuns, currentPage]);
+    }, [fetchRuns, searchParams]);
 
     return (
         <>
@@ -56,11 +55,11 @@ export default function ProjectRunsTable({ currentPage }: ProjectRunsTableProps)
                 <TableBody>
                     {loading ? (
                         <TableRow className="animate-pulse mx-auto">
-                            <TableCell colSpan={5}>Loading...</TableCell>
+                            <TableCell colSpan={4}>Loading...</TableCell>
                         </TableRow>
                     ) : runs.length === 0 ? (
                         <TableRow className='mx-auto'>
-                            <TableCell colSpan={5}>No runs yet.</TableCell>
+                            <TableCell colSpan={4}>No runs yet.</TableCell>
                         </TableRow>
                     ) : (
                         runs.map((run) => {

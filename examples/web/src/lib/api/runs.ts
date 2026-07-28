@@ -1,14 +1,14 @@
 import { z } from 'zod';
 import { apiRequest, Options } from './core';
-import { type Run, RunSchema, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
+import { type Run, RunSchema, PaginatedApiSuccess, PaginatedApiMeta } from '@electr0zed/test-results-dashboard-api-types';
 
 export function getProjectRuns(
     publicId: string,
     page: number,
-    limit: number,
+    pageSize: number,
     options: Options = {},
-): Promise<ApiSuccess<Run[]>> {
-    return apiRequest(`/api/projects/${publicId}/runs?page=${page}&limit=${limit}`, z.array(RunSchema), {
+): Promise<PaginatedApiSuccess<Run[]>> {
+    return apiRequest<Run[], PaginatedApiMeta>(`/api/projects/${publicId}/runs?page=${page}&pageSize=${pageSize}`, z.array(RunSchema), {
         method: 'GET',
         apiFetcher: options.apiFetcher,
     });

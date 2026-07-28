@@ -16,7 +16,10 @@ model Run {
   updatedAt DateTime @updatedAt
 
   specs   Spec[]
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, startedAt])
+  @@index([projectId, status])
 }
 
 model Spec {
@@ -32,10 +35,10 @@ model Spec {
   startedAt DateTime
   endedAt   DateTime
 
-  status  String? @default("running")
+  status  String @default("running")
   message String?
 
-  run       Run        @relation(fields: [runId], references: [id])
+  run       Run        @relation(fields: [runId], references: [id], onDelete: Cascade)
   specTests SpecTest[]
 
   @@unique([runId, filename])
@@ -51,8 +54,10 @@ model SpecTest {
   message String?
   trace   String?
 
-  spec             Spec              @relation(fields: [specId], references: [id])
+  spec             Spec              @relation(fields: [specId], references: [id], onDelete: Cascade)
   specTestAttempts SpecTestAttempt[]
+
+  @@index([specId])
 }
 
 model SpecTestAttempt {
@@ -63,7 +68,9 @@ model SpecTestAttempt {
   message String?
   trace   String?
 
-  specTest SpecTest @relation(fields: [specTestId], references: [id])
+  specTest SpecTest @relation(fields: [specTestId], references: [id], onDelete: Cascade)
+
+  @@index([specTestId])
 }
 
 model Project {

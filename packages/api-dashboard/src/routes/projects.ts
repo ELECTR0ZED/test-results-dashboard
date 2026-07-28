@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import type { Project, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
+import type { Project, ApiSuccess, ApiResponse } from '@electr0zed/test-results-dashboard-api-types';
 import { CreateProjectSchema, GetProjectSchema, EditProjectSchema } from '@electr0zed/test-results-dashboard-api-types';
 import { AlreadyExistsError, NotFoundError, ValidationError } from '../services/errors';
 

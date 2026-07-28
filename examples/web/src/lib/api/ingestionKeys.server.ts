@@ -6,7 +6,7 @@ import {
     revokeIngestionKey as revokeIngestionKeyBase,
     deleteIngestionKey as deleteIngestionKeyBase,
 } from './ingestionKeys';
-import { serviceBindingFetcher } from './core';
+import { serviceBindingFetcher } from './core.server';
 
 export function getProjectIngestionKeys(publicId: string) {
 	return getProjectIngestionKeysBase(publicId, {
