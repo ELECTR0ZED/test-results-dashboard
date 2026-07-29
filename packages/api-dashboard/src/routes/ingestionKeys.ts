@@ -5,7 +5,6 @@ import { GetProjectIngestionKeysSchema, ModifyIngestionKeySchema, CreateIngestio
 import { AlreadyExistsError, NotFoundError, ValidationError } from '../services/errors';
 import { generateApiKey, hashApiKey } from '../services/keys';
 
-
 const app = new Hono<HonoEnv>();
 
 app.get('/projects/:publicId/ingestion-keys', async(c) => {

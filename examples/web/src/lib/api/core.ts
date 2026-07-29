@@ -39,6 +39,8 @@ export async function apiRequest<
 		headers.set('Content-Type', 'application/json');
 	}
 
+	console.log('apiRequest', { path, requestOptions, body });
+
 	const response = await apiFetcher(path, {
 		...requestOptions,
 		headers,

@@ -21,7 +21,6 @@ export default async function RunLayout({
 	try {
 		run = await getProjectRun(projectId, runId);
 	} catch {
-        console.log('Run not found, calling notFound()', run, projectId, runId);
 		notFound();
 	}
 

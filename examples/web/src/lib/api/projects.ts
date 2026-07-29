@@ -10,6 +10,7 @@ import { apiRequest, Options } from './core';
 
 export function getProjects(options: Options = {}): Promise<ApiSuccess<Project[]>> {
 	return apiRequest('/api/projects', z.array(ProjectSchema), {
+		method: 'GET',
 		cache: 'no-store',
         apiFetcher: options.apiFetcher,
 	});
@@ -20,6 +21,7 @@ export function getProject(
 	options: Options = {},
 ): Promise<ApiSuccess<Project>> {
 	return apiRequest(`/api/projects/${publicId}`, ProjectSchema, {
+		method: 'GET',
 		cache: 'no-store',
         apiFetcher: options.apiFetcher,
 	});

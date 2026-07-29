@@ -31,7 +31,7 @@ app.get('/projects/:projectPublicId/runs/:runPublicId/specs', async(c) => {
         throw new NotFoundError(`Project with publicId "${parsedParams.data.projectPublicId}" not found.`);
     }
     
-    const run = await ctx.db.run.findFirst({
+    const run = await ctx.db.run.findUnique({
         where: {
             publicId: parsedParams.data.runPublicId,
             projectId: project.id,

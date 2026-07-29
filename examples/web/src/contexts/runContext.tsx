@@ -32,7 +32,7 @@ export function RunProvider({
 	initialRun,
 	children,
 }: RunProviderProps) {
-	const [run, setRun] = useState(initialRun);
+	const [run, setRun] = useState<Run>(initialRun);
 
 	const refreshRun = useCallback(async () => {
 		const response = await getProjectRun(projectId, runId);

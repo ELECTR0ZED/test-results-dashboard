@@ -12,10 +12,8 @@ export function createApp(config: Config) {
 
 	app.onError(errorHandler);
 
-	const appCtx = createAppContext(config);
-
 	app.use('*', async (c, next) => {
-		c.set('ctx', appCtx);
+		c.set('ctx', createAppContext(config));
 
 		await next();
 	});
