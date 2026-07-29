@@ -1,7 +1,7 @@
 import { createApp } from './app';
-import type { Config } from './types';
+import type { Config, HonoEnv } from './types';
 
-export function createAPIWorker(cfg: Config): ExportedHandler {
+export function createAPIWorker<const TD1Binding extends string>(cfg: Config<TD1Binding>): ExportedHandler<HonoEnv<TD1Binding>['Bindings']> {
 
 	return {
 		fetch(request, env, ctx) {

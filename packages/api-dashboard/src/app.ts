@@ -1,27 +1,29 @@
 import { Hono } from 'hono';
 import type { Config, HonoEnv } from './types';
 import { createAppContext } from './services/context';
-import projectsRoutes from './routes/projects';
-import ingestionKeysRoutes from './routes/ingestionKeys';
-import runRoutes from './routes/runs';
-import specRoutes from './routes/specs';
+import { createProjectRoutes } from './routes/projects';
+import { createIngestionKeyRoutes } from './routes/ingestionKeys';
+import { createRunRoutes } from './routes/runs';
+import { createSpecRoutes } from './routes/specs';
 import { errorHandler } from './middleware/errorHandler';
 
-export function createApp(config: Config) {
-	const app = new Hono<HonoEnv>().basePath(config.basePath ?? '/api');
+export function createApp<const TD1Binding extends string>(
+	config: Config<TD1Binding>,
+) {
+	const app = new Hono<HonoEnv<TD1Binding>>().basePath(config.basePath ?? '/api');
 
 	app.onError(errorHandler);
 
 	app.use('*', async (c, next) => {
-		c.set('ctx', createAppContext(config));
+		c.set('ctx', createAppContext(c, config));
 
 		await next();
 	});
 
-	app.route('/', projectsRoutes);
-	app.route('/', ingestionKeysRoutes);
-	app.route('/', runRoutes);
-	app.route('/', specRoutes);
+	app.route('/', createProjectRoutes<TD1Binding>());
+	app.route('/', createIngestionKeyRoutes<TD1Binding>());
+	app.route('/', createRunRoutes<TD1Binding>());
+	app.route('/', createSpecRoutes<TD1Binding>());
 
 
 	return app;
