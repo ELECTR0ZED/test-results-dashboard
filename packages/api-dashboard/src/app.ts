@@ -4,6 +4,7 @@ import { createAppContext } from './services/context';
 import projectsRoutes from './routes/projects';
 import ingestionKeysRoutes from './routes/ingestionKeys';
 import runRoutes from './routes/runs';
+import specRoutes from './routes/specs';
 import { errorHandler } from './middleware/errorHandler';
 
 export function createApp(config: Config) {
@@ -22,6 +23,8 @@ export function createApp(config: Config) {
 	app.route('/', projectsRoutes);
 	app.route('/', ingestionKeysRoutes);
 	app.route('/', runRoutes);
+	app.route('/', specRoutes);
+
 
 	return app;
 }

@@ -26,12 +26,12 @@ app.get('/projects/:publicId', async(c) => {
 
     const project = await ctx.db.project.findUnique({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
     });
 
     if (!project) {
-        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+        throw new NotFoundError(`Project with publicId "${parsedParams.data.publicId}" not found.`);
     }
 
     return c.json<ApiSuccess<Project>>({ success: true, data: project });
@@ -99,12 +99,12 @@ app.patch('/projects/:publicId', async(c) => {
 
     const project = await ctx.db.project.findUnique({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
     });
 
     if (!project) {
-        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+        throw new NotFoundError(`Project with publicId "${parsedParams.data.publicId}" not found.`);
     }
 
     if (parsedBody.data.name && parsedBody.data.name !== project.name) {
@@ -121,7 +121,7 @@ app.patch('/projects/:publicId', async(c) => {
 
     const updatedProject = await ctx.db.project.update({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
         data: {
             name: parsedBody.data.name ?? project.name,
@@ -144,17 +144,17 @@ app.delete('/projects/:publicId', async(c) => {
 
     const project = await ctx.db.project.findUnique({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
     });
 
     if (!project) {
-        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+        throw new NotFoundError(`Project with publicId "${parsedParams.data.publicId}" not found.`);
     }
 
     await ctx.db.project.delete({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
     });
 

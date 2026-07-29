@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import { GetProjectRunsSchema, type Run, type PaginatedApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
+import { GetProjectRunsSchema, type Run, type PaginatedApiSuccess, GetProjectRunSchema, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
 import { NotFoundError } from '../services/errors';
 
 const app = new Hono<HonoEnv>();
@@ -19,7 +19,7 @@ app.get('/projects/:publicId/runs', async(c) => {
 
     const project = await ctx.db.project.findUnique({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
         select: {
             id: true,
@@ -27,7 +27,7 @@ app.get('/projects/:publicId/runs', async(c) => {
     });
 
     if (!project) {
-        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+        throw new NotFoundError(`Project with publicId "${parsedParams.data.publicId}" not found.`);
     }
 
     const totalRuns = await ctx.db.run.count({
@@ -60,6 +60,47 @@ app.get('/projects/:publicId/runs', async(c) => {
                 totalPages,
             }
         }
+    });
+});
+
+app.get('/projects/:publicId/runs/:runId', async(c) => {
+    const ctx = c.get('ctx');
+    
+    const projectPublicId = c.req.param('publicId');
+    const runPublicId = c.req.param('runId');
+    const parsedParams = GetProjectRunSchema.safeParse({ projectPublicId, runPublicId });
+    
+    if (!parsedParams.success) {
+        throw parsedParams.error;
+    }
+
+    const project = await ctx.db.project.findUnique({
+        where: {
+            publicId: parsedParams.data.projectPublicId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!project) {
+        throw new NotFoundError(`Project with publicId "${parsedParams.data.projectPublicId}" not found.`);
+    }
+    
+    const run = await ctx.db.run.findFirst({
+        where: {
+            projectId: project.id,
+            publicId: parsedParams.data.runPublicId,
+        },
+    });
+
+    if (!run) {
+        throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
+    }
+
+    return c.json<ApiSuccess<Run>>({
+        success: true,
+        data: run,
     });
 });
 

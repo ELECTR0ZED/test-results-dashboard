@@ -20,7 +20,7 @@ app.get('/projects/:publicId/ingestion-keys', async(c) => {
 
     const project = await ctx.db.project.findUnique({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
         select: {
             id: true,
@@ -28,7 +28,7 @@ app.get('/projects/:publicId/ingestion-keys', async(c) => {
     });
 
     if (!project) {
-         throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+         throw new NotFoundError(`Project with publicId "${parsedParams.data.publicId}" not found.`);
     }
 
     const ingestionKeys = await ctx.db.ingestKey.findMany({
@@ -76,12 +76,12 @@ app.post('/projects/:publicId/ingestion-keys', async(c) => {
 
     const project = await ctx.db.project.findUnique({
         where: {
-            publicId,
+            publicId: parsedParams.data.publicId,
         },
     });
 
     if (!project) {
-        throw new NotFoundError(`Project with publicId "${publicId}" not found.`);
+        throw new NotFoundError(`Project with publicId "${parsedParams.data.publicId}" not found.`);
     }
 
     const existingKey = await ctx.db.ingestKey.findFirst({
@@ -132,20 +132,20 @@ app.post('/projects/:publicId/ingestion-keys/:keyPublicId/revoke', async(c) => {
 
     const ingestionKey = await ctx.db.ingestKey.findFirst({
         where: {
-            publicId: keyPublicId,
+            publicId: parsedParams.data.keyPublicId,
             project: {
-                publicId: publicId,
+                publicId: parsedParams.data.publicId,
             }
         }
     });
 
     if (!ingestionKey) {
-        throw new NotFoundError(`Ingestion key with publicId "${keyPublicId}" not found for project with publicId "${publicId}".`);
+        throw new NotFoundError(`Ingestion key with publicId "${parsedParams.data.keyPublicId}" not found for project with publicId "${parsedParams.data.publicId}".`);
     }
 
     await ctx.db.ingestKey.update({
         where: {
-            publicId: keyPublicId,
+            publicId: parsedParams.data.keyPublicId,
         },
         data: {
             revokedAt: new Date(),
@@ -168,20 +168,20 @@ app.delete('/projects/:publicId/ingestion-keys/:keyPublicId', async(c) => {
 
     const ingestionKey = await ctx.db.ingestKey.findFirst({
         where: {
-            publicId: keyPublicId,
+            publicId: parsedParams.data.keyPublicId,
             project: {
-                publicId: publicId,
+                publicId: parsedParams.data.publicId,
             }
         }
     });
 
     if (!ingestionKey) {
-        throw new NotFoundError(`Ingestion key with publicId "${keyPublicId}" not found for project with publicId "${publicId}".`);
+        throw new NotFoundError(`Ingestion key with publicId "${parsedParams.data.keyPublicId}" not found for project with publicId "${parsedParams.data.publicId}".`);
     }
 
     await ctx.db.ingestKey.delete({
         where: {
-            publicId: keyPublicId,
+            publicId: parsedParams.data.keyPublicId,
         },
     });
 
