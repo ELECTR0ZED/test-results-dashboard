@@ -34,7 +34,7 @@ export function createSpecRoutes<
             throw new NotFoundError(`Project with publicId "${parsedParams.data.projectPublicId}" not found.`);
         }
         
-        const run = await ctx.db.run.findUnique({
+        const run = await ctx.db.run.findFirst({
             where: {
                 publicId: parsedParams.data.runPublicId,
                 projectId: project.id,
@@ -48,6 +48,22 @@ export function createSpecRoutes<
             throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
         }
 
+        const totalSpecs = await ctx.db.spec.count({
+            where: {
+                runId: run.id,
+            },
+        });
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(totalSpecs / parsedParams.data.pageSize),
+        );
+
+        const calculatedPage = Math.min(
+            parsedParams.data.page,
+            totalPages,
+        );
+
         const specs = await ctx.db.spec.findMany({
             where: {
                 runId: run.id,
@@ -55,23 +71,16 @@ export function createSpecRoutes<
             orderBy: {
                 startedAt: 'asc',
             },
-            skip: (parsedParams.data.page - 1) * parsedParams.data.pageSize,
+            skip: (calculatedPage - 1) * parsedParams.data.pageSize,
             take: parsedParams.data.pageSize,
         });
-
-        const totalSpecs = await ctx.db.spec.count({
-            where: {
-                runId: run.id,
-            },
-        });
-        const totalPages = totalSpecs === 0 ? 0 : Math.ceil(totalSpecs / parsedParams.data.pageSize);
 
         return c.json<PaginatedApiSuccess<Spec[]>>({
             success: true,
             data: specs,
             meta: {
                 pagination: {
-                    page: parsedParams.data.page,
+                    page: calculatedPage,
                     pageSize: parsedParams.data.pageSize,
                     total: totalSpecs,
                     totalPages,

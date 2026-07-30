@@ -38,6 +38,16 @@ export function createRunRoutes<
                 projectId: project.id,
             },
         });
+
+        const totalPages = Math.max(
+            1,
+            Math.ceil(totalRuns / parsedParams.data.pageSize),
+        );
+
+        const calculatedPage = Math.min(
+            parsedParams.data.page,
+            totalPages,
+        );
         
         const runs = await ctx.db.run.findMany({
             where: {
@@ -46,18 +56,16 @@ export function createRunRoutes<
             orderBy: {
                 createdAt: 'desc',
             },
-            skip: (parsedParams.data.page - 1) * parsedParams.data.pageSize,
+            skip: (calculatedPage - 1) * parsedParams.data.pageSize,
             take: parsedParams.data.pageSize,
         });
-
-        const totalPages = totalRuns === 0 ? 0 : Math.ceil(totalRuns / parsedParams.data.pageSize);
 
         return c.json<PaginatedApiSuccess<Run[]>>({
             success: true,
             data: runs,
             meta: {
                 pagination: {
-                    page: parsedParams.data.page,
+                    page: calculatedPage,
                     pageSize: parsedParams.data.pageSize,
                     total: totalRuns,
                     totalPages,

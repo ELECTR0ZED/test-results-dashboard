@@ -22,8 +22,8 @@ export type Run = z.infer<typeof RunSchema>;
 
 export const GetProjectRunsSchema = z.object({
     publicId: z.uuid(),
-    page: z.coerce.number().min(1).optional().default(1),
-    pageSize: z.coerce.number().min(1).max(25).optional().default(10)
+    page: z.coerce.number().int().min(1).optional().default(1),
+    pageSize: z.coerce.number().int().min(1).max(25).optional().default(10)
 });
 
 export type GetProjectRuns = z.infer<typeof GetProjectRunsSchema>;

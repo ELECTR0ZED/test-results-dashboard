@@ -21,8 +21,8 @@ export type Spec = z.infer<typeof SpecSchema>;
 export const GetProjectRunsSpecsSchema = z.object({
     projectPublicId: z.uuid(),
     runPublicId: z.uuid(),
-    page: z.coerce.number().min(1).optional().default(1),
-    pageSize: z.coerce.number().min(1).max(25).optional().default(25)
+    page: z.coerce.number().int().min(1).optional().default(1),
+    pageSize: z.coerce.number().int().min(1).max(25).optional().default(25)
 });
 
 export type GetProjectRunsSpecs = z.infer<typeof GetProjectRunsSpecsSchema>;
