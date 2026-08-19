@@ -48,7 +48,6 @@ model Spec {
 model SpecTest {
   id       Int    @id @default(autoincrement())
   specId   Int
-  title    String
   status   String
   duration Int
 
@@ -56,9 +55,23 @@ model SpecTest {
   trace   String?
 
   spec             Spec              @relation(fields: [specId], references: [id], onDelete: Cascade)
+  titleParts       SpecTestTitlePart[]
   specTestAttempts SpecTestAttempt[]
 
   @@index([specId])
+}
+
+model SpecTestTitlePart {
+	id         Int    @id @default(autoincrement())
+	specTestId Int
+	position   Int
+	value      String
+
+	specTest SpecTest @relation(fields: [specTestId], references: [id], onDelete: Cascade)
+
+	@@unique([specTestId, position])
+	@@index([position, value])
+	@@index([value])
 }
 
 model SpecTestAttempt {
