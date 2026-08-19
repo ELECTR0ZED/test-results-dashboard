@@ -33,7 +33,7 @@ export default function SpecsTable() {
             setSpecs(response.data);
             setPagination(response.meta.pagination);
         } catch (error) {
-            addToast('Failed to fetch runs', error instanceof Error ? error.message : 'Unknown error', 'error');
+            addToast('Failed to fetch specs', error instanceof Error ? error.message : 'Unknown error', 'error');
         } finally {
             setLoading(false);
         }
