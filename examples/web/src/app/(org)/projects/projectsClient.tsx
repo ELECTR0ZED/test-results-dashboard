@@ -18,7 +18,7 @@ export function ProjectsClient() {
     const refreshProjects = useCallback(() => {
         setLoading(true);
         getProjects()
-            .then(setProjects)
+            .then(response => setProjects(response.data))
             .catch((error) => {
                 console.error(error);
                 addToast('Failed to load projects', error.message, 'error');

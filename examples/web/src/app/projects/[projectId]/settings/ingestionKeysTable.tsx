@@ -3,10 +3,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useProject } from '@/contexts/projectContext';
 import { PublicIngestKey } from '@electr0zed/test-results-dashboard-api-types';
-import { createIngestionKey, getProjectIngestionKeys } from '@/lib/api/projects';
+import { createIngestionKey, getProjectIngestionKeys } from '@/lib/api/ingestionKeys';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { Button } from '@/components/catalyst/button';
-import { revokeIngestionKey, deleteIngestionKey } from '@/lib/api/projects';
+import { revokeIngestionKey, deleteIngestionKey } from '@/lib/api/ingestionKeys';
 import { useToast } from '@/contexts/toastContext';
 import { DialogBody, DialogActions, Dialog, DialogTitle, DialogDescription } from '@/components/catalyst/dialog';
 import { Field, FieldGroup, Fieldset, Label } from '@/components/catalyst/fieldset';
@@ -32,7 +32,7 @@ export default function IngestionKeysTable() {
         setKeys([]);
         try {
             const ingestionKeys = await getProjectIngestionKeys(project.publicId);
-            setKeys(ingestionKeys);
+            setKeys(ingestionKeys.data);
         } catch (error) {
             addToast('Failed to fetch ingestion keys', error instanceof Error ? error.message : 'Unknown error', 'error');
         } finally {
@@ -80,7 +80,7 @@ export default function IngestionKeysTable() {
 
             fetchIngestionKeys();
 
-            setNewKey(newIngestionKey.apiKey);
+            setNewKey(newIngestionKey.data.apiKey);
             setIsKeyOpen(true);
         } catch (error) {
             addToast(

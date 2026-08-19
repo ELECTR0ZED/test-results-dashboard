@@ -1,9 +1,8 @@
 import { createAPIWorker } from '@electr0zed/test-results-dashboard-api-dashboard';
-import { env } from 'cloudflare:workers';
 
 const app = createAPIWorker({
 	basePath: '/api',
-	d1: env.DB,
+	d1Binding: 'DB',
 });
 
 export default app;

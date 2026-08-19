@@ -25,7 +25,7 @@ export default async function ProjectLayout({
 	}
 
     return (
-        <ProjectProvider projectId={projectId} initialProject={project}>
+        <ProjectProvider projectId={projectId} initialProject={project.data}>
             <ProjectApplicationLayout projectId={projectId}>
                 {children}
             </ProjectApplicationLayout>

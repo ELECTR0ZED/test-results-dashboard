@@ -17,5 +17,10 @@
       "database_id": "1e658d93-4b69-460f-adac-ccb396859581",
       "remote": true
     }
-  ]
+  ],
+  "triggers": {
+		"crons": [
+			"*/5 * * * *"
+		]
+	}
 }

@@ -38,7 +38,7 @@ export default function ProjectSettings() {
 				active,
 			});
 
-			setProject(updatedProject);
+			setProject(updatedProject.data);
 
 			addToast(
 				'Project updated',

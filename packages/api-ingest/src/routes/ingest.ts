@@ -6,40 +6,45 @@ import type { HonoEnv } from '../types';
 import { z } from 'zod';
 import { verifyProjectIngestionSecret } from '../services/auth';
 
-const app = new Hono<HonoEnv>();
 
-app.post('/events', async(c) => {
-	const ctx = c.get('ctx');
+export function createIngestRoutes<
+	TD1Binding extends string,
+>() {
+    const app = new Hono<HonoEnv<TD1Binding>>();
 
-    const authHeader = c.req.header('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
-    }
+    app.post('/events', async(c) => {
+        const ctx = c.get('ctx');
 
-    let body: unknown;
+        const authHeader = c.req.header('authorization');
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
+        }
 
-    try {
-        body = await c.req.json();
-    } catch (error) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body' }, 400);
-    }
+        let body: unknown;
 
-    const parseResult = IngestEventRequestSchema.safeParse(body);
-    if (!parseResult.success) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body', details: z.flattenError(parseResult.error) }, 400);
-    }
+        try {
+            body = await c.req.json();
+        } catch (error) {
+            return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body' }, 400);
+        }
 
-    const projectPublicId = parseResult.data.event.payload.projectId;
-    const apiKey = authHeader.slice('Bearer '.length).trim();
+        const parseResult = IngestEventRequestSchema.safeParse(body);
+        if (!parseResult.success) {
+            return c.json<IngestEventErrorResponse>({ ok: false, error: 'Invalid request body', details: z.flattenError(parseResult.error) }, 400);
+        }
 
-    const isValid = await verifyProjectIngestionSecret(ctx, projectPublicId, apiKey);
-    if (!isValid) {
-        return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
-    }
+        const projectPublicId = parseResult.data.event.payload.projectId;
+        const apiKey = authHeader.slice('Bearer '.length).trim();
 
-    await dispatchEvent(ctx, parseResult.data.event);
+        const isValid = await verifyProjectIngestionSecret<TD1Binding>(ctx, projectPublicId, apiKey);
+        if (!isValid) {
+            return c.json<IngestEventErrorResponse>({ ok: false, error: 'Unauthorized' }, 401);
+        }
 
-    return c.json<IngestEventSuccessResponse>({ ok: true });
-});
+        await dispatchEvent<TD1Binding>(ctx, parseResult.data.event);
 
-export default app;
+        return c.json<IngestEventSuccessResponse>({ ok: true });
+    });
+
+    return app;
+}
