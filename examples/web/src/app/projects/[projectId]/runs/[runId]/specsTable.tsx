@@ -9,6 +9,7 @@ import { useSearchParams } from "next/navigation";
 import { Paginator } from '@/components/paginator';
 import { getRunSpecs } from '@/lib/api/specs';
 import { useRun } from '@/contexts/runContext';
+import { RunResults } from '@/components/runResults';
 
 export default function SpecsTable() {
     const searchParams = useSearchParams();
@@ -49,13 +50,9 @@ export default function SpecsTable() {
                 <TableHead>
                     <TableRow>
                         <TableCell>Name</TableCell>
-                        <TableCell>Tests</TableCell>
-                        <TableCell>Passed</TableCell>
-                        <TableCell>Failed</TableCell>
-                        <TableCell>Pending</TableCell>
-                        <TableCell>Skipped</TableCell>
                         <TableCell>Duration</TableCell>
                         <TableCell>Status</TableCell>
+                        <TableCell>Results</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -72,13 +69,16 @@ export default function SpecsTable() {
                             return (
                                 <TableRow key={spec.id} href={`/projects/${project.publicId}/runs/${run.publicId}`}>
                                     <TableCell>{spec.filename}</TableCell>
-                                    <TableCell>{spec.tests}</TableCell>
-                                    <TableCell>{spec.passed}</TableCell>
-                                    <TableCell>{spec.failed}</TableCell>
-                                    <TableCell>{spec.pending}</TableCell>
-                                    <TableCell>{spec.skipped}</TableCell>
                                     <TableCell>{spec.duration}</TableCell>
                                     <TableCell>{spec.status}</TableCell>
+                                    <TableCell>
+                                        <RunResults
+                                            passed={spec.passed}
+                                            failed={spec.failed}
+                                            skipped={spec.skipped}
+                                            pending={spec.pending}
+                                        />
+                                    </TableCell>
                                 </TableRow>
                             );
                         })
