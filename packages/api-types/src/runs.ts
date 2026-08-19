@@ -34,3 +34,21 @@ export const GetProjectRunSchema = z.object({
 });
 
 export type GetProjectRun = z.infer<typeof GetProjectRunSchema>;
+
+export const RunStatsSchema = z.object({
+    specs: z.number().nonnegative(),
+    tests: z.number().nonnegative(),
+    passed: z.number().nonnegative(),
+    failed: z.number().nonnegative(),
+    pending: z.number().nonnegative(),
+    skipped: z.number().nonnegative(),
+    duration: z.number().nonnegative(),
+});
+
+export type RunStats = z.infer<typeof RunStatsSchema>;
+
+export const RunWithStatsSchema = RunSchema.extend({
+    stats: RunStatsSchema,
+});
+
+export type RunWithStats = z.infer<typeof RunWithStatsSchema>;

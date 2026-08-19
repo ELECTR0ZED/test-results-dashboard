@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import { GetProjectRunsSchema, type Run, type PaginatedApiSuccess, GetProjectRunSchema, ApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
+import { GetProjectRunsSchema, type Run, type PaginatedApiSuccess, GetProjectRunSchema, ApiSuccess, RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
 import { NotFoundError } from '../services/errors';
 
 export function createRunRoutes<
@@ -60,9 +60,57 @@ export function createRunRoutes<
             take: parsedParams.data.pageSize,
         });
 
-        return c.json<PaginatedApiSuccess<Run[]>>({
+        const stats = await ctx.db.spec.groupBy({
+            by: ['runId'],
+            where: {
+                runId: {
+                    in: runs.map((run) => run.id),
+                },
+            },
+            _sum: {
+                tests: true,
+                passed: true,
+                failed: true,
+                pending: true,
+                skipped: true,
+                duration: true,
+            },
+            _count: {
+                _all: true,
+            },
+        });
+
+        const statsByRunId = new Map(
+            stats.map((stat) => [
+                stat.runId,
+                {
+                    specs: stat._count._all,
+                    tests: stat._sum.tests ?? 0,
+                    passed: stat._sum.passed ?? 0,
+                    failed: stat._sum.failed ?? 0,
+                    pending: stat._sum.pending ?? 0,
+                    skipped: stat._sum.skipped ?? 0,
+                    duration: stat._sum.duration ?? 0,
+                },
+            ]),
+        );
+
+        const results = runs.map((run) => ({
+            ...run,
+            stats: statsByRunId.get(run.id) ?? {
+                specs: 0,
+                tests: 0,
+                passed: 0,
+                failed: 0,
+                pending: 0,
+                skipped: 0,
+                duration: 0,
+            },
+        }));
+
+        return c.json<PaginatedApiSuccess<RunWithStats[]>>({
             success: true,
-            data: runs,
+            data: results,
             meta: {
                 pagination: {
                     page: calculatedPage,
