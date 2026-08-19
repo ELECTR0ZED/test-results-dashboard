@@ -1,8 +1,8 @@
 import type { RunFinishEvent } from '@electr0zed/test-results-dashboard-core';
 import type { AppCtx } from '../../types';
 
-export async function handleRunFinish(
-	ctx: AppCtx,
+export async function handleRunFinish<TD1Binding extends string>(
+	ctx: AppCtx<TD1Binding>,
 	event: RunFinishEvent,
 ): Promise<void> {
 	const { db } = ctx;
@@ -28,6 +28,7 @@ export async function handleRunFinish(
 			data: {
 				status: 'failed',
 				endedAt: new Date(),
+				lastActivityAt: new Date(),
 			},
 		});
 
@@ -47,6 +48,7 @@ export async function handleRunFinish(
 			os: formatOs(event.payload.run.osName, event.payload.run.osVersion),
 			startedAt: parseOptionalDate(event.payload.run.startedAt),
 			endedAt: parseOptionalDate(event.payload.run.endedAt) ?? new Date(),
+			lastActivityAt: new Date(),
 		},
 	});
 }

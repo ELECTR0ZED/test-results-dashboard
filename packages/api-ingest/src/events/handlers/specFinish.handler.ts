@@ -1,8 +1,8 @@
 import type { SpecFinishEvent } from '@electr0zed/test-results-dashboard-core';
 import type { AppCtx } from '../../types';
 
-export async function handleSpecFinish(
-	ctx: AppCtx,
+export async function handleSpecFinish<TD1Binding extends string>(
+	ctx: AppCtx<TD1Binding>,
 	event: SpecFinishEvent,
 ): Promise<void> {
 	const { db } = ctx;
@@ -19,6 +19,15 @@ export async function handleSpecFinish(
 	if (!run) {
 		throw new Error(`Run not found: ${event.payload.runId}`);
 	}
+
+	await db.run.update({
+		where: {
+			id: run.id,
+		},
+		data: {
+			lastActivityAt: new Date(),
+		},
+	});
 
 	const filename = getSpecFilename(event.payload.spec);
 

@@ -1,7 +1,7 @@
 import type { AppCtx } from '../types';
 
-export async function verifyProjectIngestionSecret(
-    ctx: AppCtx,
+export async function verifyProjectIngestionSecret<TD1Binding extends string>(
+    ctx: AppCtx<TD1Binding>,
     projectPublicId: string,
     providedSecret: string,
 ): Promise<boolean> {
