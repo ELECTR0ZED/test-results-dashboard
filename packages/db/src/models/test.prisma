@@ -8,10 +8,10 @@ model Run {
   browserVersion   String
   os               String
 
-  status    String    @default("running")
-  startedAt DateTime
-  endedAt   DateTime?
-  lastActivityAt DateTime @default(now())
+  status         String    @default("running")
+  startedAt      DateTime
+  endedAt        DateTime?
+  lastActivityAt DateTime  @default(now())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -36,7 +36,7 @@ model Spec {
   startedAt DateTime
   endedAt   DateTime
 
-  status  String @default("running")
+  status  String  @default("running")
   message String?
 
   run       Run        @relation(fields: [runId], references: [id], onDelete: Cascade)
@@ -54,7 +54,7 @@ model SpecTest {
   message String?
   trace   String?
 
-  spec             Spec              @relation(fields: [specId], references: [id], onDelete: Cascade)
+  spec             Spec                @relation(fields: [specId], references: [id], onDelete: Cascade)
   titleParts       SpecTestTitlePart[]
   specTestAttempts SpecTestAttempt[]
 
@@ -62,16 +62,16 @@ model SpecTest {
 }
 
 model SpecTestTitlePart {
-	id         Int    @id @default(autoincrement())
-	specTestId Int
-	position   Int
-	value      String
+  id         Int    @id @default(autoincrement())
+  specTestId Int
+  position   Int
+  value      String
 
-	specTest SpecTest @relation(fields: [specTestId], references: [id], onDelete: Cascade)
+  specTest SpecTest @relation(fields: [specTestId], references: [id], onDelete: Cascade)
 
-	@@unique([specTestId, position])
-	@@index([position, value])
-	@@index([value])
+  @@unique([specTestId, position])
+  @@index([position, value])
+  @@index([value])
 }
 
 model SpecTestAttempt {

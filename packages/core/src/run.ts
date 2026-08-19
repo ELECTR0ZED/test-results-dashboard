@@ -56,7 +56,7 @@ export const TestAttemptSchema = z.object({
 export type TestAttempt = z.infer<typeof TestAttemptSchema>;
 
 export const TestInfoSchema = z.object({
-    title: z.string().array(),
+    title: z.string().min(1).array().min(1),
     status: z.union([TestStatusSchema, z.string()]),
     displayError: z.string().optional(),
     attempts: TestAttemptSchema.array().optional(),
