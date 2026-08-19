@@ -87,7 +87,14 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		const specTest = await db.specTest.create({
 			data: {
 				specId: spec.id,
-				title: test.title.join(' > '),
+				titleParts: {
+					createMany: {
+						data: test.title.map((value, position) => ({
+							position,
+							value,
+						})),
+					},
+				},
 				status: test.status,
 				duration: test.duration ?? 0,
 				message: test.displayError,
