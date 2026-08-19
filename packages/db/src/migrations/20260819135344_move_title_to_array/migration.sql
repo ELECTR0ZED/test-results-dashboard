@@ -12,24 +12,8 @@ INSERT INTO "SpecTestTitlePart" ("specTestId", "position", "value")
 SELECT "id", 0, "title"
 FROM "SpecTest";
 
--- RedefineTables
-PRAGMA defer_foreign_keys=ON;
-PRAGMA foreign_keys=OFF;
-CREATE TABLE "new_SpecTest" (
-    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-    "specId" INTEGER NOT NULL,
-    "status" TEXT NOT NULL,
-    "duration" INTEGER NOT NULL,
-    "message" TEXT,
-    "trace" TEXT,
-    CONSTRAINT "SpecTest_specId_fkey" FOREIGN KEY ("specId") REFERENCES "Spec" ("id") ON DELETE CASCADE ON UPDATE CASCADE
-);
-INSERT INTO "new_SpecTest" ("duration", "id", "message", "specId", "status", "trace") SELECT "duration", "id", "message", "specId", "status", "trace" FROM "SpecTest";
-DROP TABLE "SpecTest";
-ALTER TABLE "new_SpecTest" RENAME TO "SpecTest";
-CREATE INDEX "SpecTest_specId_idx" ON "SpecTest"("specId");
-PRAGMA foreign_keys=ON;
-PRAGMA defer_foreign_keys=OFF;
+-- Remove the old column without recreating the table
+ALTER TABLE "SpecTest" DROP COLUMN "title";
 
 -- CreateIndex
 CREATE INDEX "SpecTestTitlePart_position_value_idx" ON "SpecTestTitlePart"("position", "value");
