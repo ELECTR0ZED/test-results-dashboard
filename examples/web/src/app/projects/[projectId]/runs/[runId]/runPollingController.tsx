@@ -21,7 +21,9 @@ export default function RunPollingController() {
 		const poll = async () => {
 			try {
 				await refreshRun();
-			} catch {} finally {
+			} catch {
+				console.error('Failed to refresh run data');
+			} finally {
 				if (!cancelled) {
 					timeout = window.setTimeout(() => {
 						void poll();

@@ -15,6 +15,7 @@ import {
 	isUsefulValue,
 } from '@/lib/runPresentation';
 import { useEffect, useState, type ReactNode } from 'react';
+import { LocalDate } from '@/components/localDate';
 
 export default function RunSummary() {
 	const { run } = useRun();
@@ -100,16 +101,6 @@ function MetadataItem({ label, value }: { label: string; value: ReactNode }) {
 			<div className="mt-1 text-sm font-medium text-zinc-950 dark:text-white">{value}</div>
 		</div>
 	);
-}
-
-function LocalDate({ value }: { value: Date }) {
-	const [formattedDate, setFormattedDate] = useState<string>();
-
-	useEffect(() => {
-		setFormattedDate(formatRunDate(value));
-	}, [value]);
-
-	return <time dateTime={value.toISOString()}>{formattedDate ?? '—'}</time>;
 }
 
 function MetadataBadge({ value }: { value: string }) {

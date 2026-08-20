@@ -15,6 +15,7 @@ import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types'
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
+import { LocalDate } from '@/components/localDate';
 
 type RunCardProps = {
 	projectPublicId: string;
