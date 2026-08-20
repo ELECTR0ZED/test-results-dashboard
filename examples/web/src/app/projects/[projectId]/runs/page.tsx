@@ -1,21 +1,25 @@
-import React from 'react';
 import { Divider } from '@/components/catalyst/divider';
 import { Heading } from '@/components/catalyst/heading';
-import { Metadata } from 'next';
-import ProjectRunsTable from './projectRunsTable';
+import { Text } from '@/components/catalyst/text';
+import type { Metadata } from 'next';
+import ProjectRunsList from './projectRunsList';
 
 export const metadata: Metadata = {
-  title: 'Project Runs',
-}
+	title: 'Project Runs',
+};
 
-export default async function ProjectRuns() {
+export default function ProjectRuns() {
+	return (
+		<>
+			<Heading>Project Runs</Heading>
 
-  return (
-    <>
-      <Heading>Project Runs</Heading>
-      <Divider className="my-10 mt-6" />
+			<Text className="mt-2">
+				Review recent test executions and their results.
+			</Text>
 
-      <ProjectRunsTable />
-    </>
-  )
+			<Divider className="my-6" />
+
+			<ProjectRunsList />
+		</>
+	);
 }
