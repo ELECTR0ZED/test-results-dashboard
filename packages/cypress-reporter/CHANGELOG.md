@@ -1,5 +1,12 @@
 # @electr0zed/test-results-dashboard-cypress-reporter
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [2d33038]
+  - @electr0zed/test-results-dashboard-core@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes
