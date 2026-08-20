@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import { GetProjectRunsSpecsSchema, type PaginatedApiSuccess, Spec } from '@electr0zed/test-results-dashboard-api-types';
+import { FullSpec, GetProjectRunsSpecsSchema, type PaginatedApiSuccess, Spec } from '@electr0zed/test-results-dashboard-api-types';
 import { NotFoundError } from '../services/errors';
 
 export function createSpecRoutes<
@@ -75,9 +75,96 @@ export function createSpecRoutes<
             take: parsedParams.data.pageSize,
         });
 
-        return c.json<PaginatedApiSuccess<Spec[]>>({
+        const specIds = specs.map((spec) => spec.id);
+
+        const specTests = await ctx.db.specTest.findMany({
+            where: {
+                specId: {
+                    in: specIds,
+                },
+            },
+            orderBy: {
+                id: 'asc',
+            },
+        });
+
+        const titleParts = await ctx.db.specTestTitlePart.findMany({
+            where: {
+                specTest: {
+                    is: {
+                        specId: {
+                            in: specIds,
+                        },
+                    },
+                },
+            },
+            orderBy: [
+                {
+                    specTestId: 'asc',
+                },
+                {
+                    position: 'asc',
+                },
+            ],
+        });
+
+        const attempts = await ctx.db.specTestAttempt.findMany({
+            where: {
+                specTest: {
+                    is: {
+                        specId: {
+                            in: specIds,
+                        },
+                    },
+                },
+            },
+            orderBy: [
+                {
+                    specTestId: 'asc',
+                },
+                {
+                    id: 'asc',
+                },
+            ],
+        });
+
+        const titlePartsByTest = new Map<number, typeof titleParts>();
+        const attemptsByTest = new Map<number, typeof attempts>();
+
+        for (const titlePart of titleParts) {
+            addToGroup(titlePartsByTest, titlePart.specTestId, titlePart);
+        }
+
+        for (const attempt of attempts) {
+            addToGroup(attemptsByTest, attempt.specTestId, attempt);
+        }
+
+        const testsBySpec = new Map<
+            number,
+            Array<
+                (typeof specTests)[number] & {
+                    titleParts: typeof titleParts;
+                    specTestAttempts: typeof attempts;
+                }
+            >
+        >();
+
+        for (const test of specTests) {
+            addToGroup(testsBySpec, test.specId, {
+                ...test,
+                titleParts: titlePartsByTest.get(test.id) ?? [],
+                specTestAttempts: attemptsByTest.get(test.id) ?? [],
+            });
+        }
+
+        const fullSpecs = specs.map((spec) => ({
+            ...spec,
+            specTests: testsBySpec.get(spec.id) ?? [],
+        }));
+
+        return c.json<PaginatedApiSuccess<FullSpec[]>>({
             success: true,
-            data: specs,
+            data: fullSpecs,
             meta: {
                 pagination: {
                     page: calculatedPage,
@@ -90,4 +177,18 @@ export function createSpecRoutes<
     });
 
 	return app;
+}
+
+function addToGroup<T>(
+	groups: Map<number, T[]>,
+	key: number,
+	value: T,
+) {
+	const existing = groups.get(key);
+
+	if (existing) {
+		existing.push(value);
+	} else {
+		groups.set(key, [value]);
+	}
 }

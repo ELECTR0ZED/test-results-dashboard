@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FullSpecTestSchema } from './specTests.js';
 
 export const SpecSchema = z.object({
     id: z.number().int().positive(),
@@ -26,3 +27,9 @@ export const GetProjectRunsSpecsSchema = z.object({
 });
 
 export type GetProjectRunsSpecs = z.infer<typeof GetProjectRunsSpecsSchema>;
+
+export const FullSpecSchema = SpecSchema.extend({
+    specTests: z.array(FullSpecTestSchema),
+});
+
+export type FullSpec = z.infer<typeof FullSpecSchema>;

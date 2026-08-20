@@ -5,3 +5,4 @@ export * from './ingestionKeys.js';
 export * from './runs.js';
 export * from './constants.js';
 export * from './specs.js';
+export * from './specTests.js';

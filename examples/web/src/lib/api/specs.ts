@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { apiRequest, Options } from './core';
-import { type Spec, PaginatedApiSuccess, PaginatedApiMeta, SpecSchema } from '@electr0zed/test-results-dashboard-api-types';
+import { type FullSpec, PaginatedApiSuccess, PaginatedApiMeta, FullSpecSchema } from '@electr0zed/test-results-dashboard-api-types';
 
 export function getRunSpecs(
     projectPublicId: string,
@@ -8,8 +8,8 @@ export function getRunSpecs(
     page: number,
     pageSize: number,
     options: Options = {},
-): Promise<PaginatedApiSuccess<Spec[]>> {
-    return apiRequest<Spec[], PaginatedApiMeta>(`/api/projects/${projectPublicId}/runs/${runPublicId}/specs?page=${page}&pageSize=${pageSize}`, z.array(SpecSchema), {
+): Promise<PaginatedApiSuccess<FullSpec[]>> {
+    return apiRequest<FullSpec[], PaginatedApiMeta>(`/api/projects/${projectPublicId}/runs/${runPublicId}/specs?page=${page}&pageSize=${pageSize}`, z.array(FullSpecSchema), {
         method: 'GET',
         apiFetcher: options.apiFetcher,
     });

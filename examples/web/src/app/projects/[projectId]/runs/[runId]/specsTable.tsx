@@ -2,21 +2,21 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { useProject } from '@/contexts/projectContext';
-import { DEFAULT_PAGE_SIZE, PaginationMeta, Spec } from '@electr0zed/test-results-dashboard-api-types';
+import { DEFAULT_PAGE_SIZE, PaginationMeta, FullSpec } from '@electr0zed/test-results-dashboard-api-types';
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { useToast } from '@/contexts/toastContext';
 import { useSearchParams } from "next/navigation";
 import { Paginator } from '@/components/paginator';
 import { getRunSpecs } from '@/lib/api/specs';
 import { useRun } from '@/contexts/runContext';
-import { RunResults } from '@/components/runResults';
+import { SpecCard } from '@/components/specCard';
 
-export default function SpecsTable() {
+export default function SpecsList() {
     const searchParams = useSearchParams();
     const { project } = useProject();
     const { run } = useRun();
     const { addToast } = useToast();
-    const [specs, setSpecs] = useState<Spec[]>([]);
+    const [specs, setSpecs] = useState<FullSpec[]>([]);
     const [pagination, setPagination] = useState<PaginationMeta>({
         page: 1,
         pageSize: DEFAULT_PAGE_SIZE,
@@ -46,45 +46,20 @@ export default function SpecsTable() {
 
     return (
         <>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Duration</TableCell>
-                        <TableCell>Status</TableCell>
-                        <TableCell>Results</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {loading ? (
-                        <TableRow className="animate-pulse mx-auto">
-                            <TableCell colSpan={4}>Loading...</TableCell>
-                        </TableRow>
-                    ) : specs.length === 0 ? (
-                        <TableRow className='mx-auto'>
-                            <TableCell colSpan={4}>No tests have been run yet.</TableCell>
-                        </TableRow>
-                    ) : (
-                        specs.map((spec) => {
-                            return (
-                                <TableRow key={spec.id} href={`/projects/${project.publicId}/runs/${run.publicId}`}>
-                                    <TableCell>{spec.filename}</TableCell>
-                                    <TableCell>{spec.duration}</TableCell>
-                                    <TableCell>{spec.status}</TableCell>
-                                    <TableCell>
-                                        <RunResults
-                                            passed={spec.passed}
-                                            failed={spec.failed}
-                                            skipped={spec.skipped}
-                                            pending={spec.pending}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })
-                    )}
-                </TableBody>
-            </Table>
+            <div className="space-y-4">
+				{loading ? (
+					<SpecsLoadingState />
+				) : specs.length === 0 ? (
+					<div className="rounded-xl border border-dashed border-zinc-950/10 px-6 py-12 text-center text-sm text-zinc-500 dark:border-white/10 dark:text-zinc-400">
+						No specs have been recorded for this run.
+					</div>
+				) : (
+					specs.map((spec) => (
+						<SpecCard key={spec.id} spec={spec} />
+					))
+				)}
+			</div>
+            
             <Paginator
                 currentPage={pagination.page}
                 totalPages={pagination.totalPages}
@@ -92,4 +67,17 @@ export default function SpecsTable() {
             />
         </>
     )
+}
+
+function SpecsLoadingState() {
+	return (
+		<div className="space-y-4" aria-label="Loading specs">
+			{Array.from({ length: 3 }).map((_, index) => (
+				<div
+					key={index}
+					className="h-24 animate-pulse rounded-xl bg-zinc-950/5 dark:bg-white/5"
+				/>
+			))}
+		</div>
+	);
 }
