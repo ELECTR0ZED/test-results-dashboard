@@ -1,9 +1,4 @@
-import {
-    CheckCircleIcon,
-    ClockIcon,
-    MinusCircleIcon,
-    XCircleIcon,
-} from '@heroicons/react/20/solid';
+import { CheckCircleIcon, ClockIcon, MinusCircleIcon, XCircleIcon } from '@heroicons/react/20/solid';
 
 type RunResultsProps = {
 	passed: number;
@@ -12,12 +7,7 @@ type RunResultsProps = {
 	skipped: number;
 };
 
-export function RunResults({
-	passed,
-	failed,
-	pending,
-	skipped,
-}: RunResultsProps) {
+export function RunResults({ passed, failed, pending, skipped }: RunResultsProps) {
 	const results = [
 		{
 			label: 'Passed',
@@ -53,9 +43,7 @@ export function RunResults({
 					title={`${count} ${label.toLowerCase()}`}
 					aria-label={`${count} ${label.toLowerCase()}`}
 					className={`inline-flex items-center gap-1 text-sm tabular-nums ${
-						count === 0
-							? 'text-zinc-300 dark:text-zinc-600'
-							: colour
+						count === 0 ? 'text-zinc-300 dark:text-zinc-600' : colour
 					}`}
 				>
 					<Icon className="size-4" aria-hidden="true" />

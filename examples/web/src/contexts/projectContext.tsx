@@ -1,15 +1,8 @@
 'use client';
 
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-	type ReactNode,
-} from 'react';
-import type { Project } from '@electr0zed/test-results-dashboard-api-types';
 import { getProject } from '@/lib/api/projects';
+import type { Project } from '@electr0zed/test-results-dashboard-api-types';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 type ProjectContextValue = {
 	project: Project;
@@ -25,11 +18,7 @@ type ProjectProviderProps = {
 	children: ReactNode;
 };
 
-export function ProjectProvider({
-	projectId,
-	initialProject,
-	children,
-}: ProjectProviderProps) {
+export function ProjectProvider({ projectId, initialProject, children }: ProjectProviderProps) {
 	const [project, setProject] = useState<Project>(initialProject);
 
 	const refreshProject = useCallback(async () => {
@@ -38,17 +27,16 @@ export function ProjectProvider({
 		setProject(project.data);
 	}, [projectId]);
 
-	const value = useMemo(() => ({
-		project,
-		refreshProject,
-		setProject,
-	}), [project, refreshProject]);
-
-	return (
-		<ProjectContext.Provider value={value}>
-			{children}
-		</ProjectContext.Provider>
+	const value = useMemo(
+		() => ({
+			project,
+			refreshProject,
+			setProject,
+		}),
+		[project, refreshProject]
 	);
+
+	return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
 }
 
 export function useProject() {

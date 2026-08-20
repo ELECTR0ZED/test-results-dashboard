@@ -1,7 +1,7 @@
-import type { Metadata } from 'next';
 import { Divider } from '@/components/catalyst/divider';
 import { Subheading } from '@/components/catalyst/heading';
 import { Text } from '@/components/catalyst/text';
+import type { Metadata } from 'next';
 import RunSummary from './runSummary';
 import SpecsTable from './specsList';
 
@@ -16,9 +16,7 @@ export default function ProjectRunDetails() {
 
 			<div className="mt-10">
 				<Subheading>Specs</Subheading>
-				<Text className="mt-1">
-					Results grouped by spec file.
-				</Text>
+				<Text className="mt-1">Results grouped by spec file.</Text>
 			</div>
 
 			<Divider className="my-6" />

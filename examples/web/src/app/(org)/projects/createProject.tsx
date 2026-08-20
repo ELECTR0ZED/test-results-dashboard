@@ -1,18 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { Button } from '@/components/catalyst/button';
 import { Dialog, DialogActions, DialogBody, DialogTitle } from '@/components/catalyst/dialog';
 import { Field, Label } from '@/components/catalyst/fieldset';
 import { Input } from '@/components/catalyst/input';
-import { createProject } from '@/lib/api/projects';
 import { useToast } from '@/contexts/toastContext';
+import { createProject } from '@/lib/api/projects';
+import { useState } from 'react';
 
-export default function CreateProject({
-	refreshProjects
-}: {
-	refreshProjects: () => void
-}) {
+export default function CreateProject({ refreshProjects }: { refreshProjects: () => void }) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [name, setName] = useState('');
 	const [loading, setLoading] = useState(false);
@@ -37,11 +33,11 @@ export default function CreateProject({
 		if (loading) return;
 		setIsOpen(false);
 		setName('');
-	}
+	};
 
-  	return (
+	return (
 		<>
-			<Button type="button" onClick={() => setIsOpen(true)} className='cursor-pointer'>
+			<Button type="button" onClick={() => setIsOpen(true)} className="cursor-pointer">
 				New Project
 			</Button>
 			<Dialog open={isOpen} onClose={closeDialog} size="md">
@@ -49,18 +45,24 @@ export default function CreateProject({
 				<DialogBody>
 					<Field>
 						<Label>Name</Label>
-						<Input type="text" placeholder="Project Name" value={name} onChange={(e) => setName(e.target.value)} disabled={loading} />
+						<Input
+							type="text"
+							placeholder="Project Name"
+							value={name}
+							onChange={(e) => setName(e.target.value)}
+							disabled={loading}
+						/>
 					</Field>
 				</DialogBody>
 				<DialogActions>
-					<Button type="button" onClick={closeDialog} className='cursor-pointer' plain disabled={loading}>
+					<Button type="button" onClick={closeDialog} className="cursor-pointer" plain disabled={loading}>
 						Cancel
 					</Button>
-					<Button type="button" onClick={handleCreateProject} className='cursor-pointer' disabled={loading}>
+					<Button type="button" onClick={handleCreateProject} className="cursor-pointer" disabled={loading}>
 						Create
 					</Button>
 				</DialogActions>
 			</Dialog>
 		</>
-  	);
+	);
 }

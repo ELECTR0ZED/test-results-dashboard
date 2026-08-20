@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRun } from '@/contexts/runContext';
 import { getRunDisplayStatus } from '@/lib/runPresentation';
+import { useEffect } from 'react';
 
 const POLLING_INTERVAL_MS = 15_000;
 
@@ -23,18 +23,12 @@ export default function RunPollingController() {
 				await refreshRun();
 			} finally {
 				if (!cancelled) {
-					timeout = window.setTimeout(
-						poll,
-						POLLING_INTERVAL_MS,
-					);
+					timeout = window.setTimeout(poll, POLLING_INTERVAL_MS);
 				}
 			}
 		};
 
-		timeout = window.setTimeout(
-			poll,
-			POLLING_INTERVAL_MS,
-		);
+		timeout = window.setTimeout(poll, POLLING_INTERVAL_MS);
 
 		return () => {
 			cancelled = true;

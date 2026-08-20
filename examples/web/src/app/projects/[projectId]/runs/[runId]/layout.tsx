@@ -1,8 +1,8 @@
 import 'server-only';
 
-import { notFound } from 'next/navigation';
 import { RunProvider } from '@/contexts/runContext';
 import { getProjectRun } from '@/lib/api/runs.server';
+import { notFound } from 'next/navigation';
 import RunPollingController from './runPollingController';
 
 export default async function RunLayout({
@@ -26,11 +26,7 @@ export default async function RunLayout({
 	}
 
 	return (
-		<RunProvider
-			projectId={projectId}
-			runId={runId}
-			initialRun={run.data}
-		>
+		<RunProvider projectId={projectId} runId={runId} initialRun={run.data}>
 			<RunPollingController />
 			{children}
 		</RunProvider>

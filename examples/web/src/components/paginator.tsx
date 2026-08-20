@@ -16,10 +16,7 @@ type PaginatorProps = {
 
 type PaginationItem = number | 'gap';
 
-function getPaginationItems(
-	currentPage: number,
-	totalPages: number,
-): PaginationItem[] {
+function getPaginationItems(currentPage: number, totalPages: number): PaginationItem[] {
 	if (totalPages <= 7) {
 		return Array.from({ length: totalPages }, (_, index) => index + 1);
 	}
@@ -29,34 +26,13 @@ function getPaginationItems(
 	}
 
 	if (currentPage >= totalPages - 3) {
-		return [
-			1,
-			'gap',
-			totalPages - 4,
-			totalPages - 3,
-			totalPages - 2,
-			totalPages - 1,
-			totalPages,
-		];
+		return [1, 'gap', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
 	}
 
-	return [
-		1,
-		'gap',
-		currentPage - 1,
-		currentPage,
-		currentPage + 1,
-		'gap',
-		totalPages,
-	];
+	return [1, 'gap', currentPage - 1, currentPage, currentPage + 1, 'gap', totalPages];
 }
 
-export function Paginator({
-	currentPage,
-	totalPages,
-	pathname,
-	searchParams = {},
-}: PaginatorProps) {
+export function Paginator({ currentPage, totalPages, pathname, searchParams = {} }: PaginatorProps) {
 	if (totalPages <= 1) {
 		return null;
 	}
@@ -83,13 +59,7 @@ export function Paginator({
 
 	return (
 		<Pagination>
-			<PaginationPrevious
-				href={
-					currentPage > 1
-						? createPageUrl(currentPage - 1)
-						: undefined
-				}
-			/>
+			<PaginationPrevious href={currentPage > 1 ? createPageUrl(currentPage - 1) : undefined} />
 
 			<PaginationList>
 				{items.map((item, index) => {
@@ -98,24 +68,14 @@ export function Paginator({
 					}
 
 					return (
-						<PaginationPage
-							key={item}
-							href={createPageUrl(item)}
-							current={item === currentPage}
-						>
+						<PaginationPage key={item} href={createPageUrl(item)} current={item === currentPage}>
 							{item}
 						</PaginationPage>
 					);
 				})}
 			</PaginationList>
 
-			<PaginationNext
-				href={
-					currentPage < totalPages
-						? createPageUrl(currentPage + 1)
-						: undefined
-				}
-			/>
+			<PaginationNext href={currentPage < totalPages ? createPageUrl(currentPage + 1) : undefined} />
 		</Pagination>
 	);
 }

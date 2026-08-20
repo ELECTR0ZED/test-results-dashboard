@@ -6,17 +6,17 @@ import { getProject } from '@/lib/api/projects.server';
 import { notFound } from 'next/navigation';
 
 export default async function ProjectLayout({
-    children,
-    params,
+	children,
+	params,
 }: {
-    children: React.ReactNode;
-    params: Promise<{
-        projectId: string;
-    }>;
+	children: React.ReactNode;
+	params: Promise<{
+		projectId: string;
+	}>;
 }) {
-    const { projectId } = await params;
+	const { projectId } = await params;
 
-    let project;
+	let project;
 
 	try {
 		project = await getProject(projectId);
@@ -24,11 +24,9 @@ export default async function ProjectLayout({
 		notFound();
 	}
 
-    return (
-        <ProjectProvider projectId={projectId} initialProject={project.data}>
-            <ProjectApplicationLayout projectId={projectId}>
-                {children}
-            </ProjectApplicationLayout>
-        </ProjectProvider>
-    );
+	return (
+		<ProjectProvider projectId={projectId} initialProject={project.data}>
+			<ProjectApplicationLayout projectId={projectId}>{children}</ProjectApplicationLayout>
+		</ProjectProvider>
+	);
 }

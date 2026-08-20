@@ -13,9 +13,7 @@ export default function ProjectRuns() {
 		<>
 			<Heading>Project Runs</Heading>
 
-			<Text className="mt-2">
-				Review recent test executions and their results.
-			</Text>
+			<Text className="mt-2">Review recent test executions and their results.</Text>
 
 			<Divider className="my-6" />
 

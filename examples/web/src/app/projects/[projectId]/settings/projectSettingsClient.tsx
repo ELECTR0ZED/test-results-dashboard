@@ -1,31 +1,31 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Field, FieldGroup, Fieldset, Label } from '@/components/catalyst/fieldset';
-import { Input } from '@/components/catalyst/input';
-import { Checkbox, CheckboxField } from '@/components/catalyst/checkbox';
-import { useProject } from '@/contexts/projectContext';
 import { Button } from '@/components/catalyst/button';
-import { useToast } from '@/contexts/toastContext';
-import { editProject, deleteProject } from '@/lib/api/projects';
-import { Heading, Subheading } from '@/components/catalyst/heading';
-import { Divider } from '@/components/catalyst/divider';
+import { Checkbox, CheckboxField } from '@/components/catalyst/checkbox';
 import { Dialog, DialogActions, DialogDescription, DialogTitle } from '@/components/catalyst/dialog';
-import { useRouter } from 'next/navigation';
+import { Divider } from '@/components/catalyst/divider';
+import { Field, FieldGroup, Fieldset, Label } from '@/components/catalyst/fieldset';
+import { Heading, Subheading } from '@/components/catalyst/heading';
+import { Input } from '@/components/catalyst/input';
 import { CopyBox } from '@/components/copyBox';
+import { useProject } from '@/contexts/projectContext';
+import { useToast } from '@/contexts/toastContext';
+import { deleteProject, editProject } from '@/lib/api/projects';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 import IngestionKeysTable from './ingestionKeysTable';
 
 export default function ProjectSettings() {
-    const { project, setProject } = useProject();
-    const { addToast } = useToast();
-    const router = useRouter();
+	const { project, setProject } = useProject();
+	const { addToast } = useToast();
+	const router = useRouter();
 
 	const [name, setName] = useState(project.name);
 	const [active, setActive] = useState(project.active);
 	const [saving, setSaving] = useState(false);
 
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [deleting, setDeleting] = useState(false);
+	const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+	const [deleting, setDeleting] = useState(false);
 
 	async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -40,136 +40,145 @@ export default function ProjectSettings() {
 
 			setProject(updatedProject.data);
 
-			addToast(
-				'Project updated',
-				'Your project settings have been saved.',
-				'success',
-			);
+			addToast('Project updated', 'Your project settings have been saved.', 'success');
 		} catch (error) {
 			console.error(error);
 
-			addToast(
-				'Failed to update project',
-				error instanceof Error ? error.message : 'Unknown error',
-				'error',
-			);
+			addToast('Failed to update project', error instanceof Error ? error.message : 'Unknown error', 'error');
 		} finally {
 			setSaving(false);
 		}
 	}
 
-    async function handleDeleteProject() {
-        setDeleting(true);
+	async function handleDeleteProject() {
+		setDeleting(true);
 
-        try {
+		try {
 			await deleteProject(project.publicId);
 
-			addToast(
-				'Project deleted',
-				'Your project has been deleted successfully.',
-				'success',
-			);
+			addToast('Project deleted', 'Your project has been deleted successfully.', 'success');
 
-            router.replace('/projects');
+			router.replace('/projects');
 		} catch (error) {
 			console.error(error);
 
-			addToast(
-				'Failed to delete project',
-				error instanceof Error ? error.message : 'Unknown error',
-				'error',
-			);
+			addToast('Failed to delete project', error instanceof Error ? error.message : 'Unknown error', 'error');
 
-            setDeleting(false);
+			setDeleting(false);
 		}
-    }
-
-    const closeDeleteDialog = () => {
-		if (deleting) return;
-		setIsDeleteOpen(false);
 	}
 
-    return (
-        <>
-            <div className="mx-auto space-y-8">
-                <section>
-                    <div>
-                        <Heading level={2}>Project Information</Heading>
-                        <Subheading>View your project details below.</Subheading>
-                        <Divider className="mb-4" />
-                    </div>
-                    <div className="max-w-lg space-y-2">
-                        <div className="flex items-center gap-2">
-                            <strong>Project ID:</strong>
-                            <CopyBox value={project.publicId} />
-                        </div>
-                    </div>
-                </section>
-                <section>
-                    <div>
-                        <Heading level={2}>Ingestion Keys</Heading>
-                        <Subheading>Ingestion keys are used to send test results to this project.</Subheading>
-                        <Divider className="mb-4" />
-                    </div>
-                    <div className="space-y-2 mx-auto">
-                        <IngestionKeysTable />
-                    </div>
-                </section>
-                <section>
-                    <div>
-                        <Heading level={2}>Edit Project</Heading>
-                        <Subheading>Update your project settings below.</Subheading>
-                        <Divider className="mb-4" />
-                    </div>
-                    <div className="max-w-lg">
-                        <form onSubmit={handleSubmit}>
-                            <Fieldset>
-                                <FieldGroup>
-                                    <Field>
-                                        <Label>Project Name</Label>
-                                        <Input type="text" placeholder="Enter project name" value={name} onChange={(e) => setName(e.target.value)} />
-                                    </Field>
-                                    <CheckboxField>
-                                        <Label>Is Project Active</Label>
-                                        <Checkbox name="isActive" checked={active} onChange={setActive} />
-                                    </CheckboxField>
-                                </FieldGroup>
-                            </Fieldset>
-                            <div className="flex mt-4">
-                                <Button type="submit" className="cursor-pointer" disabled={saving}>
-                                    {saving ? 'Saving...' : 'Save Changes'}
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </section>
-                <section>
-                    <div className="mx-auto">
-                        <Heading level={2}>Danger Zone</Heading>
-                        <Subheading>Delete this project and all associated data. This action cannot be undone.</Subheading>
-                        <Divider className="mb-4" />
-                    </div>
-                    <div className="flex gap-4 mt-4">
-                        <Button type="button" className="cursor-pointer" color="red" onClick={() => setIsDeleteOpen(true)}>
-                            Delete Project
-                        </Button>
-                    </div>
-                </section>
-            </div>
-            <Dialog open={isDeleteOpen} onClose={closeDeleteDialog} size="md">
-                <DialogTitle>Delete Project</DialogTitle>
-                <DialogDescription>
-                    Are you sure you want to delete this project? This action cannot be undone and will permanently remove all associated data.
-                </DialogDescription>
-                <DialogActions>
-                    <Button type="button" onClick={closeDeleteDialog} className='cursor-pointer' plain disabled={deleting}>
-                        Cancel
-                    </Button>
-                    <Button type="button" onClick={handleDeleteProject} className='cursor-pointer' color="red" disabled={deleting}>
-                        Delete Project
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    )
+	const closeDeleteDialog = () => {
+		if (deleting) return;
+		setIsDeleteOpen(false);
+	};
+
+	return (
+		<>
+			<div className="mx-auto space-y-8">
+				<section>
+					<div>
+						<Heading level={2}>Project Information</Heading>
+						<Subheading>View your project details below.</Subheading>
+						<Divider className="mb-4" />
+					</div>
+					<div className="max-w-lg space-y-2">
+						<div className="flex items-center gap-2">
+							<strong>Project ID:</strong>
+							<CopyBox value={project.publicId} />
+						</div>
+					</div>
+				</section>
+				<section>
+					<div>
+						<Heading level={2}>Ingestion Keys</Heading>
+						<Subheading>Ingestion keys are used to send test results to this project.</Subheading>
+						<Divider className="mb-4" />
+					</div>
+					<div className="mx-auto space-y-2">
+						<IngestionKeysTable />
+					</div>
+				</section>
+				<section>
+					<div>
+						<Heading level={2}>Edit Project</Heading>
+						<Subheading>Update your project settings below.</Subheading>
+						<Divider className="mb-4" />
+					</div>
+					<div className="max-w-lg">
+						<form onSubmit={handleSubmit}>
+							<Fieldset>
+								<FieldGroup>
+									<Field>
+										<Label>Project Name</Label>
+										<Input
+											type="text"
+											placeholder="Enter project name"
+											value={name}
+											onChange={(e) => setName(e.target.value)}
+										/>
+									</Field>
+									<CheckboxField>
+										<Label>Is Project Active</Label>
+										<Checkbox name="isActive" checked={active} onChange={setActive} />
+									</CheckboxField>
+								</FieldGroup>
+							</Fieldset>
+							<div className="mt-4 flex">
+								<Button type="submit" className="cursor-pointer" disabled={saving}>
+									{saving ? 'Saving...' : 'Save Changes'}
+								</Button>
+							</div>
+						</form>
+					</div>
+				</section>
+				<section>
+					<div className="mx-auto">
+						<Heading level={2}>Danger Zone</Heading>
+						<Subheading>
+							Delete this project and all associated data. This action cannot be undone.
+						</Subheading>
+						<Divider className="mb-4" />
+					</div>
+					<div className="mt-4 flex gap-4">
+						<Button
+							type="button"
+							className="cursor-pointer"
+							color="red"
+							onClick={() => setIsDeleteOpen(true)}
+						>
+							Delete Project
+						</Button>
+					</div>
+				</section>
+			</div>
+			<Dialog open={isDeleteOpen} onClose={closeDeleteDialog} size="md">
+				<DialogTitle>Delete Project</DialogTitle>
+				<DialogDescription>
+					Are you sure you want to delete this project? This action cannot be undone and will permanently
+					remove all associated data.
+				</DialogDescription>
+				<DialogActions>
+					<Button
+						type="button"
+						onClick={closeDeleteDialog}
+						className="cursor-pointer"
+						plain
+						disabled={deleting}
+					>
+						Cancel
+					</Button>
+					<Button
+						type="button"
+						onClick={handleDeleteProject}
+						className="cursor-pointer"
+						color="red"
+						disabled={deleting}
+					>
+						Delete Project
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</>
+	);
 }

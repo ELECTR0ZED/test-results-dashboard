@@ -7,21 +7,9 @@ import {
 	XCircleIcon,
 } from '@heroicons/react/20/solid';
 
-export type RunDisplayStatus =
-	| 'passed'
-	| 'failed'
-	| 'running'
-	| 'timedOut'
-	| 'interrupted'
-	| 'finished';
+export type RunDisplayStatus = 'passed' | 'failed' | 'running' | 'timedOut' | 'interrupted' | 'finished';
 
-export type RunBadgeColour =
-	| 'blue'
-	| 'green'
-	| 'red'
-	| 'amber'
-	| 'orange'
-	| 'zinc';
+export type RunBadgeColour = 'blue' | 'green' | 'red' | 'amber' | 'orange' | 'zinc';
 
 export type RunStatusPresentation = {
 	label: string;
@@ -32,10 +20,7 @@ export type RunStatusPresentation = {
 	Icon: typeof CheckCircleIcon;
 };
 
-const STATUS_PRESENTATION: Record<
-	RunDisplayStatus,
-	RunStatusPresentation
-> = {
+const STATUS_PRESENTATION: Record<RunDisplayStatus, RunStatusPresentation> = {
 	running: {
 		label: 'Running',
 		badgeColour: 'blue',
@@ -81,9 +66,7 @@ const STATUS_PRESENTATION: Record<
 	},
 };
 
-export function getRunDisplayStatus(
-	run: Pick<RunWithStats, 'status' | 'stats'>,
-): RunDisplayStatus {
+export function getRunDisplayStatus(run: Pick<RunWithStats, 'status' | 'stats'>): RunDisplayStatus {
 	const status = normalizeStatus(run.status);
 
 	if (status === 'running') {
@@ -113,21 +96,14 @@ export function getRunDisplayStatus(
 	return 'finished';
 }
 
-export function getRunStatusPresentation(
-	status: RunDisplayStatus,
-): RunStatusPresentation {
+export function getRunStatusPresentation(status: RunDisplayStatus): RunStatusPresentation {
 	return STATUS_PRESENTATION[status];
 }
 
-export function formatVersionedName(
-	name: string,
-	version: string,
-): string {
+export function formatVersionedName(name: string, version: string): string {
 	const formattedName = formatName(name);
 
-	return isUsefulValue(version)
-		? `${formattedName} ${version}`
-		: formattedName;
+	return isUsefulValue(version) ? `${formattedName} ${version}` : formattedName;
 }
 
 export function formatName(value: string): string {
@@ -164,33 +140,19 @@ export function formatDuration(milliseconds: number): string {
 	const remainingSeconds = totalSeconds % 60;
 
 	if (totalMinutes < 60) {
-		return remainingSeconds > 0
-			? `${totalMinutes}m ${remainingSeconds}s`
-			: `${totalMinutes}m`;
+		return remainingSeconds > 0 ? `${totalMinutes}m ${remainingSeconds}s` : `${totalMinutes}m`;
 	}
 
 	const hours = Math.floor(totalMinutes / 60);
 	const remainingMinutes = totalMinutes % 60;
 
-	return remainingMinutes > 0
-		? `${hours}h ${remainingMinutes}m`
-		: `${hours}h`;
+	return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}m` : `${hours}h`;
 }
 
-export function isUsefulValue(
-	value: string | null | undefined,
-): value is string {
-	return Boolean(
-		value &&
-			value.trim() &&
-			value.toLowerCase() !== 'unknown',
-	);
+export function isUsefulValue(value: string | null | undefined): value is string {
+	return Boolean(value && value.trim() && value.toLowerCase() !== 'unknown');
 }
 
 function normalizeStatus(status: string): string {
-	return status
-		.toLowerCase()
-		.replaceAll('-', '')
-		.replaceAll('_', '')
-		.replaceAll(' ', '');
+	return status.toLowerCase().replaceAll('-', '').replaceAll('_', '').replaceAll(' ', '');
 }

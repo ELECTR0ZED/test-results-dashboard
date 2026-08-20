@@ -11,9 +11,7 @@ import {
 	getRunStatusPresentation,
 	isUsefulValue,
 } from '@/lib/runPresentation';
-import type {
-	RunWithStats,
-} from '@electr0zed/test-results-dashboard-api-types';
+import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
@@ -23,34 +21,20 @@ type RunCardProps = {
 	run: RunWithStats;
 };
 
-export function RunCard({
-	projectPublicId,
-	run,
-}: RunCardProps) {
+export function RunCard({ projectPublicId, run }: RunCardProps) {
 	const displayStatus = getRunDisplayStatus(run);
-    const statusStyle = getRunStatusPresentation(displayStatus);
-    const StatusIcon = statusStyle.Icon;
+	const statusStyle = getRunStatusPresentation(displayStatus);
+	const StatusIcon = statusStyle.Icon;
 
-	const duration =
-        displayStatus === 'running'
-            ? 'In progress'
-            : formatDuration(run.stats.duration);
+	const duration = displayStatus === 'running' ? 'In progress' : formatDuration(run.stats.duration);
 
-	const framework = formatVersionedName(
-		run.framework,
-		run.frameworkVersion,
+	const framework = formatVersionedName(run.framework, run.frameworkVersion);
+
+	const browser = formatVersionedName(run.browser, run.browserVersion);
+
+	const environmentMetadata = [framework, browser, isUsefulValue(run.os) ? run.os : undefined].filter(
+		(value): value is string => Boolean(value)
 	);
-
-	const browser = formatVersionedName(
-		run.browser,
-		run.browserVersion,
-	);
-
-	const environmentMetadata = [
-        framework,
-        browser,
-        isUsefulValue(run.os) ? run.os : undefined,
-    ].filter((value): value is string => Boolean(value));
 
 	return (
 		<Link
@@ -59,26 +43,20 @@ export function RunCard({
 				'group relative block overflow-hidden rounded-xl border bg-white shadow-sm transition',
 				'border-zinc-950/10 hover:border-zinc-950/20 hover:shadow-md',
 				'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500',
-				'dark:border-white/10 dark:bg-zinc-900 dark:hover:border-white/20',
+				'dark:border-white/10 dark:bg-zinc-900 dark:hover:border-white/20'
 			)}
 		>
-			<div
-				className={clsx(
-					'absolute inset-y-0 left-0 w-1',
-					statusStyle.accentColour,
-				)}
-				aria-hidden="true"
-			/>
+			<div className={clsx('absolute inset-y-0 left-0 w-1', statusStyle.accentColour)} aria-hidden="true" />
 
 			<div className="flex items-start gap-3 py-4 pr-4 pl-5 sm:items-center sm:gap-4 sm:px-6">
 				<StatusIcon
-                    className={clsx(
-                        'mt-0.5 size-6 shrink-0 sm:mt-0',
-                        statusStyle.iconColour,
-                        statusStyle.iconAnimation,
-                    )}
-                    aria-hidden="true"
-                />
+					className={clsx(
+						'mt-0.5 size-6 shrink-0 sm:mt-0',
+						statusStyle.iconColour,
+						statusStyle.iconAnimation
+					)}
+					aria-hidden="true"
+				/>
 
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2">
@@ -86,28 +64,22 @@ export function RunCard({
 							{formatName(run.framework)} run
 						</span>
 
-						<Badge color={statusStyle.badgeColour}>
-							{statusStyle.label}
-						</Badge>
+						<Badge color={statusStyle.badgeColour}>{statusStyle.label}</Badge>
 					</div>
 
 					<div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
-						<time dateTime={run.startedAt.toISOString()}>
-							{formatRunDate(run.startedAt)}
-						</time>
+						<time dateTime={run.startedAt.toISOString()}>{formatRunDate(run.startedAt)}</time>
 
 						<Separator />
 
 						<span>
-							{run.stats.specs}{' '}
-							{run.stats.specs === 1 ? 'spec' : 'specs'}
+							{run.stats.specs} {run.stats.specs === 1 ? 'spec' : 'specs'}
 						</span>
 
 						<Separator />
 
 						<span>
-							{run.stats.tests}{' '}
-							{run.stats.tests === 1 ? 'test' : 'tests'}
+							{run.stats.tests} {run.stats.tests === 1 ? 'test' : 'tests'}
 						</span>
 
 						<Separator />
@@ -154,10 +126,7 @@ export function RunCard({
 
 function Separator() {
 	return (
-		<span
-			className="text-zinc-300 dark:text-zinc-600"
-			aria-hidden="true"
-		>
+		<span className="text-zinc-300 dark:text-zinc-600" aria-hidden="true">
 			·
 		</span>
 	);

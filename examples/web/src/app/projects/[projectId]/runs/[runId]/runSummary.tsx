@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
 import { Badge } from '@/components/catalyst/badge';
 import { Heading } from '@/components/catalyst/heading';
 import { Text } from '@/components/catalyst/text';
@@ -15,6 +14,7 @@ import {
 	getRunStatusPresentation,
 	isUsefulValue,
 } from '@/lib/runPresentation';
+import { useEffect, useState, type ReactNode } from 'react';
 
 export default function RunSummary() {
 	const { run } = useRun();
@@ -30,29 +30,22 @@ export default function RunSummary() {
 				<div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
 					<div className="flex min-w-0 items-start gap-3">
 						<StatusIcon
-                            className={`mt-1 size-6 shrink-0 ${presentation.iconColour} ${
-                                presentation.iconAnimation ?? ''
-                            }`}
-                            aria-hidden="true"
-                        />
+							className={`mt-1 size-6 shrink-0 ${presentation.iconColour} ${
+								presentation.iconAnimation ?? ''
+							}`}
+							aria-hidden="true"
+						/>
 
 						<div className="min-w-0">
 							<div className="flex flex-wrap items-center gap-2">
-								<Heading>
-									{formatName(run.framework)} run
-								</Heading>
+								<Heading>{formatName(run.framework)} run</Heading>
 
-								<Badge color={presentation.badgeColour}>
-									{presentation.label}
-								</Badge>
+								<Badge color={presentation.badgeColour}>{presentation.label}</Badge>
 							</div>
 
 							<Text className="mt-1">
 								Run{' '}
-								<span
-									className="font-mono text-xs"
-									title={run.publicId}
-								>
+								<span className="font-mono text-xs" title={run.publicId}>
 									{run.publicId.slice(0, 8)}
 								</span>
 							</Text>
@@ -68,87 +61,43 @@ export default function RunSummary() {
 				</div>
 
 				<div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-zinc-950/10 pt-5 sm:grid-cols-3 lg:grid-cols-5 dark:border-white/10">
-					<MetadataItem
-                        label="Started"
-                        value={<LocalDate value={run.startedAt} />}
-                    />
+					<MetadataItem label="Started" value={<LocalDate value={run.startedAt} />} />
 
 					<MetadataItem
-                        label="Finished"
-                        value={
-                            run.endedAt
-                                ? <LocalDate value={run.endedAt} />
-                                : 'In progress'
-                        }
-                    />
+						label="Finished"
+						value={run.endedAt ? <LocalDate value={run.endedAt} /> : 'In progress'}
+					/>
 
 					<MetadataItem
 						label="Elapsed"
-						value={
-							run.endedAt
-								? formatDuration(
-										run.endedAt.getTime() -
-											run.startedAt.getTime(),
-									)
-								: '—'
-						}
+						value={run.endedAt ? formatDuration(run.endedAt.getTime() - run.startedAt.getTime()) : '—'}
 					/>
 
-					<MetadataItem
-						label="Specs"
-						value={run.stats.specs.toLocaleString()}
-					/>
+					<MetadataItem label="Specs" value={run.stats.specs.toLocaleString()} />
 
-					<MetadataItem
-						label="Tests"
-						value={run.stats.tests.toLocaleString()}
-					/>
+					<MetadataItem label="Tests" value={run.stats.tests.toLocaleString()} />
 				</div>
 
 				<div className="mt-5 flex flex-wrap items-center gap-2 border-t border-zinc-950/10 pt-5 dark:border-white/10">
-					<MetadataBadge
-						value={formatVersionedName(
-							run.framework,
-							run.frameworkVersion,
-						)}
-					/>
+					<MetadataBadge value={formatVersionedName(run.framework, run.frameworkVersion)} />
 
-					<MetadataBadge
-						value={formatVersionedName(
-							run.browser,
-							run.browserVersion,
-						)}
-					/>
+					<MetadataBadge value={formatVersionedName(run.browser, run.browserVersion)} />
 
-					{isUsefulValue(run.os) && (
-						<MetadataBadge value={run.os} />
-					)}
+					{isUsefulValue(run.os) && <MetadataBadge value={run.os} />}
 
-					<MetadataBadge
-						value={`${formatDuration(run.stats.duration)} test duration`}
-					/>
+					<MetadataBadge value={`${formatDuration(run.stats.duration)} test duration`} />
 				</div>
 			</div>
 		</section>
 	);
 }
 
-function MetadataItem({
-	label,
-	value,
-}: {
-	label: string;
-	value: ReactNode;
-}) {
+function MetadataItem({ label, value }: { label: string; value: ReactNode }) {
 	return (
 		<div>
-			<div className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-				{label}
-			</div>
+			<div className="text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">{label}</div>
 
-			<div className="mt-1 text-sm font-medium text-zinc-950 dark:text-white">
-				{value}
-			</div>
+			<div className="mt-1 text-sm font-medium text-zinc-950 dark:text-white">{value}</div>
 		</div>
 	);
 }
@@ -160,11 +109,7 @@ function LocalDate({ value }: { value: Date }) {
 		setFormattedDate(formatRunDate(value));
 	}, [value]);
 
-	return (
-		<time dateTime={value.toISOString()}>
-			{formattedDate ?? '—'}
-		</time>
-	);
+	return <time dateTime={value.toISOString()}>{formattedDate ?? '—'}</time>;
 }
 
 function MetadataBadge({ value }: { value: string }) {

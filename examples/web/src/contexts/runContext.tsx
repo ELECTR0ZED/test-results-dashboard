@@ -1,15 +1,8 @@
 'use client';
 
-import {
-	createContext,
-	useCallback,
-	useContext,
-	useMemo,
-	useState,
-	type ReactNode,
-} from 'react';
-import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
 import { getProjectRun } from '@/lib/api/runs';
+import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 type RunContextValue = {
 	run: RunWithStats;
@@ -26,12 +19,7 @@ type RunProviderProps = {
 	children: ReactNode;
 };
 
-export function RunProvider({
-	projectId,
-	runId,
-	initialRun,
-	children,
-}: RunProviderProps) {
+export function RunProvider({ projectId, runId, initialRun, children }: RunProviderProps) {
 	const [run, setRun] = useState<RunWithStats>(initialRun);
 
 	const refreshRun = useCallback(async () => {
@@ -40,17 +28,16 @@ export function RunProvider({
 		setRun(response.data);
 	}, [projectId, runId]);
 
-	const value = useMemo(() => ({
-		run,
-		refreshRun,
-		setRun,
-	}), [run, refreshRun]);
-
-	return (
-		<RunContext.Provider value={value}>
-			{children}
-		</RunContext.Provider>
+	const value = useMemo(
+		() => ({
+			run,
+			refreshRun,
+			setRun,
+		}),
+		[run, refreshRun]
 	);
+
+	return <RunContext.Provider value={value}>{children}</RunContext.Provider>;
 }
 
 export function useRun(): RunContextValue {

@@ -10,11 +10,7 @@ import {
 	type RunWithStats,
 } from '@electr0zed/test-results-dashboard-api-types';
 import { useSearchParams } from 'next/navigation';
-import {
-	useCallback,
-	useEffect,
-	useState,
-} from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { RunCard } from './runCard';
 
 export default function ProjectRunsList() {
@@ -24,13 +20,12 @@ export default function ProjectRunsList() {
 
 	const [runs, setRuns] = useState<RunWithStats[]>([]);
 	const [loading, setLoading] = useState(true);
-	const [pagination, setPagination] =
-		useState<PaginationMeta>({
-			page: 1,
-			pageSize: DEFAULT_PAGE_SIZE,
-			total: 0,
-			totalPages: 0,
-		});
+	const [pagination, setPagination] = useState<PaginationMeta>({
+		page: 1,
+		pageSize: DEFAULT_PAGE_SIZE,
+		total: 0,
+		totalPages: 0,
+	});
 
 	const fetchRuns = useCallback(
 		async (page: number) => {
@@ -38,44 +33,23 @@ export default function ProjectRunsList() {
 			setRuns([]);
 
 			try {
-				const response = await getProjectRuns(
-					project.publicId,
-					page,
-					pagination.pageSize,
-				);
+				const response = await getProjectRuns(project.publicId, page, pagination.pageSize);
 
 				setRuns(response.data);
 				setPagination(response.meta.pagination);
 			} catch (error) {
-				addToast(
-					'Failed to fetch runs',
-					error instanceof Error
-						? error.message
-						: 'Unknown error',
-					'error',
-				);
+				addToast('Failed to fetch runs', error instanceof Error ? error.message : 'Unknown error', 'error');
 			} finally {
 				setLoading(false);
 			}
 		},
-		[
-			project.publicId,
-			addToast,
-			pagination.pageSize,
-		],
+		[project.publicId, addToast, pagination.pageSize]
 	);
 
 	useEffect(() => {
-		const requestedPage = Number.parseInt(
-			searchParams.get('page') ?? '1',
-			10,
-		);
+		const requestedPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
 
-		const page =
-			Number.isFinite(requestedPage) &&
-			requestedPage > 0
-				? requestedPage
-				: 1;
+		const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
 		fetchRuns(page);
 	}, [fetchRuns, searchParams]);
@@ -84,8 +58,7 @@ export default function ProjectRunsList() {
 		<>
 			{!loading && pagination.total > 0 && (
 				<div className="mb-4 text-sm text-zinc-500 dark:text-zinc-400">
-					{pagination.total}{' '}
-					{pagination.total === 1 ? 'run' : 'runs'}
+					{pagination.total} {pagination.total === 1 ? 'run' : 'runs'}
 				</div>
 			)}
 
@@ -95,13 +68,7 @@ export default function ProjectRunsList() {
 				) : runs.length === 0 ? (
 					<RunsEmptyState />
 				) : (
-					runs.map((run) => (
-						<RunCard
-							key={run.publicId}
-							projectPublicId={project.publicId}
-							run={run}
-						/>
-					))
+					runs.map((run) => <RunCard key={run.publicId} projectPublicId={project.publicId} run={run} />)
 				)}
 			</div>
 
@@ -120,18 +87,10 @@ export default function ProjectRunsList() {
 
 function RunsLoadingState() {
 	return (
-		<div
-			className="space-y-3"
-			aria-label="Loading runs"
-		>
-			{Array.from({ length: 4 }).map(
-				(_, index) => (
-					<div
-						key={index}
-						className="h-28 animate-pulse rounded-xl bg-zinc-950/5 dark:bg-white/5"
-					/>
-				),
-			)}
+		<div className="space-y-3" aria-label="Loading runs">
+			{Array.from({ length: 4 }).map((_, index) => (
+				<div key={index} className="h-28 animate-pulse rounded-xl bg-zinc-950/5 dark:bg-white/5" />
+			))}
 		</div>
 	);
 }
@@ -139,13 +98,10 @@ function RunsLoadingState() {
 function RunsEmptyState() {
 	return (
 		<div className="rounded-xl border border-dashed border-zinc-950/10 px-6 py-12 text-center dark:border-white/10">
-			<div className="text-sm font-medium text-zinc-950 dark:text-white">
-				No runs yet
-			</div>
+			<div className="text-sm font-medium text-zinc-950 dark:text-white">No runs yet</div>
 
 			<div className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-				Runs will appear here after results are sent by
-				a configured reporter.
+				Runs will appear here after results are sent by a configured reporter.
 			</div>
 		</div>
 	);

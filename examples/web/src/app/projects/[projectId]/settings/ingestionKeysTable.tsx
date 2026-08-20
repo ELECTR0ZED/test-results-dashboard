@@ -1,199 +1,251 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useProject } from '@/contexts/projectContext';
-import { PublicIngestKey } from '@electr0zed/test-results-dashboard-api-types';
-import { createIngestionKey, getProjectIngestionKeys } from '@/lib/api/ingestionKeys';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { Button } from '@/components/catalyst/button';
-import { revokeIngestionKey, deleteIngestionKey } from '@/lib/api/ingestionKeys';
-import { useToast } from '@/contexts/toastContext';
-import { DialogBody, DialogActions, Dialog, DialogTitle, DialogDescription } from '@/components/catalyst/dialog';
+import { Dialog, DialogActions, DialogBody, DialogDescription, DialogTitle } from '@/components/catalyst/dialog';
 import { Field, FieldGroup, Fieldset, Label } from '@/components/catalyst/fieldset';
 import { Input } from '@/components/catalyst/input';
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { CopyBox } from '@/components/copyBox';
+import { useProject } from '@/contexts/projectContext';
+import { useToast } from '@/contexts/toastContext';
+import {
+	createIngestionKey,
+	deleteIngestionKey,
+	getProjectIngestionKeys,
+	revokeIngestionKey,
+} from '@/lib/api/ingestionKeys';
+import { PublicIngestKey } from '@electr0zed/test-results-dashboard-api-types';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function IngestionKeysTable() {
-    const { project } = useProject();
-    const { addToast } = useToast();
-    const [keys, setKeys] = useState<PublicIngestKey[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [isCreateOpen, setIsCreateOpen] = useState(false);
+	const { project } = useProject();
+	const { addToast } = useToast();
+	const [keys, setKeys] = useState<PublicIngestKey[]>([]);
+	const [loading, setLoading] = useState(true);
+	const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-    const [creating, setCreating] = useState(false);
-    const [keyName, setKeyName] = useState('');
-    const [expiresAt, setExpiresAt] = useState('');
+	const [creating, setCreating] = useState(false);
+	const [keyName, setKeyName] = useState('');
+	const [expiresAt, setExpiresAt] = useState('');
 
-    const [isKeyOpen, setIsKeyOpen] = useState(false);
-    const [newKey, setNewKey] = useState('');
+	const [isKeyOpen, setIsKeyOpen] = useState(false);
+	const [newKey, setNewKey] = useState('');
 
-    const fetchIngestionKeys = useCallback(async () => {
-        setLoading(true);
-        setKeys([]);
-        try {
-            const ingestionKeys = await getProjectIngestionKeys(project.publicId);
-            setKeys(ingestionKeys.data);
-        } catch (error) {
-            addToast('Failed to fetch ingestion keys', error instanceof Error ? error.message : 'Unknown error', 'error');
-        } finally {
-            setLoading(false);
-        }
-    }, [project.publicId, addToast]);
+	const fetchIngestionKeys = useCallback(async () => {
+		setLoading(true);
+		setKeys([]);
+		try {
+			const ingestionKeys = await getProjectIngestionKeys(project.publicId);
+			setKeys(ingestionKeys.data);
+		} catch (error) {
+			addToast(
+				'Failed to fetch ingestion keys',
+				error instanceof Error ? error.message : 'Unknown error',
+				'error'
+			);
+		} finally {
+			setLoading(false);
+		}
+	}, [project.publicId, addToast]);
 
-    useEffect(() => {
-        fetchIngestionKeys();
-    }, [fetchIngestionKeys]);
+	useEffect(() => {
+		fetchIngestionKeys();
+	}, [fetchIngestionKeys]);
 
-    async function handleRevoke(keyId: string) {
-        try {
-            await revokeIngestionKey(project.publicId, keyId);
-            setKeys((prevKeys) =>
-                prevKeys.map((key) =>
-                    key.publicId === keyId ? { ...key, revokedAt: new Date() } : key
-                )
-            );
-            addToast('Ingestion key revoked', 'The ingestion key has been revoked successfully.', 'success');
-        } catch (error) {
-            addToast('Failed to revoke ingestion key', error instanceof Error ? error.message : 'Unknown error', 'error');
-        }
-    }
+	async function handleRevoke(keyId: string) {
+		try {
+			await revokeIngestionKey(project.publicId, keyId);
+			setKeys((prevKeys) =>
+				prevKeys.map((key) => (key.publicId === keyId ? { ...key, revokedAt: new Date() } : key))
+			);
+			addToast('Ingestion key revoked', 'The ingestion key has been revoked successfully.', 'success');
+		} catch (error) {
+			addToast(
+				'Failed to revoke ingestion key',
+				error instanceof Error ? error.message : 'Unknown error',
+				'error'
+			);
+		}
+	}
 
-    async function handleDelete(keyId: string) {
-        try {
-            await deleteIngestionKey(project.publicId, keyId);
-            setKeys((prevKeys) => prevKeys.filter((key) => key.publicId !== keyId));
-            addToast('Ingestion key deleted', 'The ingestion key has been deleted successfully.', 'success');
-        } catch (error) {
-            addToast('Failed to delete ingestion key', error instanceof Error ? error.message : 'Unknown error', 'error');
-        }
-    }
+	async function handleDelete(keyId: string) {
+		try {
+			await deleteIngestionKey(project.publicId, keyId);
+			setKeys((prevKeys) => prevKeys.filter((key) => key.publicId !== keyId));
+			addToast('Ingestion key deleted', 'The ingestion key has been deleted successfully.', 'success');
+		} catch (error) {
+			addToast(
+				'Failed to delete ingestion key',
+				error instanceof Error ? error.message : 'Unknown error',
+				'error'
+			);
+		}
+	}
 
-    async function handleCreateIngestionKey() {
-        setCreating(true);
+	async function handleCreateIngestionKey() {
+		setCreating(true);
 
-        try {
-            const newIngestionKey = await createIngestionKey(
-                project.publicId,
-                keyName.trim(),
-                expiresAt ? new Date(expiresAt) : null
-            );
+		try {
+			const newIngestionKey = await createIngestionKey(
+				project.publicId,
+				keyName.trim(),
+				expiresAt ? new Date(expiresAt) : null
+			);
 
-            fetchIngestionKeys();
+			fetchIngestionKeys();
 
-            setNewKey(newIngestionKey.data.apiKey);
-            setIsKeyOpen(true);
-        } catch (error) {
-            addToast(
-                'Failed to create ingestion key',
-                error instanceof Error ? error.message : 'Unknown error',
-                'error',
-            );
-        } finally {
-            setCreating(false);
-            closeCreateDialog(true);
-        }
-    }
+			setNewKey(newIngestionKey.data.apiKey);
+			setIsKeyOpen(true);
+		} catch (error) {
+			addToast(
+				'Failed to create ingestion key',
+				error instanceof Error ? error.message : 'Unknown error',
+				'error'
+			);
+		} finally {
+			setCreating(false);
+			closeCreateDialog(true);
+		}
+	}
 
-    const closeCreateDialog = (force?: boolean) => {
-        if (creating && !force) return;
-        setIsCreateOpen(false);
-        setKeyName('');
-        setExpiresAt('');
-    }
+	const closeCreateDialog = (force?: boolean) => {
+		if (creating && !force) return;
+		setIsCreateOpen(false);
+		setKeyName('');
+		setExpiresAt('');
+	};
 
-    const closeKeyDialog = () => {
-        if (creating) return;
-        setIsKeyOpen(false);
-        setNewKey('');
-    }
+	const closeKeyDialog = () => {
+		if (creating) return;
+		setIsKeyOpen(false);
+		setNewKey('');
+	};
 
-    return (
-        <>
-            <Table>
-                <TableHead>
-                    <TableRow>
-                        <TableCell>Name</TableCell>
-                        <TableCell>Key</TableCell>
-                        <TableCell>Last Used</TableCell>
-                        <TableCell>Expires</TableCell>
-                        <TableCell>Actions</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {loading ? (
-                        <TableRow className="animate-pulse mx-auto">
-                            <TableCell colSpan={5}>Loading...</TableCell>
-                        </TableRow>
-                    ) : keys.length === 0 ? (
-                        <TableRow className='mx-auto'>
-                            <TableCell colSpan={5}>No ingestion keys found.</TableCell>
-                        </TableRow>
-                    ) : (
-                        keys.map((key) => {
-                            const isExpired = key.expiresAt && new Date(key.expiresAt) < new Date();
-                            const statusLabel = key.revokedAt ? 'Revoked' : isExpired ? 'Expired' : null;
-                            return (
-                                <TableRow key={key.publicId}>
-                                    <TableCell>{key.name}{statusLabel && ` (${statusLabel})`}</TableCell>
-                                    <TableCell>{key.prefix}...</TableCell>
-                                    <TableCell>{key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString() : 'Never'}</TableCell>
-                                    <TableCell>{key.expiresAt ? new Date(key.expiresAt).toLocaleString() : 'Never'}</TableCell>
-                                    <TableCell className="flex gap-2">
-                                        <Button onClick={() => handleRevoke(key.publicId)} disabled={!!(key.revokedAt || isExpired)} className={!!(key.revokedAt || isExpired) ? 'cursor-not-allowed' : 'cursor-pointer'}>Revoke</Button>
-                                        <Button onClick={() => handleDelete(key.publicId)} className="cursor-pointer">Delete</Button>
-                                    </TableCell>
-                                </TableRow>
-                            );
-                        })
-                    )}
-                </TableBody>
-            </Table>
-            <div className="flex mt-4">
-                <Button type="button" className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
-                    Create New Ingestion Key
-                </Button>
-            </div>
+	return (
+		<>
+			<Table>
+				<TableHead>
+					<TableRow>
+						<TableCell>Name</TableCell>
+						<TableCell>Key</TableCell>
+						<TableCell>Last Used</TableCell>
+						<TableCell>Expires</TableCell>
+						<TableCell>Actions</TableCell>
+					</TableRow>
+				</TableHead>
+				<TableBody>
+					{loading ? (
+						<TableRow className="mx-auto animate-pulse">
+							<TableCell colSpan={5}>Loading...</TableCell>
+						</TableRow>
+					) : keys.length === 0 ? (
+						<TableRow className="mx-auto">
+							<TableCell colSpan={5}>No ingestion keys found.</TableCell>
+						</TableRow>
+					) : (
+						keys.map((key) => {
+							const isExpired = key.expiresAt && new Date(key.expiresAt) < new Date();
+							const statusLabel = key.revokedAt ? 'Revoked' : isExpired ? 'Expired' : null;
+							return (
+								<TableRow key={key.publicId}>
+									<TableCell>
+										{key.name}
+										{statusLabel && ` (${statusLabel})`}
+									</TableCell>
+									<TableCell>{key.prefix}...</TableCell>
+									<TableCell>
+										{key.lastUsedAt ? new Date(key.lastUsedAt).toLocaleString() : 'Never'}
+									</TableCell>
+									<TableCell>
+										{key.expiresAt ? new Date(key.expiresAt).toLocaleString() : 'Never'}
+									</TableCell>
+									<TableCell className="flex gap-2">
+										<Button
+											onClick={() => handleRevoke(key.publicId)}
+											disabled={!!(key.revokedAt || isExpired)}
+											className={
+												!!(key.revokedAt || isExpired) ? 'cursor-not-allowed' : 'cursor-pointer'
+											}
+										>
+											Revoke
+										</Button>
+										<Button onClick={() => handleDelete(key.publicId)} className="cursor-pointer">
+											Delete
+										</Button>
+									</TableCell>
+								</TableRow>
+							);
+						})
+					)}
+				</TableBody>
+			</Table>
+			<div className="mt-4 flex">
+				<Button type="button" className="cursor-pointer" onClick={() => setIsCreateOpen(true)}>
+					Create New Ingestion Key
+				</Button>
+			</div>
 
-            <Dialog open={isCreateOpen} onClose={closeCreateDialog} size="md">
-                <DialogTitle>Create Ingestion Key</DialogTitle>
-                <DialogBody>
-                    <Fieldset>
-                        <FieldGroup>
-                            <Field>
-                                <Label>Key Name</Label>
-                                <Input type="text" placeholder="Enter key name" value={keyName} onChange={(e) => setKeyName(e.target.value)} />
-                            </Field>
-                            <Field>
-                                <Label>Expires At (Optional)</Label>
-                                <Input type="datetime-local" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
-                            </Field>
-                        </FieldGroup>
-                    </Fieldset>
-                </DialogBody>
-                <DialogActions>
-                    <Button type="button" onClick={() => closeCreateDialog()} className='cursor-pointer' plain disabled={creating}>
-                        Cancel
-                    </Button>
-                    <Button type="button" onClick={handleCreateIngestionKey} className='cursor-pointer' disabled={creating}>
-                        Create
-                    </Button>
-                </DialogActions>
-            </Dialog>
+			<Dialog open={isCreateOpen} onClose={closeCreateDialog} size="md">
+				<DialogTitle>Create Ingestion Key</DialogTitle>
+				<DialogBody>
+					<Fieldset>
+						<FieldGroup>
+							<Field>
+								<Label>Key Name</Label>
+								<Input
+									type="text"
+									placeholder="Enter key name"
+									value={keyName}
+									onChange={(e) => setKeyName(e.target.value)}
+								/>
+							</Field>
+							<Field>
+								<Label>Expires At (Optional)</Label>
+								<Input
+									type="datetime-local"
+									value={expiresAt}
+									onChange={(e) => setExpiresAt(e.target.value)}
+								/>
+							</Field>
+						</FieldGroup>
+					</Fieldset>
+				</DialogBody>
+				<DialogActions>
+					<Button
+						type="button"
+						onClick={() => closeCreateDialog()}
+						className="cursor-pointer"
+						plain
+						disabled={creating}
+					>
+						Cancel
+					</Button>
+					<Button
+						type="button"
+						onClick={handleCreateIngestionKey}
+						className="cursor-pointer"
+						disabled={creating}
+					>
+						Create
+					</Button>
+				</DialogActions>
+			</Dialog>
 
-            <Dialog open={isKeyOpen} onClose={closeKeyDialog} size="lg">
-                <DialogTitle>Ingestion Key Created</DialogTitle>
-                <DialogDescription>
-                    Your new ingestion key has been created. Please copy and store it securely, as it will not be shown again.
-                </DialogDescription>
-                <DialogBody>
-                    <CopyBox value={newKey} />
-                </DialogBody>
-                <DialogActions>
-                    <Button type="button" onClick={closeKeyDialog} className='cursor-pointer'>
-                        Close
-                    </Button>
-                </DialogActions>
-            </Dialog>
-        </>
-    )
+			<Dialog open={isKeyOpen} onClose={closeKeyDialog} size="lg">
+				<DialogTitle>Ingestion Key Created</DialogTitle>
+				<DialogDescription>
+					Your new ingestion key has been created. Please copy and store it securely, as it will not be shown
+					again.
+				</DialogDescription>
+				<DialogBody>
+					<CopyBox value={newKey} />
+				</DialogBody>
+				<DialogActions>
+					<Button type="button" onClick={closeKeyDialog} className="cursor-pointer">
+						Close
+					</Button>
+				</DialogActions>
+			</Dialog>
+		</>
+	);
 }
