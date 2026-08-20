@@ -77,6 +77,21 @@ export function createSpecRoutes<
 
         const specIds = specs.map((spec) => spec.id);
 
+        if (specIds.length === 0) {
+            return c.json<PaginatedApiSuccess<FullSpec[]>>({
+                success: true,
+                data: [],
+                meta: {
+                    pagination: {
+                        page: calculatedPage,
+                        pageSize: parsedParams.data.pageSize,
+                        total: totalSpecs,
+                        totalPages,
+                    },
+                },
+            });
+         }
+
         const specTests = await ctx.db.specTest.findMany({
             where: {
                 specId: {

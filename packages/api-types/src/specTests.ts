@@ -7,8 +7,7 @@ export const SpecTestSchema = z.object({
     duration: z.number().int().nonnegative(),
     message: z.string().nullable(),
     trace: z.string().nullable(),
-
-})
+});
 
 export type SpecTest = z.infer<typeof SpecTestSchema>;
 
@@ -17,7 +16,7 @@ export const SpecTestTitlePartSchema = z.object({
     specTestId: z.number().int().positive(),
     position: z.number().int().nonnegative(),
     value: z.string(),
-})
+});
 
 export type SpecTestTitlePart = z.infer<typeof SpecTestTitlePartSchema>;
 
