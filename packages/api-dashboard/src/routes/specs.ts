@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import { FullSpec, GetProjectRunsSpecsSchema, type PaginatedApiSuccess, Spec } from '@electr0zed/test-results-dashboard-api-types';
+import { FullSpec, GetProjectRunsSpecsSchema, type PaginatedApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
 import { NotFoundError } from '../services/errors';
 
 export function createSpecRoutes<

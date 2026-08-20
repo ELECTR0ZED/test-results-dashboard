@@ -85,11 +85,14 @@ export default function ProjectRunsTable() {
                     )}
                 </TableBody>
             </Table>
-            <Paginator
-                currentPage={pagination.page}
-                totalPages={pagination.totalPages}
-                pathname={`/projects/${project.publicId}/runs`}
-            />
+
+            <div className="my-6 max-w-2xl mx-auto">
+                <Paginator
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    pathname={`/projects/${project.publicId}/runs`}
+                />
+            </div>
         </>
     )
 }

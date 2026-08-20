@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useProject } from '@/contexts/projectContext';
 import { DEFAULT_PAGE_SIZE, PaginationMeta, FullSpec } from '@electr0zed/test-results-dashboard-api-types';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
 import { useToast } from '@/contexts/toastContext';
 import { useSearchParams } from "next/navigation";
 import { Paginator } from '@/components/paginator';
@@ -60,11 +59,13 @@ export default function SpecsList() {
 				)}
 			</div>
             
-            <Paginator
-                currentPage={pagination.page}
-                totalPages={pagination.totalPages}
-                pathname={`/projects/${project.publicId}/runs/${run.publicId}`}
-            />
+            <div className="my-6 max-w-2xl mx-auto">
+                <Paginator
+                    currentPage={pagination.page}
+                    totalPages={pagination.totalPages}
+                    pathname={`/projects/${project.publicId}/runs/${run.publicId}`}
+                />
+            </div>
         </>
     )
 }

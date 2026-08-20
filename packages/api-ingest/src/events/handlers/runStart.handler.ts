@@ -22,15 +22,15 @@ export async function handleRunStart<TD1Binding extends string>(
 	const run = await db.run.findUnique({
 		where: {
 			publicId: event.payload.id,
-			project: {
-				publicId: event.payload.projectId,
-			},
+		},
+		select: {
+			projectId: true,
 		},
 	});
 
-	if (!run) {
+	if (run && run.projectId !== project.id) {
 		throw new Error(
-			`Run with publicId "${event.payload.id}" not found for project "${event.payload.projectId}".`,
+			`Run with publicId "${event.payload.id}" belongs to a different project.`,
 		);
 	}
 

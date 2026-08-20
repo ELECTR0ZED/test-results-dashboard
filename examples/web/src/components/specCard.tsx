@@ -27,7 +27,6 @@ export function SpecCard({ spec }: SpecCardProps) {
 	return (
 		<Disclosure
 			as="article"
-			defaultOpen={spec.failed > 0}
 			className="overflow-hidden rounded-xl border border-zinc-950/10 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900"
 		>
 			{({ open }) => (
@@ -76,11 +75,6 @@ export function SpecCard({ spec }: SpecCardProps) {
 					</DisclosureButton>
 
 					<DisclosurePanel className="border-t border-zinc-950/10 dark:border-white/10">
-						{spec.message && (
-							<div className="border-b border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 sm:px-6 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
-								{spec.message}
-							</div>
-						)}
 
 						{spec.specTests.length === 0 ? (
 							<div className="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
@@ -101,19 +95,21 @@ export function SpecCard({ spec }: SpecCardProps) {
 }
 
 function SpecTestRow({ test }: { test: SpecTest }) {
-	const hasDetails =
-		Boolean(test.message) ||
-		Boolean(test.trace) ||
-		test.specTestAttempts.length > 0;
+	const hasDetails = Boolean(test.message) || Boolean(test.trace);
 
-	const summary = <SpecTestSummary test={test} expandable={hasDetails} />;
+	const summary = (
+		<SpecTestSummary
+			test={test}
+			expandable={hasDetails}
+		/>
+	);
 
 	if (!hasDetails) {
 		return <div className="px-4 py-3 sm:px-6">{summary}</div>;
 	}
 
 	return (
-		<Disclosure defaultOpen={test.status === 'failed'}>
+		<Disclosure>
 			{({ open }) => (
 				<>
 					<DisclosureButton className="block w-full px-4 py-3 text-left transition hover:bg-zinc-950/2.5 sm:px-6 dark:hover:bg-white/5">
@@ -175,13 +171,10 @@ function SpecTestSummary({
 			</div>
 
 			<div className="flex shrink-0 items-center gap-3">
-				{test.specTestAttempts.length > 0 && (
-					<span className="hidden text-xs text-zinc-500 sm:inline dark:text-zinc-400">
-						{test.specTestAttempts.length}{' '}
-						{test.specTestAttempts.length === 1 ? 'attempt' : 'attempts'}
-					</span>
-				)}
-
+				<AttemptSummary
+					attempts={test.specTestAttempts}
+					finalStatus={test.status}
+				/>
 				<span className="min-w-14 text-right text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
 					{formatDuration(test.duration)}
 				</span>
@@ -201,77 +194,20 @@ function SpecTestSummary({
 }
 
 function TestDetails({ test }: { test: SpecTest }) {
+	if (!test.message && !test.trace) {
+		return null;
+	}
+
 	return (
-		<div className="space-y-4 bg-zinc-50 px-4 py-4 sm:px-12 dark:bg-zinc-950/40">
-			{(test.message || test.trace) && (
-				<ErrorDetails
-					message={test.message}
-					trace={test.trace}
-				/>
-			)}
-
-			{test.specTestAttempts.length > 0 && (
-				<div>
-					<h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-						Attempts
-					</h4>
-
-					<ol className="space-y-2">
-						{test.specTestAttempts.map((attempt, index) => (
-							<AttemptRow
-								key={attempt.id}
-								attempt={attempt}
-								number={index + 1}
-							/>
-						))}
-					</ol>
-				</div>
-			)}
+		<div className="bg-zinc-50 px-4 py-4 sm:px-12 dark:bg-zinc-950/40">
+			<ErrorDetails
+				message={test.message}
+				trace={test.trace}
+			/>
 		</div>
 	);
 }
 
-function AttemptRow({
-	attempt,
-	number,
-}: {
-	attempt: SpecTestAttempt;
-	number: number;
-}) {
-	const hasError = Boolean(attempt.message) || Boolean(attempt.trace);
-
-	return (
-		<li className="rounded-lg border border-zinc-950/10 bg-white px-3 py-2 dark:border-white/10 dark:bg-zinc-900">
-			<div className="flex items-center gap-3">
-				<StatusIcon
-					status={attempt.status}
-					className="size-4 shrink-0"
-				/>
-
-				<span className="flex-1 text-sm font-medium text-zinc-950 dark:text-white">
-					Attempt {number}
-				</span>
-
-				<StatusBadge status={attempt.status} />
-			</div>
-
-			{hasError && (
-				<details className="mt-2 border-t border-zinc-950/5 pt-2 dark:border-white/5">
-					<summary className="cursor-pointer text-xs font-medium text-red-600 dark:text-red-400">
-						View error
-					</summary>
-
-					<div className="mt-2">
-						<ErrorDetails
-							message={attempt.message}
-							trace={attempt.trace}
-						/>
-					</div>
-				</details>
-			)}
-		</li>
-	);
-}
 
 function ErrorDetails({
 	message,
@@ -283,7 +219,7 @@ function ErrorDetails({
 	return (
 		<div className="overflow-hidden rounded-lg border border-red-200 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10">
 			{message && (
-				<div className="whitespace-pre-wrap break-words px-3 py-2 text-sm text-red-700 dark:text-red-300">
+				<div className="whitespace-pre-wrap wrap-break-word px-3 py-2 text-sm text-red-700 dark:text-red-300">
 					{message}
 				</div>
 			)}
@@ -412,4 +348,51 @@ function formatDuration(milliseconds: number) {
 	const seconds = Math.floor((milliseconds % 60_000) / 1_000);
 
 	return `${minutes}m ${seconds}s`;
+}
+
+function AttemptSummary({
+	attempts,
+	finalStatus,
+}: {
+	attempts: SpecTestAttempt[];
+	finalStatus: string;
+}) {
+	if (attempts.length <= 1) {
+		return null;
+	}
+
+	const hadFailedAttempt = attempts.some(
+		(attempt) => attempt.status === 'failed',
+	);
+
+	const flaky =
+		finalStatus === 'passed' &&
+		hadFailedAttempt;
+
+	const description = attempts
+		.map(
+			(attempt, index) =>
+				`Attempt ${index + 1}: ${formatStatus(attempt.status)}`,
+		)
+		.join(' · ');
+
+	const colour =
+		flaky
+			? 'amber'
+			: finalStatus === 'failed'
+				? 'red'
+				: 'zinc';
+
+	return (
+		<span
+			title={description}
+			aria-label={description}
+		>
+			<Badge color={colour}>
+				{flaky
+					? `Flaky · ${attempts.length}`
+					: `${attempts.length} attempts`}
+			</Badge>
+		</span>
+	);
 }

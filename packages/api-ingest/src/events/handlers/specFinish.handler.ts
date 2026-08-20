@@ -72,14 +72,6 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		},
 	});
 
-	await db.specTestAttempt.deleteMany({
-		where: {
-			specTest: {
-				specId: spec.id,
-			},
-		},
-	});
-
 	await db.specTest.deleteMany({
 		where: {
 			specId: spec.id,
