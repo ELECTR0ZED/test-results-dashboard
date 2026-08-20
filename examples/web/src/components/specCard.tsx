@@ -2,6 +2,7 @@
 
 import { Badge } from '@/components/catalyst/badge';
 import { RunResults } from '@/components/runResults';
+import { FullSpec } from '@electr0zed/test-results-dashboard-api-types';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import {
 	CheckCircleIcon,
@@ -14,7 +15,6 @@ import {
 	XCircleIcon,
 } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
-import { FullSpec } from '@electr0zed/test-results-dashboard-api-types';
 
 type SpecTest = FullSpec['specTests'][number];
 type SpecTestAttempt = SpecTest['specTestAttempts'][number];
@@ -33,10 +33,7 @@ export function SpecCard({ spec }: SpecCardProps) {
 				<>
 					<DisclosureButton className="flex w-full flex-col gap-4 px-4 py-4 text-left sm:flex-row sm:items-center sm:px-6">
 						<div className="flex min-w-0 flex-1 items-start gap-3">
-							<DocumentTextIcon
-								className="mt-0.5 size-5 shrink-0 text-zinc-400"
-								aria-hidden="true"
-							/>
+							<DocumentTextIcon className="mt-0.5 size-5 shrink-0 text-zinc-400" aria-hidden="true" />
 
 							<div className="min-w-0">
 								<div
@@ -67,7 +64,7 @@ export function SpecCard({ spec }: SpecCardProps) {
 							<ChevronDownIcon
 								className={clsx(
 									'size-5 shrink-0 text-zinc-400 transition-transform',
-									open && 'rotate-180',
+									open && 'rotate-180'
 								)}
 								aria-hidden="true"
 							/>
@@ -75,7 +72,6 @@ export function SpecCard({ spec }: SpecCardProps) {
 					</DisclosureButton>
 
 					<DisclosurePanel className="border-t border-zinc-950/10 dark:border-white/10">
-
 						{spec.specTests.length === 0 ? (
 							<div className="px-6 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
 								No tests were recorded for this spec.
@@ -97,12 +93,7 @@ export function SpecCard({ spec }: SpecCardProps) {
 function SpecTestRow({ test }: { test: SpecTest }) {
 	const hasDetails = Boolean(test.message) || Boolean(test.trace);
 
-	const summary = (
-		<SpecTestSummary
-			test={test}
-			expandable={hasDetails}
-		/>
-	);
+	const summary = <SpecTestSummary test={test} expandable={hasDetails} />;
 
 	if (!hasDetails) {
 		return <div className="px-4 py-3 sm:px-6">{summary}</div>;
@@ -113,11 +104,7 @@ function SpecTestRow({ test }: { test: SpecTest }) {
 			{({ open }) => (
 				<>
 					<DisclosureButton className="block w-full px-4 py-3 text-left transition hover:bg-zinc-950/2.5 sm:px-6 dark:hover:bg-white/5">
-						<SpecTestSummary
-							test={test}
-							expandable
-							open={open}
-						/>
+						<SpecTestSummary test={test} expandable open={open} />
 					</DisclosureButton>
 
 					<DisclosurePanel>
@@ -129,28 +116,15 @@ function SpecTestRow({ test }: { test: SpecTest }) {
 	);
 }
 
-function SpecTestSummary({
-	test,
-	expandable,
-	open = false,
-}: {
-	test: SpecTest;
-	expandable: boolean;
-	open?: boolean;
-}) {
-	const orderedParts = [...test.titleParts].sort(
-		(a, b) => a.position - b.position,
-	);
+function SpecTestSummary({ test, expandable, open = false }: { test: SpecTest; expandable: boolean; open?: boolean }) {
+	const orderedParts = [...test.titleParts].sort((a, b) => a.position - b.position);
 
 	const testName = orderedParts.at(-1)?.value ?? 'Untitled test';
 	const suitePath = orderedParts.slice(0, -1);
 
 	return (
 		<div className="flex items-start gap-3">
-			<StatusIcon
-				status={test.status}
-				className="mt-0.5 size-5 shrink-0"
-			/>
+			<StatusIcon status={test.status} className="mt-0.5 size-5 shrink-0" />
 
 			<div className="min-w-0 flex-1">
 				{suitePath.length > 0 && (
@@ -162,29 +136,20 @@ function SpecTestSummary({
 					</div>
 				)}
 
-				<div
-					className="truncate text-sm font-medium text-zinc-950 dark:text-white"
-					title={testName}
-				>
+				<div className="truncate text-sm font-medium text-zinc-950 dark:text-white" title={testName}>
 					{testName}
 				</div>
 			</div>
 
 			<div className="flex shrink-0 items-center gap-3">
-				<AttemptSummary
-					attempts={test.specTestAttempts}
-					finalStatus={test.status}
-				/>
-				<span className="min-w-14 text-right text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+				<AttemptSummary attempts={test.specTestAttempts} finalStatus={test.status} />
+				<span className="min-w-14 text-right text-xs text-zinc-500 tabular-nums dark:text-zinc-400">
 					{formatDuration(test.duration)}
 				</span>
 
 				{expandable && (
 					<ChevronDownIcon
-						className={clsx(
-							'size-4 text-zinc-400 transition-transform',
-							open && 'rotate-180',
-						)}
+						className={clsx('size-4 text-zinc-400 transition-transform', open && 'rotate-180')}
 						aria-hidden="true"
 					/>
 				)}
@@ -200,26 +165,16 @@ function TestDetails({ test }: { test: SpecTest }) {
 
 	return (
 		<div className="bg-zinc-50 px-4 py-4 sm:px-12 dark:bg-zinc-950/40">
-			<ErrorDetails
-				message={test.message}
-				trace={test.trace}
-			/>
+			<ErrorDetails message={test.message} trace={test.trace} />
 		</div>
 	);
 }
 
-
-function ErrorDetails({
-	message,
-	trace,
-}: {
-	message: string | null;
-	trace: string | null;
-}) {
+function ErrorDetails({ message, trace }: { message: string | null; trace: string | null }) {
 	return (
 		<div className="overflow-hidden rounded-lg border border-red-200 bg-red-50 dark:border-red-500/20 dark:bg-red-500/10">
 			{message && (
-				<div className="whitespace-pre-wrap wrap-break-word px-3 py-2 text-sm text-red-700 dark:text-red-300">
+				<div className="px-3 py-2 text-sm wrap-break-word whitespace-pre-wrap text-red-700 dark:text-red-300">
 					{message}
 				</div>
 			)}
@@ -233,13 +188,7 @@ function ErrorDetails({
 	);
 }
 
-function StatusIcon({
-	status,
-	className,
-}: {
-	status: string;
-	className?: string;
-}) {
+function StatusIcon({ status, className }: { status: string; className?: string }) {
 	switch (status) {
 		case 'passed':
 			return (
@@ -250,12 +199,7 @@ function StatusIcon({
 			);
 
 		case 'failed':
-			return (
-				<XCircleIcon
-					className={clsx(className, 'text-red-600 dark:text-red-400')}
-					aria-label="Failed"
-				/>
-			);
+			return <XCircleIcon className={clsx(className, 'text-red-600 dark:text-red-400')} aria-label="Failed" />;
 
 		case 'pending':
 		case 'partial':
@@ -269,10 +213,7 @@ function StatusIcon({
 
 		case 'skipped':
 			return (
-				<MinusCircleIcon
-					className={clsx(className, 'text-zinc-500 dark:text-zinc-400')}
-					aria-label="Skipped"
-				/>
+				<MinusCircleIcon className={clsx(className, 'text-zinc-500 dark:text-zinc-400')} aria-label="Skipped" />
 			);
 
 		case 'timedOut':
@@ -292,12 +233,7 @@ function StatusIcon({
 			);
 
 		default:
-			return (
-				<ClockIcon
-					className={clsx(className, 'text-zinc-400')}
-					aria-label={formatStatus(status)}
-				/>
-			);
+			return <ClockIcon className={clsx(className, 'text-zinc-400')} aria-label={formatStatus(status)} />;
 	}
 }
 
@@ -320,11 +256,7 @@ function StatusBadge({ status }: { status: string }) {
 		}
 	})();
 
-	return (
-		<Badge color={colour}>
-			{formatStatus(status)}
-		</Badge>
-	);
+	return <Badge color={colour}>{formatStatus(status)}</Badge>;
 }
 
 function formatStatus(status: string) {
@@ -350,49 +282,24 @@ function formatDuration(milliseconds: number) {
 	return `${minutes}m ${seconds}s`;
 }
 
-function AttemptSummary({
-	attempts,
-	finalStatus,
-}: {
-	attempts: SpecTestAttempt[];
-	finalStatus: string;
-}) {
+function AttemptSummary({ attempts, finalStatus }: { attempts: SpecTestAttempt[]; finalStatus: string }) {
 	if (attempts.length <= 1) {
 		return null;
 	}
 
-	const hadFailedAttempt = attempts.some(
-		(attempt) => attempt.status === 'failed',
-	);
+	const hadFailedAttempt = attempts.some((attempt) => attempt.status === 'failed');
 
-	const flaky =
-		finalStatus === 'passed' &&
-		hadFailedAttempt;
+	const flaky = finalStatus === 'passed' && hadFailedAttempt;
 
 	const description = attempts
-		.map(
-			(attempt, index) =>
-				`Attempt ${index + 1}: ${formatStatus(attempt.status)}`,
-		)
+		.map((attempt, index) => `Attempt ${index + 1}: ${formatStatus(attempt.status)}`)
 		.join(' · ');
 
-	const colour =
-		flaky
-			? 'amber'
-			: finalStatus === 'failed'
-				? 'red'
-				: 'zinc';
+	const colour = flaky ? 'amber' : finalStatus === 'failed' ? 'red' : 'zinc';
 
 	return (
-		<span
-			title={description}
-			aria-label={description}
-		>
-			<Badge color={colour}>
-				{flaky
-					? `Flaky · ${attempts.length}`
-					: `${attempts.length} attempts`}
-			</Badge>
+		<span title={description} aria-label={description}>
+			<Badge color={colour}>{flaky ? `Flaky · ${attempts.length}` : `${attempts.length} attempts`}</Badge>
 		</span>
 	);
 }

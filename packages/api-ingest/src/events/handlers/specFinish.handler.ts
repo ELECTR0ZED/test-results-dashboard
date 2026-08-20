@@ -23,15 +23,6 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		throw new Error(`Run not found: ${event.payload.runId}`);
 	}
 
-	await db.run.update({
-		where: {
-			id: run.id,
-		},
-		data: {
-			lastActivityAt: new Date(),
-		},
-	});
-
 	const filename = getSpecFilename(event.payload.spec);
 
 	const spec = await db.spec.upsert({
@@ -113,6 +104,15 @@ export async function handleSpecFinish<TD1Binding extends string>(
 			})),
 		});
 	}
+
+	await db.run.update({
+		where: {
+			id: run.id,
+		},
+		data: {
+			lastActivityAt: new Date(),
+		},
+	});
 }
 
 function getSpecFilename(spec: SpecFinishEvent['payload']['spec']): string {

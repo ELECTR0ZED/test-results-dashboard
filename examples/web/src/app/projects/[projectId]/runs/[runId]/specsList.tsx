@@ -1,51 +1,56 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
-import { useProject } from '@/contexts/projectContext';
-import { DEFAULT_PAGE_SIZE, PaginationMeta, FullSpec } from '@electr0zed/test-results-dashboard-api-types';
-import { useToast } from '@/contexts/toastContext';
-import { useSearchParams } from "next/navigation";
 import { Paginator } from '@/components/paginator';
-import { getRunSpecs } from '@/lib/api/specs';
-import { useRun } from '@/contexts/runContext';
 import { SpecCard } from '@/components/specCard';
+import { useProject } from '@/contexts/projectContext';
+import { useRun } from '@/contexts/runContext';
+import { useToast } from '@/contexts/toastContext';
+import { getRunSpecs } from '@/lib/api/specs';
+import { DEFAULT_PAGE_SIZE, FullSpec, PaginationMeta } from '@electr0zed/test-results-dashboard-api-types';
+import { useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
 
 export default function SpecsList() {
-    const searchParams = useSearchParams();
-    const { project } = useProject();
-    const { run } = useRun();
-    const { addToast } = useToast();
-    const [specs, setSpecs] = useState<FullSpec[]>([]);
-    const [pagination, setPagination] = useState<PaginationMeta>({
-        page: 1,
-        pageSize: DEFAULT_PAGE_SIZE,
-        total: 0,
-        totalPages: 0,
-    });
-    const [loading, setLoading] = useState(true);
+	const searchParams = useSearchParams();
+	const { project } = useProject();
+	const { run } = useRun();
+	const runUpdatedAt = run.updatedAt.getTime();
+	const { addToast } = useToast();
+	const [specs, setSpecs] = useState<FullSpec[]>([]);
+	const [pagination, setPagination] = useState<PaginationMeta>({
+		page: 1,
+		pageSize: DEFAULT_PAGE_SIZE,
+		total: 0,
+		totalPages: 0,
+	});
+	const [loading, setLoading] = useState(true);
 
-    const fetchSpecs = useCallback(async (page: number) => {
-        setLoading(true);
-        setSpecs([]);
-        try {
-            const response = await getRunSpecs(project.publicId, run.publicId, page, pagination.pageSize);
-            setSpecs(response.data);
-            setPagination(response.meta.pagination);
-        } catch (error) {
-            addToast('Failed to fetch specs', error instanceof Error ? error.message : 'Unknown error', 'error');
-        } finally {
-            setLoading(false);
-        }
-    }, [project.publicId, run.publicId, addToast, pagination.pageSize]);
+	const fetchSpecs = useCallback(
+		async (page: number) => {
+			setLoading(true);
+			setSpecs([]);
+			try {
+				const response = await getRunSpecs(project.publicId, run.publicId, page, pagination.pageSize);
+				setSpecs(response.data);
+				setPagination(response.meta.pagination);
+			} catch (error) {
+				addToast('Failed to fetch specs', error instanceof Error ? error.message : 'Unknown error', 'error');
+			} finally {
+				setLoading(false);
+			}
+		},
+		[project.publicId, run.publicId, addToast, pagination.pageSize]
+	);
 
-    useEffect(() => {
-        const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
-        fetchSpecs(currentPage);
-    }, [fetchSpecs, searchParams]);
+	useEffect(() => {
+		const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
 
-    return (
-        <>
-            <div className="space-y-4">
+		fetchSpecs(currentPage);
+	}, [fetchSpecs, searchParams, runUpdatedAt]);
+
+	return (
+		<>
+			<div className="space-y-4">
 				{loading ? (
 					<SpecsLoadingState />
 				) : specs.length === 0 ? (
@@ -53,31 +58,26 @@ export default function SpecsList() {
 						No specs have been recorded for this run.
 					</div>
 				) : (
-					specs.map((spec) => (
-						<SpecCard key={spec.id} spec={spec} />
-					))
+					specs.map((spec) => <SpecCard key={spec.id} spec={spec} />)
 				)}
 			</div>
-            
-            <div className="my-6 max-w-2xl mx-auto">
-                <Paginator
-                    currentPage={pagination.page}
-                    totalPages={pagination.totalPages}
-                    pathname={`/projects/${project.publicId}/runs/${run.publicId}`}
-                />
-            </div>
-        </>
-    )
+
+			<div className="mx-auto my-6 max-w-2xl">
+				<Paginator
+					currentPage={pagination.page}
+					totalPages={pagination.totalPages}
+					pathname={`/projects/${project.publicId}/runs/${run.publicId}`}
+				/>
+			</div>
+		</>
+	);
 }
 
 function SpecsLoadingState() {
 	return (
 		<div className="space-y-4" aria-label="Loading specs">
 			{Array.from({ length: 3 }).map((_, index) => (
-				<div
-					key={index}
-					className="h-24 animate-pulse rounded-xl bg-zinc-950/5 dark:bg-white/5"
-				/>
+				<div key={index} className="h-24 animate-pulse rounded-xl bg-zinc-950/5 dark:bg-white/5" />
 			))}
 		</div>
 	);

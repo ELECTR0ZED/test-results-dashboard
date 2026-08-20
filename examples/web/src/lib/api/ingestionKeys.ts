@@ -1,22 +1,28 @@
+import {
+	ApiSuccess,
+	IngestionKeyCreatedResponse,
+	IngestionKeyCreatedResponseSchema,
+	PublicIngestKey,
+	PublicIngestKeySchema,
+} from '@electr0zed/test-results-dashboard-api-types';
 import { z } from 'zod';
 import { apiRequest, Options } from './core';
-import { ApiSuccess, IngestionKeyCreatedResponse, IngestionKeyCreatedResponseSchema, PublicIngestKey, PublicIngestKeySchema } from '@electr0zed/test-results-dashboard-api-types';
 
 export function getProjectIngestionKeys(
-    publicId: string,
-    options: Options = {},
+	publicId: string,
+	options: Options = {}
 ): Promise<ApiSuccess<PublicIngestKey[]>> {
-    return apiRequest(`/api/projects/${publicId}/ingestion-keys`, z.array(PublicIngestKeySchema), {
-        method: 'GET',
-        apiFetcher: options.apiFetcher,
-    });
+	return apiRequest(`/api/projects/${publicId}/ingestion-keys`, z.array(PublicIngestKeySchema), {
+		method: 'GET',
+		apiFetcher: options.apiFetcher,
+	});
 }
 
 export function createIngestionKey(
 	publicId: string,
 	name: string,
 	expiresAt: Date | null,
-	options: Options = {},
+	options: Options = {}
 ): Promise<ApiSuccess<IngestionKeyCreatedResponse>> {
 	return apiRequest(`/api/projects/${publicId}/ingestion-keys`, IngestionKeyCreatedResponseSchema, {
 		method: 'POST',
@@ -31,7 +37,7 @@ export function createIngestionKey(
 export function revokeIngestionKey(
 	publicId: string,
 	keyPublicId: string,
-	options: Options = {},
+	options: Options = {}
 ): Promise<ApiSuccess<null>> {
 	return apiRequest(`/api/projects/${publicId}/ingestion-keys/${keyPublicId}/revoke`, z.null(), {
 		method: 'POST',
@@ -42,7 +48,7 @@ export function revokeIngestionKey(
 export function deleteIngestionKey(
 	publicId: string,
 	keyPublicId: string,
-	options: Options = {},
+	options: Options = {}
 ): Promise<ApiSuccess<null>> {
 	return apiRequest(`/api/projects/${publicId}/ingestion-keys/${keyPublicId}`, z.null(), {
 		method: 'DELETE',
