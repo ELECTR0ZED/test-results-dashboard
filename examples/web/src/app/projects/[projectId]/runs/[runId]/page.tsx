@@ -17,7 +17,7 @@ export default function ProjectRunDetails() {
 			<div className="mt-10">
 				<Subheading>Specs</Subheading>
 				<Text className="mt-1">
-					Results grouped by Cypress spec file.
+					Results grouped by spec file.
 				</Text>
 			</div>
 

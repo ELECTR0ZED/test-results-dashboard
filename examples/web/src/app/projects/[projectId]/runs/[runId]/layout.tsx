@@ -3,6 +3,7 @@ import 'server-only';
 import { notFound } from 'next/navigation';
 import { RunProvider } from '@/contexts/runContext';
 import { getProjectRun } from '@/lib/api/runs.server';
+import RunPollingController from './runPollingController';
 
 export default async function RunLayout({
 	children,
@@ -30,6 +31,7 @@ export default async function RunLayout({
 			runId={runId}
 			initialRun={run.data}
 		>
+			<RunPollingController />
 			{children}
 		</RunProvider>
 	);

@@ -2,15 +2,19 @@
 
 import { Badge } from '@/components/catalyst/badge';
 import { RunResults } from '@/components/runResults';
-import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
 import {
-	CheckCircleIcon,
-	ChevronRightIcon,
-	ClockIcon,
-	ExclamationTriangleIcon,
-	StopCircleIcon,
-	XCircleIcon,
-} from '@heroicons/react/20/solid';
+	formatDuration,
+	formatName,
+	formatRunDate,
+	formatVersionedName,
+	getRunDisplayStatus,
+	getRunStatusPresentation,
+	isUsefulValue,
+} from '@/lib/runPresentation';
+import type {
+	RunWithStats,
+} from '@electr0zed/test-results-dashboard-api-types';
+import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
 
@@ -19,39 +23,18 @@ type RunCardProps = {
 	run: RunWithStats;
 };
 
-type RunDisplayStatus =
-	| 'passed'
-	| 'failed'
-	| 'running'
-	| 'timedOut'
-	| 'interrupted'
-	| 'finished';
-
-type BadgeColour =
-	| 'green'
-	| 'red'
-	| 'amber'
-	| 'orange'
-	| 'zinc';
-
-type StatusStyle = {
-	label: string;
-	badgeColour: BadgeColour;
-	accentColour: string;
-	iconColour: string;
-};
-
 export function RunCard({
 	projectPublicId,
 	run,
 }: RunCardProps) {
 	const displayStatus = getRunDisplayStatus(run);
-	const statusStyle = getStatusStyle(displayStatus);
+    const statusStyle = getRunStatusPresentation(displayStatus);
+    const StatusIcon = statusStyle.Icon;
 
 	const duration =
-		run.status === 'running'
-			? 'In progress'
-			: formatDuration(run.stats.duration);
+        displayStatus === 'running'
+            ? 'In progress'
+            : formatDuration(run.stats.duration);
 
 	const framework = formatVersionedName(
 		run.framework,
@@ -64,10 +47,10 @@ export function RunCard({
 	);
 
 	const environmentMetadata = [
-		framework,
-		browser,
-		run.os !== 'unknown' ? run.os : undefined,
-	].filter((value): value is string => Boolean(value));
+        framework,
+        browser,
+        isUsefulValue(run.os) ? run.os : undefined,
+    ].filter((value): value is string => Boolean(value));
 
 	return (
 		<Link
@@ -88,13 +71,14 @@ export function RunCard({
 			/>
 
 			<div className="flex items-start gap-3 py-4 pr-4 pl-5 sm:items-center sm:gap-4 sm:px-6">
-				<RunStatusIcon
-					status={displayStatus}
-					className={clsx(
-						'mt-0.5 size-6 shrink-0 sm:mt-0',
-						statusStyle.iconColour,
-					)}
-				/>
+				<StatusIcon
+                    className={clsx(
+                        'mt-0.5 size-6 shrink-0 sm:mt-0',
+                        statusStyle.iconColour,
+                        statusStyle.iconAnimation,
+                    )}
+                    aria-hidden="true"
+                />
 
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2">
@@ -168,64 +152,6 @@ export function RunCard({
 	);
 }
 
-function RunStatusIcon({
-	status,
-	className,
-}: {
-	status: RunDisplayStatus;
-	className?: string;
-}) {
-	switch (status) {
-		case 'passed':
-			return (
-				<CheckCircleIcon
-					className={className}
-					aria-label="Passed"
-				/>
-			);
-
-		case 'failed':
-			return (
-				<XCircleIcon
-					className={className}
-					aria-label="Failed"
-				/>
-			);
-
-		case 'running':
-			return (
-				<ClockIcon
-					className={className}
-					aria-label="Running"
-				/>
-			);
-
-		case 'timedOut':
-			return (
-				<ExclamationTriangleIcon
-					className={className}
-					aria-label="Timed out"
-				/>
-			);
-
-		case 'interrupted':
-			return (
-				<StopCircleIcon
-					className={className}
-					aria-label="Interrupted"
-				/>
-			);
-
-		case 'finished':
-			return (
-				<CheckCircleIcon
-					className={className}
-					aria-label="Finished"
-				/>
-			);
-	}
-}
-
 function Separator() {
 	return (
 		<span
@@ -235,160 +161,4 @@ function Separator() {
 			·
 		</span>
 	);
-}
-
-function getRunDisplayStatus(
-	run: RunWithStats,
-): RunDisplayStatus {
-	const status = run.status.toLowerCase();
-
-	if (status === 'running') {
-		return 'running';
-	}
-
-	if (status === 'timedout') {
-		return 'timedOut';
-	}
-
-	if (status === 'interrupted') {
-		return 'interrupted';
-	}
-
-	if (status === 'failed' || run.stats.failed > 0) {
-		return 'failed';
-	}
-
-	if (
-		status === 'finished' &&
-		run.stats.tests === 0
-	) {
-		return 'finished';
-	}
-
-	if (
-		status === 'finished' ||
-		status === 'passed'
-	) {
-		return 'passed';
-	}
-
-	return 'finished';
-}
-
-function getStatusStyle(
-	status: RunDisplayStatus,
-): StatusStyle {
-	switch (status) {
-		case 'passed':
-			return {
-				label: 'Passed',
-				badgeColour: 'green',
-				accentColour: 'bg-green-500',
-				iconColour:
-					'text-green-600 dark:text-green-400',
-			};
-
-		case 'failed':
-			return {
-				label: 'Failed',
-				badgeColour: 'red',
-				accentColour: 'bg-red-500',
-				iconColour:
-					'text-red-600 dark:text-red-400',
-			};
-
-		case 'running':
-			return {
-				label: 'Running',
-				badgeColour: 'amber',
-				accentColour: 'bg-amber-400',
-				iconColour:
-					'text-amber-500 dark:text-amber-400',
-			};
-
-		case 'timedOut':
-			return {
-				label: 'Timed out',
-				badgeColour: 'red',
-				accentColour: 'bg-red-500',
-				iconColour:
-					'text-red-600 dark:text-red-400',
-			};
-
-		case 'interrupted':
-			return {
-				label: 'Interrupted',
-				badgeColour: 'orange',
-				accentColour: 'bg-orange-500',
-				iconColour:
-					'text-orange-500 dark:text-orange-400',
-			};
-
-		case 'finished':
-			return {
-				label: 'Finished',
-				badgeColour: 'zinc',
-				accentColour: 'bg-zinc-400',
-				iconColour:
-					'text-zinc-500 dark:text-zinc-400',
-			};
-	}
-}
-
-function formatVersionedName(
-	name: string,
-	version: string,
-) {
-	const formattedName = formatName(name);
-
-	if (
-		!version ||
-		version.toLowerCase() === 'unknown'
-	) {
-		return formattedName;
-	}
-
-	return `${formattedName} ${version}`;
-}
-
-function formatName(value: string) {
-	if (!value || value.toLowerCase() === 'unknown') {
-		return 'Unknown';
-	}
-
-	return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
-}
-
-function formatRunDate(date: Date) {
-	return new Intl.DateTimeFormat('en-GB', {
-		day: '2-digit',
-		month: 'short',
-		year: 'numeric',
-		hour: '2-digit',
-		minute: '2-digit',
-	}).format(date);
-}
-
-function formatDuration(milliseconds: number) {
-	if (milliseconds < 1_000) {
-		return `${milliseconds}ms`;
-	}
-
-	if (milliseconds < 60_000) {
-		return `${(milliseconds / 1_000).toFixed(1)}s`;
-	}
-
-	const minutes = Math.floor(milliseconds / 60_000);
-	const seconds = Math.floor(
-		(milliseconds % 60_000) / 1_000,
-	);
-
-	if (minutes < 60) {
-		return `${minutes}m ${seconds}s`;
-	}
-
-	const hours = Math.floor(minutes / 60);
-	const remainingMinutes = minutes % 60;
-
-	return `${hours}h ${remainingMinutes}m`;
 }

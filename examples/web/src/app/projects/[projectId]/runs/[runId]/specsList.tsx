@@ -14,6 +14,7 @@ export default function SpecsList() {
     const searchParams = useSearchParams();
     const { project } = useProject();
     const { run } = useRun();
+    const runUpdatedAt = run.updatedAt.getTime();
     const { addToast } = useToast();
     const [specs, setSpecs] = useState<FullSpec[]>([]);
     const [pagination, setPagination] = useState<PaginationMeta>({
@@ -39,9 +40,13 @@ export default function SpecsList() {
     }, [project.publicId, run.publicId, addToast, pagination.pageSize]);
 
     useEffect(() => {
-        const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
+        const currentPage = Number.parseInt(
+            searchParams.get('page') ?? '1',
+            10,
+        );
+
         fetchSpecs(currentPage);
-    }, [fetchSpecs, searchParams]);
+    }, [fetchSpecs, searchParams, runUpdatedAt]);
 
     return (
         <>
