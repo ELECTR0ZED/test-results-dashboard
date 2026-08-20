@@ -1,8 +1,8 @@
 import type { RunStartEvent } from '@electr0zed/test-results-dashboard-core';
 import type { AppCtx } from '../../types';
 
-export async function handleRunStart(
-	ctx: AppCtx,
+export async function handleRunStart<TD1Binding extends string>(
+	ctx: AppCtx<TD1Binding>,
 	event: RunStartEvent,
 ): Promise<void> {
 	const { db } = ctx;
@@ -33,6 +33,7 @@ export async function handleRunStart(
 			os: formatOs(event.payload.osName, event.payload.osVersion),
 			status: 'running',
 			startedAt: parseOptionalDate(event.payload.startedAt) ?? new Date(),
+			lastActivityAt: new Date(),
 		},
 		update: {
 			projectId: project.id,
@@ -44,6 +45,7 @@ export async function handleRunStart(
 			status: 'running',
 			startedAt: parseOptionalDate(event.payload.startedAt) ?? new Date(),
 			endedAt: null,
+			lastActivityAt: new Date(),
 		},
 	});
 }

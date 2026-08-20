@@ -1,17 +1,18 @@
 import type { PrismaClient } from '@electr0zed/test-results-dashboard-db';
 
-export type Config = {
-    basePath?: string;
-    d1: D1Database;
+export type Config<TD1Binding extends string> = {
+	basePath?: string;
+	d1Binding: TD1Binding;
 };
 
-export type AppCtx = {
-    cfg: Config;
-    db: PrismaClient;
-}
+export type AppCtx<TD1Binding extends string> = {
+	cfg: Config<TD1Binding>;
+	db: PrismaClient;
+};
 
-export type HonoEnv = {
-    Variables: {
-        ctx: AppCtx;
-    };
+export type HonoEnv<TD1Binding extends string> = {
+	Bindings: Record<TD1Binding, D1Database>;
+	Variables: {
+		ctx: AppCtx<TD1Binding>;
+	};
 };

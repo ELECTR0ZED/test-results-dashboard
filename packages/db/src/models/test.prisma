@@ -8,15 +8,19 @@ model Run {
   browserVersion   String
   os               String
 
-  status    String    @default("running")
-  startedAt DateTime
-  endedAt   DateTime?
+  status         String    @default("running")
+  startedAt      DateTime
+  endedAt        DateTime?
+  lastActivityAt DateTime  @default(now())
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   specs   Spec[]
-  project Project @relation(fields: [projectId], references: [id])
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, startedAt])
+  @@index([projectId, status])
 }
 
 model Spec {
@@ -32,10 +36,10 @@ model Spec {
   startedAt DateTime
   endedAt   DateTime
 
-  status  String? @default("running")
+  status  String  @default("running")
   message String?
 
-  run       Run        @relation(fields: [runId], references: [id])
+  run       Run        @relation(fields: [runId], references: [id], onDelete: Cascade)
   specTests SpecTest[]
 
   @@unique([runId, filename])
@@ -44,15 +48,30 @@ model Spec {
 model SpecTest {
   id       Int    @id @default(autoincrement())
   specId   Int
-  title    String
   status   String
   duration Int
 
   message String?
   trace   String?
 
-  spec             Spec              @relation(fields: [specId], references: [id])
+  spec             Spec                @relation(fields: [specId], references: [id], onDelete: Cascade)
+  titleParts       SpecTestTitlePart[]
   specTestAttempts SpecTestAttempt[]
+
+  @@index([specId])
+}
+
+model SpecTestTitlePart {
+  id         Int    @id @default(autoincrement())
+  specTestId Int
+  position   Int
+  value      String
+
+  specTest SpecTest @relation(fields: [specTestId], references: [id], onDelete: Cascade)
+
+  @@unique([specTestId, position])
+  @@index([position, value])
+  @@index([value])
 }
 
 model SpecTestAttempt {
@@ -63,7 +82,9 @@ model SpecTestAttempt {
   message String?
   trace   String?
 
-  specTest SpecTest @relation(fields: [specTestId], references: [id])
+  specTest SpecTest @relation(fields: [specTestId], references: [id], onDelete: Cascade)
+
+  @@index([specTestId])
 }
 
 model Project {

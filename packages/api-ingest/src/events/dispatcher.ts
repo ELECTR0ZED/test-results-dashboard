@@ -4,19 +4,19 @@ import { handleSpecFinish } from './handlers/specFinish.handler';
 import { handleRunFinish } from './handlers/runFinish.handler';
 import { AppCtx } from '../types';
 
-export async function dispatchEvent(
-	ctx: AppCtx,
+export async function dispatchEvent<TD1Binding extends string>(
+	ctx: AppCtx<TD1Binding>,
 	event: DashboardEvent,
 ): Promise<void> {
 	switch (event.type) {
 		case 'run:start':
-			return handleRunStart(ctx, event);
+			return handleRunStart<TD1Binding>(ctx, event);
 
 		case 'spec:finish':
-			return handleSpecFinish(ctx, event);
+			return handleSpecFinish<TD1Binding>(ctx, event);
 
 		case 'run:finish':
-			return handleRunFinish(ctx, event);
+			return handleRunFinish<TD1Binding>(ctx, event);
 
 		default:
 			return assertNever(event);
