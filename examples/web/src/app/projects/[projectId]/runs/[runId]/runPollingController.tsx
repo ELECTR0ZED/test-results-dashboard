@@ -21,9 +21,11 @@ export default function RunPollingController() {
 		const poll = async () => {
 			try {
 				await refreshRun();
-			} finally {
+			} catch {} finally {
 				if (!cancelled) {
-					timeout = window.setTimeout(poll, POLLING_INTERVAL_MS);
+					timeout = window.setTimeout(() => {
+						void poll();
+					}, POLLING_INTERVAL_MS);
 				}
 			}
 		};

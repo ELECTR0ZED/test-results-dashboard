@@ -68,7 +68,7 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 					</div>
 
 					<div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-sm text-zinc-500 dark:text-zinc-400">
-						<time dateTime={run.startedAt.toISOString()}>{formatRunDate(run.startedAt)}</time>
+						<LocalDate value={run.startedAt} />
 
 						<Separator />
 
