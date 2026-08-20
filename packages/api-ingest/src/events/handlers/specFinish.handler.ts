@@ -10,6 +10,9 @@ export async function handleSpecFinish<TD1Binding extends string>(
 	const run = await db.run.findUnique({
 		where: {
 			publicId: event.payload.runId,
+			project: {
+				publicId: event.payload.projectId,
+			},
 		},
 		select: {
 			id: true,
@@ -66,14 +69,6 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		},
 		select: {
 			id: true,
-		},
-	});
-
-	await db.specTestAttempt.deleteMany({
-		where: {
-			specTest: {
-				specId: spec.id,
-			},
 		},
 	});
 
