@@ -19,6 +19,21 @@ export async function handleRunStart<TD1Binding extends string>(
 		);
 	}
 
+	const run = await db.run.findUnique({
+		where: {
+			publicId: event.payload.id,
+			project: {
+				publicId: event.payload.projectId,
+			},
+		},
+	});
+
+	if (!run) {
+		throw new Error(
+			`Run with publicId "${event.payload.id}" not found for project "${event.payload.projectId}".`,
+		);
+	}
+
 	await db.run.upsert({
 		where: {
 			publicId: event.payload.id,

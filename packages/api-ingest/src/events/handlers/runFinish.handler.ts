@@ -10,6 +10,9 @@ export async function handleRunFinish<TD1Binding extends string>(
 	const run = await db.run.findUnique({
 		where: {
 			publicId: event.payload.runId,
+			project: {
+				publicId: event.payload.projectId,
+			},
 		},
 		select: {
 			id: true,
