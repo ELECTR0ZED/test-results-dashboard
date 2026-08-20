@@ -1,3 +1,5 @@
+'use client';
+
 import { formatRunDate } from '@/lib/runPresentation';
 import { useEffect, useState } from 'react';
 

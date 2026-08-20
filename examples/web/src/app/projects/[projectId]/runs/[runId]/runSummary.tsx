@@ -8,13 +8,12 @@ import { useRun } from '@/contexts/runContext';
 import {
 	formatDuration,
 	formatName,
-	formatRunDate,
 	formatVersionedName,
 	getRunDisplayStatus,
 	getRunStatusPresentation,
 	isUsefulValue,
 } from '@/lib/runPresentation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { LocalDate } from '@/components/localDate';
 
 export default function RunSummary() {

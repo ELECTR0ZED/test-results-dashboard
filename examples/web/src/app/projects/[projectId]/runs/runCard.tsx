@@ -5,7 +5,6 @@ import { RunResults } from '@/components/runResults';
 import {
 	formatDuration,
 	formatName,
-	formatRunDate,
 	formatVersionedName,
 	getRunDisplayStatus,
 	getRunStatusPresentation,
