@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { apiRequest, Options } from './core';
-import { type Run, RunSchema, PaginatedApiSuccess, PaginatedApiMeta, ApiSuccess, RunWithStats, RunWithStatsSchema } from '@electr0zed/test-results-dashboard-api-types';
+import { PaginatedApiSuccess, PaginatedApiMeta, ApiSuccess, RunWithStats, RunWithStatsSchema } from '@electr0zed/test-results-dashboard-api-types';
 
 export function getProjectRuns(
     publicId: string,
@@ -18,8 +18,8 @@ export function getProjectRun(
     publicId: string,
     runId: string,
     options: Options = {},
-): Promise<ApiSuccess<Run>> {
-    return apiRequest<Run>(`/api/projects/${publicId}/runs/${runId}`, RunSchema, {
+): Promise<ApiSuccess<RunWithStats>> {
+    return apiRequest<RunWithStats>(`/api/projects/${publicId}/runs/${runId}`, RunWithStatsSchema, {
         method: 'GET',
         apiFetcher: options.apiFetcher,
     });

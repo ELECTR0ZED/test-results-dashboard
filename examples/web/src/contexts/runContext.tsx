@@ -8,13 +8,13 @@ import {
 	useState,
 	type ReactNode,
 } from 'react';
-import type { Run } from '@electr0zed/test-results-dashboard-api-types';
+import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
 import { getProjectRun } from '@/lib/api/runs';
 
 type RunContextValue = {
-	run: Run;
+	run: RunWithStats;
 	refreshRun: () => Promise<void>;
-	setRun: (run: Run) => void;
+	setRun: (run: RunWithStats) => void;
 };
 
 const RunContext = createContext<RunContextValue | undefined>(undefined);
@@ -22,7 +22,7 @@ const RunContext = createContext<RunContextValue | undefined>(undefined);
 type RunProviderProps = {
 	projectId: string;
 	runId: string;
-	initialRun: Run;
+	initialRun: RunWithStats;
 	children: ReactNode;
 };
 
@@ -32,7 +32,7 @@ export function RunProvider({
 	initialRun,
 	children,
 }: RunProviderProps) {
-	const [run, setRun] = useState<Run>(initialRun);
+	const [run, setRun] = useState<RunWithStats>(initialRun);
 
 	const refreshRun = useCallback(async () => {
 		const response = await getProjectRun(projectId, runId);

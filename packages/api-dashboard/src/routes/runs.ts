@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import { GetProjectRunsSchema, type Run, type PaginatedApiSuccess, GetProjectRunSchema, ApiSuccess, RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
+import { GetProjectRunsSchema, type PaginatedApiSuccess, GetProjectRunSchema, ApiSuccess, RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
 import { NotFoundError } from '../services/errors';
 
 export function createRunRoutes<
@@ -157,9 +157,37 @@ export function createRunRoutes<
             throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
         }
 
-        return c.json<ApiSuccess<Run>>({
+        const stats = await ctx.db.spec.aggregate({
+            where: {
+                runId: run.id,
+            },
+            _sum: {
+                tests: true,
+                passed: true,
+                failed: true,
+                pending: true,
+                skipped: true,
+                duration: true,
+            },
+            _count: {
+                _all: true,
+            },
+        });
+
+        return c.json<ApiSuccess<RunWithStats>>({
             success: true,
-            data: run,
+            data: {
+                ...run,
+                stats: {
+                    specs: stats._count._all,
+                    tests: stats._sum.tests ?? 0,
+                    passed: stats._sum.passed ?? 0,
+                    failed: stats._sum.failed ?? 0,
+                    pending: stats._sum.pending ?? 0,
+                    skipped: stats._sum.skipped ?? 0,
+                    duration: stats._sum.duration ?? 0,
+                },
+            },
         });
     });
 
