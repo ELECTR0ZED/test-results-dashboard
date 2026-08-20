@@ -15,11 +15,31 @@ export default function RunPollingController() {
 			return;
 		}
 
-		const interval = window.setInterval(() => {
-			void refreshRun().catch(() => undefined);
-		}, POLLING_INTERVAL_MS);
+		let cancelled = false;
+		let timeout: number;
 
-		return () => window.clearInterval(interval);
+		const poll = async () => {
+			try {
+				await refreshRun();
+			} finally {
+				if (!cancelled) {
+					timeout = window.setTimeout(
+						poll,
+						POLLING_INTERVAL_MS,
+					);
+				}
+			}
+		};
+
+		timeout = window.setTimeout(
+			poll,
+			POLLING_INTERVAL_MS,
+		);
+
+		return () => {
+			cancelled = true;
+			window.clearTimeout(timeout);
+		};
 	}, [displayStatus, refreshRun]);
 
 	return null;

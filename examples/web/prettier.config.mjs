@@ -7,6 +7,8 @@ const config = {
   tailwindFunctions: ['clsx', 'tw'],
   plugins: ['prettier-plugin-organize-imports', 'prettier-plugin-tailwindcss'],
   tailwindStylesheet: './src/styles/tailwind.css',
+  useTabs: true,
+  tabWidth: 4,
 }
 
 export default config
