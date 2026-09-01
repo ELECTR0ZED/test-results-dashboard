@@ -1,6 +1,7 @@
 'use client';
 
 import { Badge } from '@/components/catalyst/badge';
+import { LocalDate } from '@/components/localDate';
 import { RunResults } from '@/components/runResults';
 import {
 	formatDuration,
@@ -14,7 +15,6 @@ import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types'
 import { ChevronRightIcon } from '@heroicons/react/20/solid';
 import clsx from 'clsx';
 import Link from 'next/link';
-import { LocalDate } from '@/components/localDate';
 
 type RunCardProps = {
 	projectPublicId: string;

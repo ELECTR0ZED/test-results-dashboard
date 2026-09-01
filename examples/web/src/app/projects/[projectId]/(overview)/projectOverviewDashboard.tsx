@@ -109,7 +109,15 @@ function SummaryCards({ overview }: { overview: ProjectOverview }) {
 
 function ResultsChart({ overview }: { overview: ProjectOverview }) {
 	const tickInterval =
-		overview.period.days === 90 ? 14 : overview.period.days === 60 ? 9 : overview.period.days === 30 ? 4 : overview.period.days === 14 ? 1 : 0;
+		overview.period.days === 90
+			? 14
+			: overview.period.days === 60
+				? 9
+				: overview.period.days === 30
+					? 4
+					: overview.period.days === 14
+						? 1
+						: 0;
 
 	return (
 		<ChartPanel title="Test results" description={`Daily results across the last ${overview.period.days} days.`}>
@@ -148,7 +156,15 @@ function ResultsChart({ overview }: { overview: ProjectOverview }) {
 function DurationChart({ overview }: { overview: ProjectOverview }) {
 	const hasDurations = overview.trend.some((point) => point.medianDuration !== null);
 	const tickInterval =
-		overview.period.days === 90 ? 14 : overview.period.days === 60 ? 9 : overview.period.days === 30 ? 4 : overview.period.days === 14 ? 1 : 0;
+		overview.period.days === 90
+			? 14
+			: overview.period.days === 60
+				? 9
+				: overview.period.days === 30
+					? 4
+					: overview.period.days === 14
+						? 1
+						: 0;
 
 	return (
 		<ChartPanel title="Run duration" description="Daily median wall-clock duration for completed runs.">
