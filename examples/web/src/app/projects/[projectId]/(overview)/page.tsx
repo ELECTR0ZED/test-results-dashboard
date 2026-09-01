@@ -37,14 +37,17 @@ export default async function ProjectOverview({
 					<Text className="mt-2">Track test health and performance across recent runs.</Text>
 				</div>
 
-				<nav className="flex w-fit rounded-lg bg-zinc-950/5 p-1 dark:bg-white/10" aria-label="Overview period">
+				<nav
+					className="grid w-full grid-cols-3 gap-1 rounded-lg bg-zinc-950/5 p-1 sm:flex sm:w-fit"
+					aria-label="Overview period"
+				>
 					{PERIOD_OPTIONS.map((option) => (
 						<Link
 							key={option}
 							href={`/projects/${projectId}?days=${option}`}
 							aria-current={days === option ? 'page' : undefined}
 							className={clsx(
-								'rounded-md px-3 py-1.5 text-sm font-medium transition',
+								'rounded-md px-3 py-1.5 text-center text-sm font-medium transition',
 								days === option
 									? 'bg-white text-zinc-950 shadow-sm dark:bg-zinc-700 dark:text-white'
 									: 'text-zinc-500 hover:text-zinc-950 dark:text-zinc-400 dark:hover:text-white'

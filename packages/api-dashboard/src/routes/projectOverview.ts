@@ -51,51 +51,68 @@ export function createOverviewRoutes<TD1Binding extends string>() {
 		const periodEnd = new Date();
 		const periodStart = startOfUtcPeriod(periodEnd, parsedParams.data.days);
 
-		const [runs, latestRun, groupedSpecStats] = await Promise.all([
-			ctx.db.run.findMany({
-				where: {
-					projectId: project.id,
-					startedAt: {
-						gte: periodStart,
-						lte: periodEnd,
-					},
-				},
-				orderBy: {
-					startedAt: 'desc',
-				},
-			}),
-			ctx.db.run.findFirst({
-				where: {
-					projectId: project.id,
-				},
-				orderBy: {
-					startedAt: 'desc',
-				},
-			}),
-			ctx.db.spec.groupBy({
-				by: ['runId'],
-				where: {
-					run: {
+		const [runs, recentRuns, latestRun, groupedSpecStats] =
+			await Promise.all([
+				ctx.db.run.findMany({
+					where: {
 						projectId: project.id,
 						startedAt: {
 							gte: periodStart,
 							lte: periodEnd,
 						},
 					},
-				},
-				_sum: {
-					tests: true,
-					passed: true,
-					failed: true,
-					pending: true,
-					skipped: true,
-					duration: true,
-				},
-				_count: {
-					_all: true,
-				},
-			}),
-		]);
+					select: {
+						id: true,
+						status: true,
+						startedAt: true,
+						endedAt: true,
+					},
+				}),
+				ctx.db.run.findMany({
+					where: {
+						projectId: project.id,
+						startedAt: {
+							gte: periodStart,
+							lte: periodEnd,
+						},
+					},
+					orderBy: {
+						startedAt: 'desc',
+					},
+					take: RECENT_RUNS_LIMIT,
+				}),
+				ctx.db.run.findFirst({
+					where: {
+						projectId: project.id,
+					},
+					orderBy: {
+						startedAt: 'desc',
+					},
+				}),
+				ctx.db.spec.groupBy({
+					by: ['runId'],
+					where: {
+						run: {
+							projectId: project.id,
+							startedAt: {
+								gte: periodStart,
+								lte: periodEnd,
+							},
+						},
+					},
+					_sum: {
+						tests: true,
+						passed: true,
+						failed: true,
+						pending: true,
+						skipped: true,
+						duration: true,
+					},
+					_count: {
+						_all: true,
+					},
+				}),
+			]);
 
 		const statsByRunId = new Map<number, RunStats>(
 			groupedSpecStats.map((stats) => [
@@ -218,7 +235,9 @@ export function createOverviewRoutes<TD1Binding extends string>() {
 				medianDuration: median(completedDurations),
 			},
 			latestRun: latestRun ? withStats(latestRun, statsByRunId) : null,
-			recentRuns: runs.slice(0, RECENT_RUNS_LIMIT).map((run) => withStats(run, statsByRunId)),
+			recentRuns: recentRuns.map((run) =>
+				withStats(run, statsByRunId)
+			),
 			trend,
 		};
 
