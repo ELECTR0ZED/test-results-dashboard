@@ -58,7 +58,7 @@ export default function ProjectSettings() {
 
 			addToast('Project deleted', 'Your project has been deleted successfully.', 'success');
 
-			router.replace('/projects');
+			router.replace('/');
 		} catch (error) {
 			console.error(error);
 

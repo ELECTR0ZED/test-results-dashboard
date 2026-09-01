@@ -59,7 +59,7 @@ export function ProjectApplicationLayout({ children, projectId }: { children: Re
 						<SidebarSpacer />
 
 						<SidebarSection>
-							<SidebarItem href="/projects">
+							<SidebarItem href="/">
 								<ArrowLeftIcon />
 								<SidebarLabel>Back to Projects</SidebarLabel>
 							</SidebarItem>
