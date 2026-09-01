@@ -17,7 +17,7 @@
 		"@heroicons/react": "^2.2.0",
 		"@opennextjs/cloudflare": "1.20.5",
 		"clsx": "^2.1.1",
-		"motion": "12.23.11",
+		"motion": "12.40.0",
 		"next": "16.3.4",
 		"react": "19.2.8",
 		"react-dom": "19.2.8",
@@ -27,17 +27,18 @@
 	"devDependencies": {
 		"@next/eslint-plugin-next": "16.3.4",
 		"@tailwindcss/postcss": "4.1.15",
-		"@types/node": "24.1.0",
+		"@types/node": "24.13.2",
 		"@types/react": "19.2.18",
 		"@types/react-dom": "19.2.5",
+		"@typescript/native": "npm:typescript@^7.0.2",
 		"eslint": "9.39.5",
 		"eslint-config-next": "16.3.4",
 		"postcss": "8.5.25",
-		"prettier": "3.6.2",
+		"prettier": "3.9.6",
 		"prettier-plugin-organize-imports": "4.2.0",
 		"prettier-plugin-tailwindcss": "0.7.1",
-		"tailwindcss": "4.1.15",
-		"typescript": "5.8.3",
+		"tailwindcss": "4.3.3",
+		"typescript": "npm:@typescript/typescript6@6.0.2",
 		"wrangler": "4.127.1"
 	}
 }
