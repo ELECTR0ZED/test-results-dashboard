@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-api-dashboard
 
+## 0.6.1
+
+### Patch Changes
+
+- 11d4852: Reject ingestion keys with expiration dates that are not in the future.
+
 ## 0.6.0
 
 ### Minor Changes
