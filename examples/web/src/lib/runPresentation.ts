@@ -126,13 +126,13 @@ export function formatRunDate(date: Date): string {
 
 export function formatDuration(milliseconds: number): string {
 	if (milliseconds < 1_000) {
-		return `${milliseconds} ms`;
+		return `${milliseconds}ms`;
 	}
 
 	if (milliseconds < 60_000) {
 		const seconds = milliseconds / 1_000;
 
-		return `${seconds.toFixed(seconds < 10 ? 1 : 0)} s`;
+		return `${seconds.toFixed(seconds < 10 ? 1 : 0)}s`;
 	}
 
 	const totalSeconds = Math.round(milliseconds / 1_000);
