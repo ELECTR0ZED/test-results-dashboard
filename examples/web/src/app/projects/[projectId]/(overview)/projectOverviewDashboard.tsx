@@ -318,7 +318,7 @@ function NoRunsState({ projectPublicId }: { projectPublicId: string }) {
 
 function NoRunsInPeriodState({ days }: { days: number }) {
 	const description =
-		days < 30
+		days < 90
 			? 'Choose a longer period to include older activity.'
 			: 'New runs will appear here as soon as results are ingested.';
 
