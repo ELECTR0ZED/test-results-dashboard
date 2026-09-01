@@ -7,7 +7,7 @@ import { Dropdown, DropdownButton, DropdownDivider, DropdownItem, DropdownMenu }
 import { Description, Field, FieldGroup, Fieldset, Label } from '@/components/catalyst/fieldset';
 import { Subheading } from '@/components/catalyst/heading';
 import { Input } from '@/components/catalyst/input';
-import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/catalyst/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/catalyst/table';
 import { Text } from '@/components/catalyst/text';
 import { CopyBox } from '@/components/copyBox';
 import { LocalDate } from '@/components/localDate';
@@ -67,13 +67,30 @@ export default function IngestionKeysTable() {
 
 	useEffect(() => {
 		void fetchIngestionKeys();
-		setCurrentTime(Date.now());
 	}, [fetchIngestionKeys]);
+
+	useEffect(() => {
+		const updateCurrentTime = () => {
+			setCurrentTime(Date.now());
+		};
+
+		updateCurrentTime();
+
+		const interval = window.setInterval(updateCurrentTime, 60_000);
+
+		return () => window.clearInterval(interval);
+	}, []);
 
 	async function handleCreateIngestionKey() {
 		const normalizedKeyName = keyName.trim();
+		const expirationDate = expiresAt ? new Date(expiresAt) : null;
 
 		if (!normalizedKeyName || creating) {
+			return;
+		}
+
+		if (expirationDate && expirationDate.getTime() <= Date.now()) {
+			addToast('Invalid expiration date', 'The expiration date must be in the future.', 'error');
 			return;
 		}
 
@@ -191,13 +208,13 @@ export default function IngestionKeysTable() {
 						<Table dense className="[--gutter:--spacing(0)]">
 							<TableHead>
 								<TableRow>
-									<TableCell>Name</TableCell>
-									<TableCell className="hidden sm:table-cell">Key</TableCell>
-									<TableCell className="hidden lg:table-cell">Last used</TableCell>
-									<TableCell className="hidden xl:table-cell">Expires</TableCell>
-									<TableCell className="w-12 text-right">
+									<TableHeader>Name</TableHeader>
+									<TableHeader className="hidden sm:table-cell">Key</TableHeader>
+									<TableHeader className="hidden lg:table-cell">Last used</TableHeader>
+									<TableHeader className="hidden xl:table-cell">Expires</TableHeader>
+									<TableHeader className="w-12 text-right">
 										<span className="sr-only">Actions</span>
-									</TableCell>
+									</TableHeader>
 								</TableRow>
 							</TableHead>
 							<TableBody>
