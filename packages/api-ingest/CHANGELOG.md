@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-api-ingest
 
+## 0.4.1
+
+### Patch Changes
+
+- 937bcc3: Return aggregated statistics from single-run dashboard responses, add project overview APIs and shared schemas for 7, 14, 30, 60, and 90-day test health and duration trends, and update run activity only after complete spec ingestion so live dashboard refreshes cannot observe partially written results.
+
 ## 0.4.0
 
 ### Minor Changes
