@@ -1,6 +1,6 @@
-import { Divider } from '@/components/catalyst/divider';
 import { Heading } from '@/components/catalyst/heading';
-import { Metadata } from 'next';
+import { Text } from '@/components/catalyst/text';
+import type { Metadata } from 'next';
 import ProjectSettingsClient from './projectSettingsClient';
 
 export const metadata: Metadata = {
@@ -9,11 +9,11 @@ export const metadata: Metadata = {
 
 export default async function ProjectSettings() {
 	return (
-		<>
-			<Heading>Project Settings</Heading>
-			<Divider className="my-10 mt-6" />
+		<div>
+			<Heading>Project settings</Heading>
+			<Text className="mt-2">Manage project identity, ingestion access, and stored test results.</Text>
 
 			<ProjectSettingsClient />
-		</>
+		</div>
 	);
 }

@@ -76,6 +76,15 @@ export function createIngestionKeyRoutes<
             throw parsedBody.error;
         }
 
+        if (
+            parsedBody.data.expiresAt &&
+            parsedBody.data.expiresAt.getTime() <= Date.now()
+        ) {
+            throw new ValidationError(
+                'The expiration date must be in the future.',
+            );
+        }
+
         const project = await ctx.db.project.findUnique({
             where: {
                 publicId: parsedParams.data.publicId,
