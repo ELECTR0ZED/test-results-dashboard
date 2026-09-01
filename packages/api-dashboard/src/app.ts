@@ -5,6 +5,7 @@ import { createProjectRoutes } from './routes/projects';
 import { createIngestionKeyRoutes } from './routes/ingestionKeys';
 import { createRunRoutes } from './routes/runs';
 import { createSpecRoutes } from './routes/specs';
+import { createOverviewRoutes } from './routes/projectOverview';
 import { errorHandler } from './middleware/errorHandler';
 
 export function createApp<const TD1Binding extends string>(
@@ -24,6 +25,7 @@ export function createApp<const TD1Binding extends string>(
 	app.route('/', createIngestionKeyRoutes<TD1Binding>());
 	app.route('/', createRunRoutes<TD1Binding>());
 	app.route('/', createSpecRoutes<TD1Binding>());
+	app.route('/', createOverviewRoutes<TD1Binding>());
 
 
 	return app;
