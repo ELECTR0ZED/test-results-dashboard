@@ -28,7 +28,7 @@ export function OrgApplicationLayout({ children }: { children: React.ReactNode }
 					</SidebarHeader>
 					<SidebarBody>
 						<SidebarSection>
-							<SidebarItem href="/projects" current={pathname === '/projects'}>
+							<SidebarItem href="/" current={pathname === '/'}>
 								<FolderIcon />
 								<SidebarLabel>Projects</SidebarLabel>
 							</SidebarItem>

@@ -6,7 +6,8 @@ import { Field, Label } from '@/components/catalyst/fieldset';
 import { Input } from '@/components/catalyst/input';
 import { useToast } from '@/contexts/toastContext';
 import { createProject } from '@/lib/api/projects';
-import { useState } from 'react';
+import { PlusIcon } from '@heroicons/react/20/solid';
+import { type FormEvent, useState } from 'react';
 
 export default function CreateProject({ refreshProjects }: { refreshProjects: () => void }) {
 	const [isOpen, setIsOpen] = useState(false);
@@ -14,11 +15,21 @@ export default function CreateProject({ refreshProjects }: { refreshProjects: ()
 	const [loading, setLoading] = useState(false);
 	const { addToast } = useToast();
 
-	const handleCreateProject = async () => {
+	const handleCreateProject = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+
+		const projectName = name.trim();
+
+		if (!projectName) {
+			return;
+		}
+
 		setLoading(true);
+
 		try {
-			await createProject({ name });
-			closeDialog();
+			await createProject({ name: projectName });
+			setIsOpen(false);
+			setName('');
 			addToast('Project created successfully', undefined, 'success');
 			refreshProjects();
 		} catch (err) {
@@ -38,28 +49,37 @@ export default function CreateProject({ refreshProjects }: { refreshProjects: ()
 	return (
 		<>
 			<Button type="button" onClick={() => setIsOpen(true)} className="cursor-pointer">
-				New Project
+				<PlusIcon />
+				New project
 			</Button>
 			<Dialog open={isOpen} onClose={closeDialog} size="md">
-				<DialogTitle>New Project</DialogTitle>
+				<DialogTitle>New project</DialogTitle>
 				<DialogBody>
-					<Field>
-						<Label>Name</Label>
-						<Input
-							type="text"
-							placeholder="Project Name"
-							value={name}
-							onChange={(e) => setName(e.target.value)}
-							disabled={loading}
-						/>
-					</Field>
+					<form id="create-project-form" onSubmit={handleCreateProject}>
+						<Field>
+							<Label>Name</Label>
+							<Input
+								type="text"
+								placeholder="e.g. Customer portal"
+								value={name}
+								onChange={(event) => setName(event.target.value)}
+								disabled={loading}
+								autoFocus
+							/>
+						</Field>
+					</form>
 				</DialogBody>
 				<DialogActions>
 					<Button type="button" onClick={closeDialog} className="cursor-pointer" plain disabled={loading}>
 						Cancel
 					</Button>
-					<Button type="button" onClick={handleCreateProject} className="cursor-pointer" disabled={loading}>
-						Create
+					<Button
+						type="submit"
+						form="create-project-form"
+						className="cursor-pointer"
+						disabled={loading || !name.trim()}
+					>
+						{loading ? 'Creating…' : 'Create project'}
 					</Button>
 				</DialogActions>
 			</Dialog>
