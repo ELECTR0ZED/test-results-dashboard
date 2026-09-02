@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/catalyst/button';
+import { Combobox, ComboboxOption } from '@/components/catalyst/combobox';
 import { Select } from '@/components/catalyst/select';
 import { Paginator } from '@/components/paginator';
 import { useProject } from '@/contexts/projectContext';
@@ -16,10 +17,6 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { RunCard } from './runCard';
-import {
-	Combobox,
-	ComboboxOption,
-} from '@/components/catalyst/combobox';
 
 export default function ProjectRunsList() {
 	const searchParams = useSearchParams();
@@ -28,40 +25,24 @@ export default function ProjectRunsList() {
 	const { addToast } = useToast();
 
 	const [runs, setRuns] = useState<RunWithStats[]>([]);
-	const [loadedRequestKey, setLoadedRequestKey] =
-		useState<string>();
-	const [availableAttributes, setAvailableAttributes] =
-		useState<AvailableRunAttribute[]>([]);
-	const [pagination, setPagination] =
-		useState<PaginationMeta>({
-			page: 1,
-			pageSize: DEFAULT_PAGE_SIZE,
-			total: 0,
-			totalPages: 0,
-		});
+	const [loadedRequestKey, setLoadedRequestKey] = useState<string>();
+	const [availableAttributes, setAvailableAttributes] = useState<AvailableRunAttribute[]>([]);
+	const [pagination, setPagination] = useState<PaginationMeta>({
+		page: 1,
+		pageSize: DEFAULT_PAGE_SIZE,
+		total: 0,
+		totalPages: 0,
+	});
 
-	const requestedPage = Number.parseInt(
-		searchParams.get('page') ?? '1',
-		10
-	);
+	const requestedPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
 
-	const page =
-		Number.isFinite(requestedPage) && requestedPage > 0
-			? requestedPage
-			: 1;
+	const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
-	const selectedAttributeKey =
-		searchParams.get('attributeKey') ?? '';
+	const selectedAttributeKey = searchParams.get('attributeKey') ?? '';
 
-	const selectedAttributeValue =
-		searchParams.get('attributeValue') ?? '';
+	const selectedAttributeValue = searchParams.get('attributeValue') ?? '';
 
-	const requestKey = JSON.stringify([
-		project.publicId,
-		page,
-		selectedAttributeKey,
-		selectedAttributeValue,
-	]);
+	const requestKey = JSON.stringify([project.publicId, page, selectedAttributeKey, selectedAttributeValue]);
 
 	const loading = loadedRequestKey !== requestKey;
 
@@ -71,10 +52,8 @@ export default function ProjectRunsList() {
 		void getProjectRuns(project.publicId, {
 			page,
 			pageSize: DEFAULT_PAGE_SIZE,
-			attributeKey:
-				selectedAttributeKey || undefined,
-			attributeValue:
-				selectedAttributeValue || undefined,
+			attributeKey: selectedAttributeKey || undefined,
+			attributeValue: selectedAttributeValue || undefined,
 		})
 			.then((response) => {
 				if (cancelled) {
@@ -83,9 +62,7 @@ export default function ProjectRunsList() {
 
 				setRuns(response.data);
 				setPagination(response.meta.pagination);
-				setAvailableAttributes(
-					response.meta.availableAttributes
-				);
+				setAvailableAttributes(response.meta.availableAttributes);
 				setLoadedRequestKey(requestKey);
 			})
 			.catch((error: unknown) => {
@@ -93,13 +70,7 @@ export default function ProjectRunsList() {
 					return;
 				}
 
-				addToast(
-					'Failed to fetch runs',
-					error instanceof Error
-						? error.message
-						: 'Unknown error',
-					'error'
-				);
+				addToast('Failed to fetch runs', error instanceof Error ? error.message : 'Unknown error', 'error');
 
 				setRuns([]);
 				setPagination({
@@ -114,19 +85,9 @@ export default function ProjectRunsList() {
 		return () => {
 			cancelled = true;
 		};
-	}, [
-		addToast,
-		page,
-		project.publicId,
-		requestKey,
-		selectedAttributeKey,
-		selectedAttributeValue,
-	]);
+	}, [addToast, page, project.publicId, requestKey, selectedAttributeKey, selectedAttributeValue]);
 
-	const selectedAttribute = availableAttributes.find(
-		(attribute) =>
-			attribute.key === selectedAttributeKey
-	);
+	const selectedAttribute = availableAttributes.find((attribute) => attribute.key === selectedAttributeKey);
 	const filtersApplied = Boolean(selectedAttributeKey);
 
 	function updateFilters(attributeKey?: string, attributeValue?: string) {
@@ -182,10 +143,7 @@ export default function ProjectRunsList() {
 								attributeValue={selectedAttributeValue}
 								suggestions={selectedAttribute?.values ?? []}
 								applyFilter={(attributeValue) =>
-									updateFilters(
-										selectedAttributeKey || undefined,
-										attributeValue
-									)
+									updateFilters(selectedAttributeKey || undefined, attributeValue)
 								}
 							/>
 
@@ -235,12 +193,9 @@ function AttributeValueFilter({
 	attributeKey: string;
 	attributeValue: string;
 	suggestions: string[];
-	applyFilter: (
-		attributeValue?: string
-	) => void;
+	applyFilter: (attributeValue?: string) => void;
 }) {
-	const [value, setValue] =
-		useState(attributeValue);
+	const [value, setValue] = useState(attributeValue);
 
 	return (
 		<form
@@ -248,9 +203,7 @@ function AttributeValueFilter({
 			onSubmit={(event) => {
 				event.preventDefault();
 
-				applyFilter(
-					value.trim() || undefined
-				);
+				applyFilter(value.trim() || undefined);
 			}}
 		>
 			<Combobox<string>
@@ -269,19 +222,10 @@ function AttributeValueFilter({
 				displayValue={(selectedValue) => selectedValue ?? ''}
 				placeholder="Any value"
 			>
-				{(suggestion) => (
-					<ComboboxOption value={suggestion}>
-						{suggestion}
-					</ComboboxOption>
-				)}
+				{(suggestion) => <ComboboxOption value={suggestion}>{suggestion}</ComboboxOption>}
 			</Combobox>
 
-			<Button
-				type="submit"
-				outline
-				disabled={!attributeKey}
-				className="cursor-pointer"
-			>
+			<Button type="submit" outline disabled={!attributeKey} className="cursor-pointer">
 				Apply
 			</Button>
 		</form>
