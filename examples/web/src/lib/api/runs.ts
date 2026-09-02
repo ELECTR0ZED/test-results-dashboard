@@ -1,21 +1,40 @@
 import {
 	ApiSuccess,
-	PaginatedApiMeta,
-	PaginatedApiSuccess,
+	ProjectRunsApiSuccess,
+	ProjectRunsMeta,
 	RunWithStats,
 	RunWithStatsSchema,
 } from '@electr0zed/test-results-dashboard-api-types';
 import { z } from 'zod';
 import { apiRequest, Options } from './core';
 
+export type ProjectRunsQuery = {
+	page: number;
+	pageSize: number;
+	attributeKey?: string;
+	attributeValue?: string;
+};
+
 export function getProjectRuns(
 	publicId: string,
-	page: number,
-	pageSize: number,
+	query: ProjectRunsQuery,
 	options: Options = {}
-): Promise<PaginatedApiSuccess<RunWithStats[]>> {
-	return apiRequest<RunWithStats[], PaginatedApiMeta>(
-		`/api/projects/${publicId}/runs?page=${page}&pageSize=${pageSize}`,
+): Promise<ProjectRunsApiSuccess> {
+	const searchParams = new URLSearchParams({
+		page: query.page.toString(),
+		pageSize: query.pageSize.toString(),
+	});
+
+	if (query.attributeKey) {
+		searchParams.set('attributeKey', query.attributeKey);
+	}
+
+	if (query.attributeValue) {
+		searchParams.set('attributeValue', query.attributeValue);
+	}
+
+	return apiRequest<RunWithStats[], ProjectRunsMeta>(
+		`/api/projects/${publicId}/runs?${searchParams.toString()}`,
 		z.array(RunWithStatsSchema),
 		{
 			method: 'GET',

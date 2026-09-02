@@ -1,9 +1,10 @@
 import type { RunStartEvent } from '@electr0zed/test-results-dashboard-core';
 import type { AppCtx } from '../../types';
+import { mapRunAttributes, mapRunMetadata } from './runMetadata';
 
 export async function handleRunStart<TD1Binding extends string>(
 	ctx: AppCtx<TD1Binding>,
-	event: RunStartEvent,
+	event: RunStartEvent
 ): Promise<void> {
 	const { db } = ctx;
 
@@ -14,9 +15,7 @@ export async function handleRunStart<TD1Binding extends string>(
 	});
 
 	if (!project) {
-		throw new Error(
-			`Project with publicId "${event.payload.projectId}" not found.`,
-		);
+		throw new Error(`Project with publicId "${event.payload.projectId}" not found.`);
 	}
 
 	const run = await db.run.findUnique({
@@ -29,10 +28,10 @@ export async function handleRunStart<TD1Binding extends string>(
 	});
 
 	if (run && run.projectId !== project.id) {
-		throw new Error(
-			`Run with publicId "${event.payload.id}" belongs to a different project.`,
-		);
+		throw new Error(`Run with publicId "${event.payload.id}" belongs to a different project.`);
 	}
+
+	const attributes = event.payload.attributes;
 
 	await db.run.upsert({
 		where: {
@@ -41,6 +40,7 @@ export async function handleRunStart<TD1Binding extends string>(
 		create: {
 			projectId: project.id,
 			publicId: event.payload.id,
+			...mapRunMetadata(event.payload),
 			framework: event.payload.runner,
 			frameworkVersion: event.payload.runnerVersion ?? 'unknown',
 			browser: event.payload.browserName ?? 'unknown',
@@ -49,9 +49,11 @@ export async function handleRunStart<TD1Binding extends string>(
 			status: 'running',
 			startedAt: parseOptionalDate(event.payload.startedAt) ?? new Date(),
 			lastActivityAt: new Date(),
+			attributes: attributes && attributes.length > 0 ? { create: mapRunAttributes(attributes) } : undefined,
 		},
 		update: {
 			projectId: project.id,
+			...mapRunMetadata(event.payload),
 			framework: event.payload.runner,
 			frameworkVersion: event.payload.runnerVersion ?? 'unknown',
 			browser: event.payload.browserName ?? 'unknown',
@@ -61,14 +63,18 @@ export async function handleRunStart<TD1Binding extends string>(
 			startedAt: parseOptionalDate(event.payload.startedAt) ?? new Date(),
 			endedAt: null,
 			lastActivityAt: new Date(),
+			attributes:
+				attributes === undefined
+					? undefined
+					: {
+							deleteMany: {},
+							create: mapRunAttributes(attributes),
+						},
 		},
 	});
 }
 
-function formatOs(
-	osName: string | undefined,
-	osVersion: string | undefined,
-): string {
+function formatOs(osName: string | undefined, osVersion: string | undefined): string {
 	return [osName, osVersion].filter(Boolean).join(' ') || 'unknown';
 }
 

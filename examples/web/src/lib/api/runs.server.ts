@@ -1,10 +1,11 @@
 import 'server-only';
 
 import { serviceBindingFetcher } from './core.server';
+import type { ProjectRunsQuery } from './runs';
 import { getProjectRun as getProjectRunBase, getProjectRuns as getProjectRunsBase } from './runs';
 
-export function getProjectRuns(publicId: string, page: number, pageSize: number) {
-	return getProjectRunsBase(publicId, page, pageSize, {
+export function getProjectRuns(publicId: string, query: ProjectRunsQuery) {
+	return getProjectRunsBase(publicId, query, {
 		apiFetcher: serviceBindingFetcher,
 	});
 }

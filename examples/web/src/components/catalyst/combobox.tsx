@@ -8,6 +8,7 @@ export function Combobox<T>({
 	options,
 	displayValue,
 	filter,
+	onQueryChange,
 	anchor = 'bottom',
 	className,
 	placeholder,
@@ -19,6 +20,7 @@ export function Combobox<T>({
 	options: T[];
 	displayValue: (value: T | null) => string | undefined;
 	filter?: (value: T, query: string) => boolean;
+	onQueryChange?: (query: string) => void;
 	className?: string;
 	placeholder?: string;
 	autoFocus?: boolean;
@@ -64,7 +66,12 @@ export function Combobox<T>({
 					data-slot="control"
 					aria-label={ariaLabel}
 					displayValue={(option: T) => displayValue(option) ?? ''}
-					onChange={(event) => setQuery(event.target.value)}
+					onChange={(event) => {
+						const nextQuery = event.target.value;
+
+						setQuery(nextQuery);
+						onQueryChange?.(nextQuery);
+					}}
 					placeholder={placeholder}
 					className={clsx([
 						className,
@@ -144,7 +151,7 @@ export function ComboboxOption<T>({
 	Headless.ComboboxOptionProps<'div', T>,
 	'as' | 'className'
 >) {
-	let sharedClasses = clsx(
+	const sharedClasses = clsx(
 		// Base
 		'flex min-w-0 items-center',
 		// Icons

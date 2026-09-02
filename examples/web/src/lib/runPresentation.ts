@@ -114,6 +114,18 @@ export function formatName(value: string): string {
 	return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
 
+export function formatRunName(run: Pick<RunWithStats, 'name' | 'framework'>): string {
+	return isUsefulValue(run.name) ? run.name : `${formatName(run.framework)} run`;
+}
+
+export function formatRunAttributeKey(key: string): string {
+	return key
+		.split(/[._-]/)
+		.filter(Boolean)
+		.map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+		.join(' ');
+}
+
 export function formatRunDate(date: Date): string {
 	return new Intl.DateTimeFormat('en-GB', {
 		day: '2-digit',
