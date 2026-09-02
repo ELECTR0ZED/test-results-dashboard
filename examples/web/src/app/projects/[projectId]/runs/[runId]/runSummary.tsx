@@ -8,7 +8,8 @@ import { RunResults } from '@/components/runResults';
 import { useRun } from '@/contexts/runContext';
 import {
 	formatDuration,
-	formatName,
+	formatRunAttributeKey,
+	formatRunName,
 	formatVersionedName,
 	getRunDisplayStatus,
 	getRunStatusPresentation,
@@ -21,6 +22,15 @@ export default function RunSummary() {
 	const displayStatus = getRunDisplayStatus(run);
 	const presentation = getRunStatusPresentation(displayStatus);
 	const StatusIcon = presentation.Icon;
+	const reporterMetadata = [
+		isUsefulValue(run.environment) ? `Environment: ${run.environment}` : undefined,
+		isUsefulValue(run.branch) ? `Branch: ${run.branch}` : undefined,
+		isUsefulValue(run.commitSha) ? `Commit: ${run.commitSha.slice(0, 12)}` : undefined,
+		isUsefulValue(run.group) ? `Group: ${run.group}` : undefined,
+		isUsefulValue(run.machineId) ? `Machine: ${run.machineId}` : undefined,
+		isUsefulValue(run.shardId) ? `Shard: ${run.shardId}` : undefined,
+		run.parallel !== null ? `Parallel: ${run.parallel ? 'Yes' : 'No'}` : undefined,
+	].filter((value): value is string => Boolean(value));
 
 	return (
 		<section className="overflow-hidden rounded-xl border border-zinc-950/10 bg-white shadow-xs dark:border-white/10 dark:bg-zinc-900">
@@ -38,7 +48,7 @@ export default function RunSummary() {
 
 						<div className="min-w-0">
 							<div className="flex flex-wrap items-center gap-2">
-								<Heading>{formatName(run.framework)} run</Heading>
+								<Heading>{formatRunName(run)}</Heading>
 
 								<Badge color={presentation.badgeColour}>{presentation.label}</Badge>
 							</div>
@@ -86,7 +96,28 @@ export default function RunSummary() {
 					{isUsefulValue(run.os) && <MetadataBadge value={run.os} />}
 
 					<MetadataBadge value={`${formatDuration(run.stats.duration)} test duration`} />
+
+					{reporterMetadata.map((value) => (
+						<MetadataBadge key={value} value={value} />
+					))}
+
+					{run.attributes.map((attribute) => (
+						<MetadataBadge
+							key={attribute.key}
+							value={`${formatRunAttributeKey(attribute.key)}: ${attribute.value}`}
+						/>
+					))}
 				</div>
+
+				{isUsefulValue(run.commitMessage) && (
+					<div className="mt-4 border-t border-zinc-950/10 pt-4 dark:border-white/10">
+						<div className="text-xs font-medium tracking-wide text-zinc-500 uppercase dark:text-zinc-400">
+							Commit message
+						</div>
+
+						<div className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{run.commitMessage}</div>
+					</div>
+				)}
 			</div>
 		</section>
 	);

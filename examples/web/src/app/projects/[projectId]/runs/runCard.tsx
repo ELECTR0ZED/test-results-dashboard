@@ -5,7 +5,8 @@ import { LocalDate } from '@/components/localDate';
 import { RunResults } from '@/components/runResults';
 import {
 	formatDuration,
-	formatName,
+	formatRunAttributeKey,
+	formatRunName,
 	formatVersionedName,
 	getRunDisplayStatus,
 	getRunStatusPresentation,
@@ -32,9 +33,14 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 
 	const browser = formatVersionedName(run.browser, run.browserVersion);
 
-	const environmentMetadata = [framework, browser, isUsefulValue(run.os) ? run.os : undefined].filter(
-		(value): value is string => Boolean(value)
-	);
+	const environmentMetadata = [
+		framework,
+		browser,
+		isUsefulValue(run.os) ? run.os : undefined,
+		isUsefulValue(run.environment) ? run.environment : undefined,
+	].filter((value): value is string => Boolean(value));
+
+	const visibleAttributes = run.attributes.filter((attribute) => attribute.showOnRunList);
 
 	return (
 		<Link
@@ -60,9 +66,7 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 
 				<div className="min-w-0 flex-1">
 					<div className="flex flex-wrap items-center gap-2">
-						<span className="font-semibold text-zinc-950 dark:text-white">
-							{formatName(run.framework)} run
-						</span>
+						<span className="font-semibold text-zinc-950 dark:text-white">{formatRunName(run)}</span>
 
 						<Badge color={statusStyle.badgeColour}>{statusStyle.label}</Badge>
 					</div>
@@ -93,6 +97,16 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 							title={environmentMetadata.join(' · ')}
 						>
 							{environmentMetadata.join(' · ')}
+						</div>
+					)}
+
+					{visibleAttributes.length > 0 && (
+						<div className="mt-2 flex flex-wrap gap-1.5">
+							{visibleAttributes.map((attribute) => (
+								<Badge key={attribute.key} color="zinc">
+									{formatRunAttributeKey(attribute.key)}: {attribute.value}
+								</Badge>
+							))}
 						</div>
 					)}
 				</div>

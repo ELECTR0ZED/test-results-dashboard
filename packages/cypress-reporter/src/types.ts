@@ -1,22 +1,23 @@
+import type { RunAttributeInput } from '@electr0zed/test-results-dashboard-core';
 
 export interface CypressReporterOptions {
-    endpoint: string;
-    token?: string;
-    projectId: string;
-    runId?: string;
-    branch?: string;
-    commitSha?: string;
-    commitMessage?: string;
-    environment?: string;
-    machineId?: string;
-    shardId?: string;
-    debug?: boolean;
-    headers?: Record<string, string>;
-    sendRunStart?: boolean;
-    sendSpecs?: boolean;
-    sendRunFinish?: boolean;
+	endpoint: string;
+	token?: string;
+	projectId: string;
+	runId?: string;
+	runName?: string;
+	runAttributes?: RunAttributeInput[];
+	branch?: string;
+	commitSha?: string;
+	commitMessage?: string;
+	environment?: string;
+	machineId?: string;
+	shardId?: string;
+	debug?: boolean;
+	headers?: Record<string, string>;
+	sendRunStart?: boolean;
+	sendSpecs?: boolean;
+	sendRunFinish?: boolean;
 }
 
-export type CypressAfterRunResult =
-    | CypressCommandLine.CypressRunResult
-    | CypressCommandLine.CypressFailedRunResult;
+export type CypressAfterRunResult = CypressCommandLine.CypressRunResult | CypressCommandLine.CypressFailedRunResult;
