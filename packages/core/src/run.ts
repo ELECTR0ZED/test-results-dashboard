@@ -37,18 +37,38 @@ export const RunAttributesSchema = z
 		}
 	});
 
+
+const ShortRunMetadataSchema = z
+	.string()
+	.trim()
+	.min(1)
+	.max(255);
+
+const CommitShaSchema = z
+	.string()
+	.trim()
+	.min(1)
+	.max(128);
+
+const CommitMessageSchema = z
+	.string()
+	.trim()
+	.min(1)
+	.max(4_096);
+
+
 export const RunMetadataSchema = z.object({
 	id: z.string(),
 	name: z.string().trim().min(1).max(120).optional(),
 	runner: RunnerNameSchema,
 	projectId: z.string(),
-	branch: z.string().optional(),
-	commitSha: z.string().optional(),
-	commitMessage: z.string().optional(),
-	environment: z.string().optional(),
-	machineId: z.string().optional(),
-	shardId: z.string().optional(),
-	group: z.string().optional(),
+	branch: ShortRunMetadataSchema.optional(),
+	commitSha: CommitShaSchema.optional(),
+	commitMessage: CommitMessageSchema.optional(),
+	environment: ShortRunMetadataSchema.optional(),
+	machineId: ShortRunMetadataSchema.optional(),
+	shardId: ShortRunMetadataSchema.optional(),
+	group: ShortRunMetadataSchema.optional(),
 	parallel: z.boolean().optional(),
 	attributes: RunAttributesSchema.optional(),
 });

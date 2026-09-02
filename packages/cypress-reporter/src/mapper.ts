@@ -159,6 +159,10 @@ export function mapAfterRun(
 }
 
 function normalizeRunAttributes(options: CypressReporterOptions): RunInfo['attributes'] {
+	if (options.runAttributes === undefined) {
+		return undefined;
+	}
+	
 	return (options.runAttributes ?? []).map((attribute) => ({
 		...attribute,
 		showOnRunList: attribute.showOnRunList ?? false,

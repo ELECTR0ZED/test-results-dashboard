@@ -14,8 +14,12 @@ import {
 	type RunWithStats,
 } from '@electr0zed/test-results-dashboard-api-types';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RunCard } from './runCard';
+import {
+	Combobox,
+	ComboboxOption,
+} from '@/components/catalyst/combobox';
 
 export default function ProjectRunsList() {
 	const searchParams = useSearchParams();
@@ -24,52 +28,105 @@ export default function ProjectRunsList() {
 	const { addToast } = useToast();
 
 	const [runs, setRuns] = useState<RunWithStats[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [availableAttributes, setAvailableAttributes] = useState<AvailableRunAttribute[]>([]);
-	const [pagination, setPagination] = useState<PaginationMeta>({
-		page: 1,
-		pageSize: DEFAULT_PAGE_SIZE,
-		total: 0,
-		totalPages: 0,
-	});
+	const [loadedRequestKey, setLoadedRequestKey] =
+		useState<string>();
+	const [availableAttributes, setAvailableAttributes] =
+		useState<AvailableRunAttribute[]>([]);
+	const [pagination, setPagination] =
+		useState<PaginationMeta>({
+			page: 1,
+			pageSize: DEFAULT_PAGE_SIZE,
+			total: 0,
+			totalPages: 0,
+		});
 
-	const fetchRuns = useCallback(
-		async (page: number, attributeKey?: string, attributeValue?: string) => {
-			setLoading(true);
-			setRuns([]);
+	const requestedPage = Number.parseInt(
+		searchParams.get('page') ?? '1',
+		10
+	);
 
-			try {
-				const response = await getProjectRuns(project.publicId, {
-					page,
-					pageSize: pagination.pageSize,
-					attributeKey,
-					attributeValue,
-				});
+	const page =
+		Number.isFinite(requestedPage) && requestedPage > 0
+			? requestedPage
+			: 1;
+
+	const selectedAttributeKey =
+		searchParams.get('attributeKey') ?? '';
+
+	const selectedAttributeValue =
+		searchParams.get('attributeValue') ?? '';
+
+	const requestKey = JSON.stringify([
+		project.publicId,
+		page,
+		selectedAttributeKey,
+		selectedAttributeValue,
+	]);
+
+	const loading = loadedRequestKey !== requestKey;
+
+	useEffect(() => {
+		let cancelled = false;
+
+		void getProjectRuns(project.publicId, {
+			page,
+			pageSize: DEFAULT_PAGE_SIZE,
+			attributeKey:
+				selectedAttributeKey || undefined,
+			attributeValue:
+				selectedAttributeValue || undefined,
+		})
+			.then((response) => {
+				if (cancelled) {
+					return;
+				}
 
 				setRuns(response.data);
 				setPagination(response.meta.pagination);
-				setAvailableAttributes(response.meta.availableAttributes);
-			} catch (error) {
-				addToast('Failed to fetch runs', error instanceof Error ? error.message : 'Unknown error', 'error');
-			} finally {
-				setLoading(false);
-			}
-		},
-		[project.publicId, addToast, pagination.pageSize]
+				setAvailableAttributes(
+					response.meta.availableAttributes
+				);
+				setLoadedRequestKey(requestKey);
+			})
+			.catch((error: unknown) => {
+				if (cancelled) {
+					return;
+				}
+
+				addToast(
+					'Failed to fetch runs',
+					error instanceof Error
+						? error.message
+						: 'Unknown error',
+					'error'
+				);
+
+				setRuns([]);
+				setPagination({
+					page,
+					pageSize: DEFAULT_PAGE_SIZE,
+					total: 0,
+					totalPages: 0,
+				});
+				setLoadedRequestKey(requestKey);
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [
+		addToast,
+		page,
+		project.publicId,
+		requestKey,
+		selectedAttributeKey,
+		selectedAttributeValue,
+	]);
+
+	const selectedAttribute = availableAttributes.find(
+		(attribute) =>
+			attribute.key === selectedAttributeKey
 	);
-
-	useEffect(() => {
-		const requestedPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
-		const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
-		const attributeKey = searchParams.get('attributeKey') ?? undefined;
-		const attributeValue = searchParams.get('attributeValue') ?? undefined;
-
-		fetchRuns(page, attributeKey, attributeValue);
-	}, [fetchRuns, searchParams]);
-
-	const selectedAttributeKey = searchParams.get('attributeKey') ?? '';
-	const selectedAttributeValue = searchParams.get('attributeValue') ?? '';
-	const selectedAttribute = availableAttributes.find((attribute) => attribute.key === selectedAttributeKey);
 	const filtersApplied = Boolean(selectedAttributeKey);
 
 	function updateFilters(attributeKey?: string, attributeValue?: string) {
@@ -119,23 +176,18 @@ export default function ProjectRunsList() {
 								))}
 							</Select>
 
-							<Select
-								aria-label="Filter runs by attribute value"
-								className="sm:w-44"
-								disabled={!selectedAttributeKey}
-								value={selectedAttributeValue}
-								onChange={(event) =>
-									updateFilters(selectedAttributeKey || undefined, event.target.value || undefined)
+							<AttributeValueFilter
+								key={`${selectedAttributeKey}:${selectedAttributeValue}`}
+								attributeKey={selectedAttributeKey}
+								attributeValue={selectedAttributeValue}
+								suggestions={selectedAttribute?.values ?? []}
+								applyFilter={(attributeValue) =>
+									updateFilters(
+										selectedAttributeKey || undefined,
+										attributeValue
+									)
 								}
-							>
-								<option value="">Any value</option>
-
-								{selectedAttribute?.values.map((value) => (
-									<option key={value} value={value}>
-										{value}
-									</option>
-								))}
-							</Select>
+							/>
 
 							{filtersApplied && (
 								<Button type="button" className="cursor-pointer" plain onClick={() => updateFilters()}>
@@ -171,6 +223,68 @@ export default function ProjectRunsList() {
 				</div>
 			)}
 		</>
+	);
+}
+
+function AttributeValueFilter({
+	attributeKey,
+	attributeValue,
+	suggestions,
+	applyFilter,
+}: {
+	attributeKey: string;
+	attributeValue: string;
+	suggestions: string[];
+	applyFilter: (
+		attributeValue?: string
+	) => void;
+}) {
+	const [value, setValue] =
+		useState(attributeValue);
+
+	return (
+		<form
+			className="flex w-full gap-2 sm:w-auto"
+			onSubmit={(event) => {
+				event.preventDefault();
+
+				applyFilter(
+					value.trim() || undefined
+				);
+			}}
+		>
+			<Combobox<string>
+				aria-label="Filter runs by attribute value"
+				className="min-w-0 flex-1 sm:w-44 sm:flex-none"
+				disabled={!attributeKey}
+				options={suggestions}
+				value={value || undefined}
+				onChange={(selectedValue) => {
+					const nextValue = selectedValue ?? '';
+
+					setValue(nextValue);
+					applyFilter(nextValue.trim() || undefined);
+				}}
+				onQueryChange={setValue}
+				displayValue={(selectedValue) => selectedValue ?? ''}
+				placeholder="Any value"
+			>
+				{(suggestion) => (
+					<ComboboxOption value={suggestion}>
+						{suggestion}
+					</ComboboxOption>
+				)}
+			</Combobox>
+
+			<Button
+				type="submit"
+				outline
+				disabled={!attributeKey}
+				className="cursor-pointer"
+			>
+				Apply
+			</Button>
+		</form>
 	);
 }
 

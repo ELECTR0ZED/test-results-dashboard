@@ -75,7 +75,6 @@ export function createRunRoutes<TD1Binding extends string>() {
 				orderBy: {
 					key: 'asc',
 				},
-				take: 100,
 			}),
 			parsedParams.data.attributeKey
 				? ctx.db.runAttribute.groupBy({
