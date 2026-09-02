@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-api-types
 
+## 0.7.0
+
+### Minor Changes
+
+- 9f2169f: Add custom run names and filterable run attributes, persist the Cypress reporter metadata that was previously discarded, and expose the new run metadata throughout the dashboard API and web interface.
+
 ## 0.6.0
 
 ### Minor Changes
