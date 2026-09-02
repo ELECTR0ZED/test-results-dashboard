@@ -1,5 +1,17 @@
 # @electr0zed/test-results-dashboard-api-ingest
 
+## 0.5.0
+
+### Minor Changes
+
+- 9f2169f: Add custom run names and filterable run attributes, persist the Cypress reporter metadata that was previously discarded, and expose the new run metadata throughout the dashboard API and web interface.
+
+### Patch Changes
+
+- Updated dependencies [9f2169f]
+  - @electr0zed/test-results-dashboard-core@0.5.0
+  - @electr0zed/test-results-dashboard-db@0.6.0
+
 ## 0.4.1
 
 ### Patch Changes
