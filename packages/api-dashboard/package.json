@@ -1,6 +1,6 @@
 {
   "name": "@electr0zed/test-results-dashboard-api-dashboard",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "license": "ISC",
   "type": "module",
   "main": "dist/index.js",

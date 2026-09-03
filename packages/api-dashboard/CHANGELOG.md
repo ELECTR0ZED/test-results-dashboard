@@ -1,5 +1,14 @@
 # @electr0zed/test-results-dashboard-api-dashboard
 
+## 0.7.1
+
+### Patch Changes
+
+- cc279bc: Add automatic git metadata collection and remove environment metadata in favour of run attributes
+- Updated dependencies [cc279bc]
+  - @electr0zed/test-results-dashboard-api-types@0.8.0
+  - @electr0zed/test-results-dashboard-db@0.7.0
+
 ## 0.7.0
 
 ### Minor Changes

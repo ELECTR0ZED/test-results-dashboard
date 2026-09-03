@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-db
 
+## 0.7.0
+
+### Minor Changes
+
+- cc279bc: Add automatic git metadata collection and remove environment metadata in favour of run attributes
+
 ## 0.6.0
 
 ### Minor Changes
