@@ -9,7 +9,7 @@
 		"strict": true,
 		"skipLibCheck": true,
 		"esModuleInterop": true,
-        "types": ["cypress"]
+        "types": ["cypress", "node"]
 	},
 	"include": ["src/**/*.ts"]
 }
