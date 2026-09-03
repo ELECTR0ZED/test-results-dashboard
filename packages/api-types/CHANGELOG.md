@@ -1,5 +1,16 @@
 # @electr0zed/test-results-dashboard-api-types
 
+## 0.9.0
+
+### Minor Changes
+
+- ed51063: Add typed run lifecycle statuses and dashboard operations for renaming, cancelling, and deleting runs. Timed-out runs now resume when late reporter events arrive, while terminal runs ignore further ingestion events.
+
+### Patch Changes
+
+- Updated dependencies [ed51063]
+  - @electr0zed/test-results-dashboard-core@0.7.0
+
 ## 0.8.0
 
 ### Minor Changes
