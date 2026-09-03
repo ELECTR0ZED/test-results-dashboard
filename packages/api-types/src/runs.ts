@@ -1,5 +1,8 @@
 import { z } from 'zod';
+import { RunStatusSchema } from '@electr0zed/test-results-dashboard-core';
 import type { ApiSuccess, PaginatedApiMeta } from './response.js';
+
+export { RunStatus, RunStatusSchema, canCancelRun } from '@electr0zed/test-results-dashboard-core';
 
 export const RunAttributeKeySchema = z.string().trim().min(1).max(50);
 
@@ -37,7 +40,7 @@ export const RunSchema = z.object({
 	parallel: z.boolean().nullable(),
 	attributes: z.array(RunAttributeSchema),
 
-	status: z.string(),
+	status: RunStatusSchema,
 	startedAt: z.coerce.date(),
 	endedAt: z.coerce.date().nullable(),
 
@@ -68,6 +71,12 @@ export const GetProjectRunSchema = z.object({
 });
 
 export type GetProjectRun = z.infer<typeof GetProjectRunSchema>;
+
+export const RenameProjectRunSchema = z.object({
+	name: z.string().trim().min(1).max(120),
+});
+
+export type RenameProjectRun = z.infer<typeof RenameProjectRunSchema>;
 
 export const RunStatsSchema = z.object({
 	specs: z.number().nonnegative(),

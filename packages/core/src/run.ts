@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ArtifactSchema } from './artifact.js';
-import { RunnerNameSchema, TestStatusSchema } from './runner.js';
+import { RunnerNameSchema } from './runner.js';
+import { TestStatusSchema } from './testStatus.js';
 
 export const RunAttributeSchema = z.object({
 	key: z.string().trim().min(1).max(50),

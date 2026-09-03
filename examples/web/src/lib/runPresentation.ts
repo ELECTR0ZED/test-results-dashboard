@@ -7,7 +7,7 @@ import {
 	XCircleIcon,
 } from '@heroicons/react/20/solid';
 
-export type RunDisplayStatus = 'passed' | 'failed' | 'running' | 'timedOut' | 'interrupted' | 'finished';
+export type RunDisplayStatus = 'passed' | 'failed' | 'running' | 'timedOut' | 'interrupted' | 'cancelled' | 'finished';
 
 export type RunBadgeColour = 'blue' | 'green' | 'red' | 'amber' | 'orange' | 'zinc';
 
@@ -57,6 +57,13 @@ const STATUS_PRESENTATION: Record<RunDisplayStatus, RunStatusPresentation> = {
 		iconColour: 'text-amber-500 dark:text-amber-400',
 		Icon: StopCircleIcon,
 	},
+	cancelled: {
+		label: 'Cancelled',
+		badgeColour: 'zinc',
+		accentColour: 'bg-zinc-500',
+		iconColour: 'text-zinc-500 dark:text-zinc-400',
+		Icon: StopCircleIcon,
+	},
 	finished: {
 		label: 'Finished',
 		badgeColour: 'zinc',
@@ -79,6 +86,10 @@ export function getRunDisplayStatus(run: Pick<RunWithStats, 'status' | 'stats'>)
 
 	if (status === 'interrupted') {
 		return 'interrupted';
+	}
+
+	if (status === 'cancelled') {
+		return 'cancelled';
 	}
 
 	if (status === 'failed' || run.stats.failed > 0) {

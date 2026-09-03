@@ -33,6 +33,12 @@ export class AlreadyExistsError extends ApiError {
 	}
 }
 
+export class ConflictError extends ApiError {
+	public constructor(message = 'The requested action conflicts with the current resource state.') {
+		super(409, ErrorCode.Conflict, message);
+	}
+}
+
 export class ValidationError extends ApiError {
 	public constructor(message = 'Validation error.', details?: unknown) {
 		super(400, ErrorCode.ValidationError, message, details);

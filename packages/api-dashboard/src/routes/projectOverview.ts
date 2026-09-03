@@ -4,7 +4,7 @@ import type {
 	ProjectOverviewTrendPoint,
 	RunStats,
 } from '@electr0zed/test-results-dashboard-api-types';
-import { GetProjectOverviewSchema } from '@electr0zed/test-results-dashboard-api-types';
+import { GetProjectOverviewSchema, RunStatusSchema } from '@electr0zed/test-results-dashboard-api-types';
 import { Hono } from 'hono';
 import { NotFoundError } from '../services/errors';
 import type { HonoEnv } from '../types';
@@ -311,9 +311,10 @@ function addStats(
 	target.skipped += stats.skipped;
 }
 
-function withStats<T extends { id: number }>(run: T, statsByRunId: Map<number, RunStats>) {
+function withStats<T extends { id: number; status: string }>(run: T, statsByRunId: Map<number, RunStats>) {
 	return {
 		...run,
+		status: RunStatusSchema.parse(run.status),
 		stats: statsByRunId.get(run.id) ?? EMPTY_RUN_STATS,
 	};
 }

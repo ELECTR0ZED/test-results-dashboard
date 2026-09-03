@@ -1,12 +1,16 @@
 import {
 	ApiSuccess,
+	canCancelRun,
 	GetProjectRunSchema,
 	GetProjectRunsSchema,
+	RenameProjectRunSchema,
+	RunStatus,
+	RunStatusSchema,
 	RunWithStats,
 	type ProjectRunsApiSuccess,
 } from '@electr0zed/test-results-dashboard-api-types';
 import { Hono } from 'hono';
-import { NotFoundError } from '../services/errors';
+import { ConflictError, NotFoundError, ValidationError } from '../services/errors';
 import type { HonoEnv } from '../types';
 
 export function createRunRoutes<TD1Binding extends string>() {
@@ -150,6 +154,7 @@ export function createRunRoutes<TD1Binding extends string>() {
 
 		const results = runs.map((run) => ({
 			...run,
+			status: RunStatusSchema.parse(run.status),
 			stats: statsByRunId.get(run.id) ?? {
 				specs: 0,
 				tests: 0,
@@ -247,6 +252,7 @@ export function createRunRoutes<TD1Binding extends string>() {
 			success: true,
 			data: {
 				...run,
+				status: RunStatusSchema.parse(run.status),
 				stats: {
 					specs: stats._count._all,
 					tests: stats._sum.tests ?? 0,
@@ -260,5 +266,224 @@ export function createRunRoutes<TD1Binding extends string>() {
 		});
 	});
 
+	app.patch('/projects/:publicId/runs/:runId', async (c) => {
+		const ctx = c.get('ctx');
+		const parsedParams = GetProjectRunSchema.safeParse({
+			projectPublicId: c.req.param('publicId'),
+			runPublicId: c.req.param('runId'),
+		});
+
+		if (!parsedParams.success) {
+			throw parsedParams.error;
+		}
+
+		let body: unknown;
+
+		try {
+			body = await c.req.json();
+		} catch (error) {
+			throw new ValidationError('Invalid JSON body.', error);
+		}
+
+		const parsedBody = RenameProjectRunSchema.safeParse(body);
+
+		if (!parsedBody.success) {
+			throw parsedBody.error;
+		}
+
+		const run = await ctx.db.run.findFirst({
+			where: {
+				publicId: parsedParams.data.runPublicId,
+				project: {
+					publicId: parsedParams.data.projectPublicId,
+				},
+			},
+			select: {
+				id: true,
+			},
+		});
+
+		if (!run) {
+			throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
+		}
+
+		await ctx.db.run.update({
+			where: {
+				id: run.id,
+			},
+			data: {
+				name: parsedBody.data.name,
+			},
+		});
+
+		return c.json<ApiSuccess<RunWithStats>>({
+			success: true,
+			data: await getRunWithStats(ctx, run.id),
+		});
+	});
+
+	app.post('/projects/:publicId/runs/:runId/cancel', async (c) => {
+		const ctx = c.get('ctx');
+		const parsedParams = GetProjectRunSchema.safeParse({
+			projectPublicId: c.req.param('publicId'),
+			runPublicId: c.req.param('runId'),
+		});
+
+		if (!parsedParams.success) {
+			throw parsedParams.error;
+		}
+
+		const run = await ctx.db.run.findFirst({
+			where: {
+				publicId: parsedParams.data.runPublicId,
+				project: {
+					publicId: parsedParams.data.projectPublicId,
+				},
+			},
+			select: {
+				id: true,
+				status: true,
+			},
+		});
+
+		if (!run) {
+			throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
+		}
+
+		const status = RunStatusSchema.parse(run.status);
+
+		if (status === RunStatus.Cancelled) {
+			return c.json<ApiSuccess<RunWithStats>>({
+				success: true,
+				data: await getRunWithStats(ctx, run.id),
+			});
+		}
+
+		if (!canCancelRun(status)) {
+			throw new ConflictError(`A run with status "${status}" cannot be cancelled.`);
+		}
+
+		const now = new Date();
+		const result = await ctx.db.run.updateMany({
+			where: {
+				id: run.id,
+				status: {
+					in: [RunStatus.Running, RunStatus.TimedOut],
+				},
+			},
+			data: {
+				status: RunStatus.Cancelled,
+				endedAt: now,
+				lastActivityAt: now,
+			},
+		});
+
+		if (result.count === 0) {
+			throw new ConflictError('The run changed state before it could be cancelled. Refresh and try again.');
+		}
+
+		return c.json<ApiSuccess<RunWithStats>>({
+			success: true,
+			data: await getRunWithStats(ctx, run.id),
+		});
+	});
+
+	app.delete('/projects/:publicId/runs/:runId', async (c) => {
+		const ctx = c.get('ctx');
+		const parsedParams = GetProjectRunSchema.safeParse({
+			projectPublicId: c.req.param('publicId'),
+			runPublicId: c.req.param('runId'),
+		});
+
+		if (!parsedParams.success) {
+			throw parsedParams.error;
+		}
+
+		const run = await ctx.db.run.findFirst({
+			where: {
+				publicId: parsedParams.data.runPublicId,
+				project: {
+					publicId: parsedParams.data.projectPublicId,
+				},
+			},
+			select: {
+				id: true,
+				status: true,
+			},
+		});
+
+		if (!run) {
+			throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
+		}
+
+		const status = RunStatusSchema.parse(run.status);
+
+		if (canCancelRun(status)) {
+			throw new ConflictError('Cancel the run before deleting it.');
+		}
+
+		await ctx.db.run.delete({
+			where: {
+				id: run.id,
+			},
+		});
+
+		return c.json<ApiSuccess<null>>({ success: true, data: null });
+	});
+
 	return app;
+}
+
+async function getRunWithStats<TD1Binding extends string>(
+	ctx: HonoEnv<TD1Binding>['Variables']['ctx'],
+	runId: number,
+): Promise<RunWithStats> {
+	const [run, stats] = await Promise.all([
+		ctx.db.run.findUnique({
+			where: {
+				id: runId,
+			},
+			include: {
+				attributes: {
+					orderBy: {
+						position: 'asc',
+					},
+				},
+			},
+		}),
+		ctx.db.spec.aggregate({
+			where: {
+				runId,
+			},
+			_sum: {
+				tests: true,
+				passed: true,
+				failed: true,
+				pending: true,
+				skipped: true,
+				duration: true,
+			},
+			_count: {
+				_all: true,
+			},
+		}),
+	]);
+
+	if (!run) {
+		throw new NotFoundError('Run not found.');
+	}
+
+	return {
+		...run,
+		status: RunStatusSchema.parse(run.status),
+		stats: {
+			specs: stats._count._all,
+			tests: stats._sum.tests ?? 0,
+			passed: stats._sum.passed ?? 0,
+			failed: stats._sum.failed ?? 0,
+			pending: stats._sum.pending ?? 0,
+			skipped: stats._sum.skipped ?? 0,
+			duration: stats._sum.duration ?? 0,
+		},
+	};
 }

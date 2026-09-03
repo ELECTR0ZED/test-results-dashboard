@@ -1,4 +1,9 @@
-import type { SpecFinishEvent } from '@electr0zed/test-results-dashboard-core';
+import {
+	isRunClosedToIngestion,
+	RunStatus,
+	RunStatusSchema,
+	type SpecFinishEvent,
+} from '@electr0zed/test-results-dashboard-core';
 import type { AppCtx } from '../../types';
 
 export async function handleSpecFinish<TD1Binding extends string>(
@@ -16,11 +21,16 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		},
 		select: {
 			id: true,
+			status: true,
 		},
 	});
 
 	if (!run) {
 		throw new Error(`Run not found: ${event.payload.runId}`);
+	}
+
+	if (isRunClosedToIngestion(RunStatusSchema.parse(run.status))) {
+		return;
 	}
 
 	const filename = getSpecFilename(event.payload.spec);
@@ -105,11 +115,16 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		});
 	}
 
-	await db.run.update({
+	await db.run.updateMany({
 		where: {
 			id: run.id,
+			status: {
+				in: [RunStatus.Running, RunStatus.TimedOut],
+			},
 		},
 		data: {
+			status: RunStatus.Running,
+			endedAt: null,
 			lastActivityAt: new Date(),
 		},
 	});

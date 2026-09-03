@@ -1,5 +1,6 @@
 // packages/api-ingest/src/jobs/timeoutStaleRuns.ts
 
+import { RunStatus } from '@electr0zed/test-results-dashboard-core';
 import { PrismaClient } from "@electr0zed/test-results-dashboard-db";
 
 export async function timeoutStaleRuns(
@@ -11,13 +12,13 @@ export async function timeoutStaleRuns(
 
 	const result = await db.run.updateMany({
 		where: {
-			status: 'running',
+			status: RunStatus.Running,
 			lastActivityAt: {
 				lt: cutoff,
 			},
 		},
 		data: {
-			status: 'timedOut',
+			status: RunStatus.TimedOut,
 			endedAt: now,
 		},
 	});
