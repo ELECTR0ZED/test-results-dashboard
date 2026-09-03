@@ -14,7 +14,7 @@ interface GitHubEventMetadata {
 }
 
 const BRANCH_MAX_LENGTH = 255;
-const COMMIT_SHA_MAX_LENGTH = 64;
+const COMMIT_SHA_MAX_LENGTH = 128;
 const COMMIT_MESSAGE_MAX_LENGTH = 4_096;
 const GIT_OBJECT_ID_PATTERN = /^[0-9a-f]{7,64}$/i;
 
@@ -32,7 +32,10 @@ export function resolveGitMetadata(
 		);
 
 	const commitSha =
-		normalizeCommitSha(overrides.commitSha) ??
+		normalizeValue(
+			overrides.commitSha,
+			COMMIT_SHA_MAX_LENGTH
+		) ??
 		getEnvironmentCommitSha(githubEvent) ??
 		normalizeCommitSha(
 			runGit(projectRoot, ['rev-parse', 'HEAD'])
@@ -67,7 +70,9 @@ function getEnvironmentBranch(
 		// GitHub Actions
 		process.env.GITHUB_HEAD_REF,
 		githubEvent.branch,
-		process.env.GITHUB_REF_NAME,
+		process.env.GITHUB_REF_TYPE === 'branch'
+			? process.env.GITHUB_REF_NAME
+			: undefined,
 
 		// GitLab
 		process.env.CI_MERGE_REQUEST_SOURCE_BRANCH_NAME,
@@ -88,10 +93,16 @@ function getEnvironmentBranch(
 function getEnvironmentCommitSha(
 	githubEvent: GitHubEventMetadata
 ): string | undefined {
-	return getFirstCommitSha(
-		// Explicit Cypress-compatible value
+	const commitInfoSha = normalizeValue(
 		process.env.COMMIT_INFO_SHA,
+		COMMIT_SHA_MAX_LENGTH
+	);
 
+	if (commitInfoSha) {
+		return commitInfoSha;
+	}
+
+	return getFirstCommitSha(
 		// Azure DevOps
 		// Build.SourceVersion is the merge commit during PR builds,
 		// so prefer the source commit when available.
@@ -123,9 +134,11 @@ function getEnvironmentCommitMessage(
 	commitSha: string | undefined,
 	githubEvent: GitHubEventMetadata
 ): string | undefined {
-	const commitInfoSha = normalizeCommitSha(
-		process.env.COMMIT_INFO_SHA
+	const commitInfoSha = normalizeValue(
+		process.env.COMMIT_INFO_SHA,
+		COMMIT_SHA_MAX_LENGTH
 	);
+
 	const commitInfoMessage = normalizeValue(
 		process.env.COMMIT_INFO_MESSAGE,
 		COMMIT_MESSAGE_MAX_LENGTH
@@ -256,6 +269,10 @@ function getGitCommitMessage(
 	projectRoot: string,
 	commitSha: string | undefined
 ): string | undefined {
+	/*
+	 * Explicit metadata may contain any value accepted by the public
+	 * schema, but only a valid Git object ID should be passed to Git.
+	 */
 	if (!commitSha || !GIT_OBJECT_ID_PATTERN.test(commitSha)) {
 		return undefined;
 	}
