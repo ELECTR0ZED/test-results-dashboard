@@ -31,7 +31,6 @@ export const RunSchema = z.object({
 	branch: z.string().nullable(),
 	commitSha: z.string().nullable(),
 	commitMessage: z.string().nullable(),
-	environment: z.string().nullable(),
 	machineId: z.string().nullable(),
 	shardId: z.string().nullable(),
 	group: z.string().nullable(),

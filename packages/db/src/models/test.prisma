@@ -12,7 +12,6 @@ model Run {
   branch        String?
   commitSha     String?
   commitMessage String?
-  environment   String?
   machineId     String?
   shardId       String?
   group         String?

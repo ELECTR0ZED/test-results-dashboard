@@ -65,7 +65,6 @@ export const RunMetadataSchema = z.object({
 	branch: ShortRunMetadataSchema.optional(),
 	commitSha: CommitShaSchema.optional(),
 	commitMessage: CommitMessageSchema.optional(),
-	environment: ShortRunMetadataSchema.optional(),
 	machineId: ShortRunMetadataSchema.optional(),
 	shardId: ShortRunMetadataSchema.optional(),
 	group: ShortRunMetadataSchema.optional(),

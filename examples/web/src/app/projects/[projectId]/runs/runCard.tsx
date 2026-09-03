@@ -33,11 +33,13 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 
 	const browser = formatVersionedName(run.browser, run.browserVersion);
 
-	const environmentMetadata = [
+	const runMetadata = [
+		isUsefulValue(run.branch)
+			? `Branch: ${run.branch}`
+			: undefined,
 		framework,
 		browser,
 		isUsefulValue(run.os) ? run.os : undefined,
-		isUsefulValue(run.environment) ? run.environment : undefined,
 	].filter((value): value is string => Boolean(value));
 
 	const visibleAttributes = run.attributes.filter((attribute) => attribute.showOnRunList);
@@ -91,12 +93,12 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 						<span>{duration}</span>
 					</div>
 
-					{environmentMetadata.length > 0 && (
+					{runMetadata.length > 0 && (
 						<div
 							className="mt-1 truncate text-xs text-zinc-400 dark:text-zinc-500"
-							title={environmentMetadata.join(' · ')}
+							title={runMetadata.join(' · ')}
 						>
-							{environmentMetadata.join(' · ')}
+							{runMetadata.join(' · ')}
 						</div>
 					)}
 

@@ -23,7 +23,6 @@ export default function RunSummary() {
 	const presentation = getRunStatusPresentation(displayStatus);
 	const StatusIcon = presentation.Icon;
 	const reporterMetadata = [
-		isUsefulValue(run.environment) ? `Environment: ${run.environment}` : undefined,
 		isUsefulValue(run.branch) ? `Branch: ${run.branch}` : undefined,
 		isUsefulValue(run.commitSha) ? `Commit: ${run.commitSha.slice(0, 12)}` : undefined,
 		isUsefulValue(run.group) ? `Group: ${run.group}` : undefined,
