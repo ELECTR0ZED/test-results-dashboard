@@ -1,4 +1,9 @@
-import type { RunFinishEvent } from '@electr0zed/test-results-dashboard-core';
+import {
+	isRunStatusTerminal,
+	RunStatus,
+	RunStatusSchema,
+	type RunFinishEvent,
+} from '@electr0zed/test-results-dashboard-core';
 import type { AppCtx } from '../../types';
 import { mapRunAttributes, mapRunMetadata } from './runMetadata';
 
@@ -17,6 +22,8 @@ export async function handleRunFinish<TD1Binding extends string>(
 		},
 		select: {
 			id: true,
+			name: true,
+			status: true,
 		},
 	});
 
@@ -24,13 +31,20 @@ export async function handleRunFinish<TD1Binding extends string>(
 		throw new Error(`Run not found: ${event.payload.runId}`);
 	}
 
+	if (isRunStatusTerminal(RunStatusSchema.parse(run.status))) {
+		return;
+	}
+
 	if ('message' in event.payload) {
 		await db.run.update({
 			where: {
 				id: run.id,
+				status: {
+					in: [RunStatus.Running, RunStatus.TimedOut],
+				},
 			},
 			data: {
-				status: 'failed',
+				status: RunStatus.Failed,
 				endedAt: new Date(),
 				lastActivityAt: new Date(),
 			},
@@ -40,14 +54,19 @@ export async function handleRunFinish<TD1Binding extends string>(
 	}
 
 	const attributes = event.payload.run.attributes;
+	const metadata = mapRunMetadata(event.payload.run);
 
 	await db.run.update({
 		where: {
 			id: run.id,
+			status: {
+				in: [RunStatus.Running, RunStatus.TimedOut],
+			},
 		},
 		data: {
-			status: 'finished',
-			...mapRunMetadata(event.payload.run),
+			status: RunStatus.Finished,
+			...metadata,
+			name: run.name ?? metadata.name,
 			framework: event.payload.run.runner,
 			frameworkVersion: event.payload.run.runnerVersion ?? 'unknown',
 			browser: event.payload.run.browserName ?? 'unknown',

@@ -16,6 +16,7 @@ import {
 	isUsefulValue,
 } from '@/lib/runPresentation';
 import { type ReactNode } from 'react';
+import RunActions from './runActions';
 
 export default function RunSummary() {
 	const { run } = useRun();
@@ -51,22 +52,18 @@ export default function RunSummary() {
 
 								<Badge color={presentation.badgeColour}>{presentation.label}</Badge>
 							</div>
-
-							<Text className="mt-1">
-								Run{' '}
-								<span className="font-mono text-xs" title={run.publicId}>
-									{run.publicId.slice(0, 8)}
-								</span>
-							</Text>
 						</div>
 					</div>
 
-					<RunResults
-						passed={run.stats.passed}
-						failed={run.stats.failed}
-						pending={run.stats.pending}
-						skipped={run.stats.skipped}
-					/>
+					<div className="flex items-center gap-3">
+						<RunResults
+							passed={run.stats.passed}
+							failed={run.stats.failed}
+							pending={run.stats.pending}
+							skipped={run.stats.skipped}
+						/>
+						<RunActions />
+					</div>
 				</div>
 
 				<div className="mt-6 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-zinc-950/10 pt-5 sm:grid-cols-3 lg:grid-cols-5 dark:border-white/10">

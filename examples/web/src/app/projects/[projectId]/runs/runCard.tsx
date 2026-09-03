@@ -34,9 +34,7 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 	const browser = formatVersionedName(run.browser, run.browserVersion);
 
 	const runMetadata = [
-		isUsefulValue(run.branch)
-			? `Branch: ${run.branch}`
-			: undefined,
+		isUsefulValue(run.branch) ? run.branch : undefined,
 		framework,
 		browser,
 		isUsefulValue(run.os) ? run.os : undefined,
@@ -95,7 +93,7 @@ export function RunCard({ projectPublicId, run }: RunCardProps) {
 
 					{runMetadata.length > 0 && (
 						<div
-							className="mt-1 truncate text-xs text-zinc-400 dark:text-zinc-500"
+							className="mt-1 truncate text-xs text-zinc-500 dark:text-zinc-400"
 							title={runMetadata.join(' · ')}
 						>
 							{runMetadata.join(' · ')}

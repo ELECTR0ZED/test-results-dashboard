@@ -53,3 +53,34 @@ export function getProjectRun(
 		apiFetcher: options.apiFetcher,
 	});
 }
+
+export function renameProjectRun(
+	publicId: string,
+	runId: string,
+	name: string,
+	options: Options = {}
+): Promise<ApiSuccess<RunWithStats>> {
+	return apiRequest<RunWithStats>(`/api/projects/${publicId}/runs/${runId}`, RunWithStatsSchema, {
+		method: 'PATCH',
+		body: { name },
+		apiFetcher: options.apiFetcher,
+	});
+}
+
+export function cancelProjectRun(
+	publicId: string,
+	runId: string,
+	options: Options = {}
+): Promise<ApiSuccess<RunWithStats>> {
+	return apiRequest<RunWithStats>(`/api/projects/${publicId}/runs/${runId}/cancel`, RunWithStatsSchema, {
+		method: 'POST',
+		apiFetcher: options.apiFetcher,
+	});
+}
+
+export function deleteProjectRun(publicId: string, runId: string, options: Options = {}): Promise<ApiSuccess<null>> {
+	return apiRequest<null>(`/api/projects/${publicId}/runs/${runId}`, z.null(), {
+		method: 'DELETE',
+		apiFetcher: options.apiFetcher,
+	});
+}
