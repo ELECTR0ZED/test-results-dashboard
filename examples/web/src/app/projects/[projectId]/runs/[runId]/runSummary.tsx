@@ -2,7 +2,6 @@
 
 import { Badge } from '@/components/catalyst/badge';
 import { Heading } from '@/components/catalyst/heading';
-import { Text } from '@/components/catalyst/text';
 import { LocalDate } from '@/components/localDate';
 import { RunResults } from '@/components/runResults';
 import { useRun } from '@/contexts/runContext';

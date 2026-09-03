@@ -1,5 +1,5 @@
 import {
-	isRunStatusTerminal,
+	isRunClosedToIngestion,
 	RunStatus,
 	RunStatusSchema,
 	type SpecFinishEvent,
@@ -29,7 +29,7 @@ export async function handleSpecFinish<TD1Binding extends string>(
 		throw new Error(`Run not found: ${event.payload.runId}`);
 	}
 
-	if (isRunStatusTerminal(RunStatusSchema.parse(run.status))) {
+	if (isRunClosedToIngestion(RunStatusSchema.parse(run.status))) {
 		return;
 	}
 

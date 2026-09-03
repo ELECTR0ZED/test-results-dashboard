@@ -20,3 +20,12 @@ export function isRunStatusTerminal(status: RunStatus): boolean {
 export function canCancelRun(status: RunStatus): boolean {
 	return status === RunStatus.Running || status === RunStatus.TimedOut;
 }
+
+export function isRunClosedToIngestion(
+	status: RunStatus,
+): boolean {
+	return (
+		status === RunStatus.Cancelled ||
+		status === RunStatus.Interrupted
+	);
+}
