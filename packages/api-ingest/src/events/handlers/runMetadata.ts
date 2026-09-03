@@ -6,7 +6,6 @@ export function mapRunMetadata(run: RunInfo) {
 		branch: run.branch,
 		commitSha: run.commitSha,
 		commitMessage: run.commitMessage,
-		environment: run.environment,
 		machineId: run.machineId,
 		shardId: run.shardId,
 		group: run.group,
