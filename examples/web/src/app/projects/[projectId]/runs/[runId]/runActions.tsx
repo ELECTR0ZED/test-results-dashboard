@@ -13,7 +13,7 @@ import { formatRunName } from '@/lib/runPresentation';
 import { canCancelRun } from '@electr0zed/test-results-dashboard-api-types';
 import { EllipsisHorizontalIcon, NoSymbolIcon, PencilSquareIcon, TrashIcon } from '@heroicons/react/20/solid';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, type SubmitEvent } from 'react';
 
 export default function RunActions() {
 	const { project } = useProject();
@@ -34,7 +34,9 @@ export default function RunActions() {
 		setIsRenameOpen(true);
 	}
 
-	async function handleRename() {
+	async function handleRename(event: SubmitEvent<HTMLFormElement>) {
+		event.preventDefault();
+
 		if (!normalizedName || action) {
 			return;
 		}
@@ -53,7 +55,9 @@ export default function RunActions() {
 		}
 	}
 
-	async function handleCancel() {
+	async function handleCancel(event: SubmitEvent<HTMLFormElement>) {
+		event.preventDefault();
+
 		if (!runCanBeCancelled || action) {
 			return;
 		}
@@ -72,7 +76,9 @@ export default function RunActions() {
 		}
 	}
 
-	async function handleDelete() {
+	async function handleDelete(event: SubmitEvent<HTMLFormElement>) {
+		event.preventDefault();
+
 		if (runCanBeCancelled || action) {
 			return;
 		}
@@ -101,7 +107,11 @@ export default function RunActions() {
 						<PencilSquareIcon />
 						Rename run
 					</DropdownItem>
-					<DropdownItem disabled={!runCanBeCancelled} onClick={() => setIsCancelOpen(true)} className={runCanBeCancelled ? 'cursor-pointer' : 'cursor-not-allowed'}>
+					<DropdownItem
+						disabled={!runCanBeCancelled}
+						onClick={() => setIsCancelOpen(true)}
+						className={runCanBeCancelled ? 'cursor-pointer' : 'cursor-not-allowed'}
+					>
 						<NoSymbolIcon />
 						Cancel run
 					</DropdownItem>
@@ -118,61 +128,104 @@ export default function RunActions() {
 			</Dropdown>
 
 			<Dialog open={isRenameOpen} onClose={() => action !== 'rename' && setIsRenameOpen(false)} size="md">
-				<DialogTitle>Rename run</DialogTitle>
-				<DialogDescription>Add a descriptive name that makes this run easier to identify.</DialogDescription>
-				<DialogBody>
-					<Field>
-						<Label>Run name</Label>
-						<Input
-							type="text"
-							value={name}
-							onChange={(event) => setName(event.target.value)}
-							maxLength={120}
-							autoComplete="off"
+				<form onSubmit={handleRename}>
+					<DialogTitle>Rename run</DialogTitle>
+					<DialogDescription>
+						Add a descriptive name that makes this run easier to identify.
+					</DialogDescription>
+					<DialogBody>
+						<Field>
+							<Label>Run name</Label>
+							<Input
+								type="text"
+								value={name}
+								onChange={(event) => setName(event.target.value)}
+								maxLength={120}
+								autoComplete="off"
+								disabled={action === 'rename'}
+								autoFocus
+								required
+							/>
+						</Field>
+					</DialogBody>
+					<DialogActions>
+						<Button
+							type="button"
+							plain
+							onClick={() => setIsRenameOpen(false)}
 							disabled={action === 'rename'}
-							required
-						/>
-					</Field>
-				</DialogBody>
-				<DialogActions>
-					<Button type="button" plain onClick={() => setIsRenameOpen(false)} disabled={action === 'rename'} className="cursor-pointer">
-						Cancel
-					</Button>
-					<Button type="button" onClick={handleRename} disabled={!normalizedName || action === 'rename'} className={!normalizedName ? 'cursor-not-allowed' : 'cursor-pointer'}>
-						{action === 'rename' ? 'Renaming…' : 'Rename run'}
-					</Button>
-				</DialogActions>
+							className="cursor-pointer"
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							disabled={!normalizedName || action === 'rename'}
+							className={!normalizedName ? 'cursor-not-allowed' : 'cursor-pointer'}
+						>
+							{action === 'rename' ? 'Renaming…' : 'Rename run'}
+						</Button>
+					</DialogActions>
+				</form>
 			</Dialog>
 
 			<Dialog open={isCancelOpen} onClose={() => action !== 'cancel' && setIsCancelOpen(false)} size="md">
-				<DialogTitle>Cancel {formatRunName(run)}?</DialogTitle>
-				<DialogDescription>
-					The run will be closed and any later results sent by its reporter will be ignored.
-				</DialogDescription>
-				<DialogActions>
-					<Button type="button" plain onClick={() => setIsCancelOpen(false)} disabled={action === 'cancel'} className="cursor-pointer">
-						Keep run
-					</Button>
-					<Button type="button" color="red" onClick={handleCancel} disabled={action === 'cancel'} className="cursor-pointer">
-						{action === 'cancel' ? 'Cancelling…' : 'Cancel run'}
-					</Button>
-				</DialogActions>
+				<form onSubmit={handleCancel}>
+					<DialogTitle>Cancel {formatRunName(run)}?</DialogTitle>
+					<DialogDescription>
+						The run will be closed and any later results sent by its reporter will be ignored.
+					</DialogDescription>
+					<DialogActions>
+						<Button
+							type="button"
+							plain
+							onClick={() => setIsCancelOpen(false)}
+							disabled={action === 'cancel'}
+							className="cursor-pointer"
+						>
+							Keep run
+						</Button>
+						<Button
+							type="submit"
+							color="red"
+							disabled={action === 'cancel'}
+							className="cursor-pointer"
+							autoFocus
+						>
+							{action === 'cancel' ? 'Cancelling…' : 'Cancel run'}
+						</Button>
+					</DialogActions>
+				</form>
 			</Dialog>
 
 			<Dialog open={isDeleteOpen} onClose={() => action !== 'delete' && setIsDeleteOpen(false)} size="md">
-				<DialogTitle>Delete {formatRunName(run)}?</DialogTitle>
-				<DialogDescription>
-					This permanently removes the run, its specs, tests, attempts, and attributes. This action cannot be
-					undone.
-				</DialogDescription>
-				<DialogActions>
-					<Button type="button" plain onClick={() => setIsDeleteOpen(false)} disabled={action === 'delete'} className="cursor-pointer">
-						Cancel
-					</Button>
-					<Button type="button" color="red" onClick={handleDelete} disabled={action === 'delete'} className="cursor-pointer">
-						{action === 'delete' ? 'Deleting…' : 'Delete run'}
-					</Button>
-				</DialogActions>
+				<form onSubmit={handleDelete}>
+					<DialogTitle>Delete {formatRunName(run)}?</DialogTitle>
+					<DialogDescription>
+						This permanently removes the run, its specs, tests, attempts, and attributes. This action cannot
+						be undone.
+					</DialogDescription>
+					<DialogActions>
+						<Button
+							type="button"
+							plain
+							onClick={() => setIsDeleteOpen(false)}
+							disabled={action === 'delete'}
+							className="cursor-pointer"
+						>
+							Cancel
+						</Button>
+						<Button
+							type="submit"
+							color="red"
+							disabled={action === 'delete'}
+							className="cursor-pointer"
+							autoFocus
+						>
+							{action === 'delete' ? 'Deleting…' : 'Delete run'}
+						</Button>
+					</DialogActions>
+				</form>
 			</Dialog>
 		</>
 	);
