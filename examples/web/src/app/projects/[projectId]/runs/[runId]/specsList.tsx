@@ -8,7 +8,7 @@ import { useToast } from '@/contexts/toastContext';
 import { getRunSpecs } from '@/lib/api/specs';
 import { DEFAULT_PAGE_SIZE, FullSpec, PaginationMeta } from '@electr0zed/test-results-dashboard-api-types';
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function SpecsList() {
 	const searchParams = useSearchParams();
@@ -23,35 +23,43 @@ export default function SpecsList() {
 		total: 0,
 		totalPages: 0,
 	});
-	const [loading, setLoading] = useState(true);
-
-	const fetchSpecs = useCallback(
-		async (page: number) => {
-			setLoading(true);
-			setSpecs([]);
-			try {
-				const response = await getRunSpecs(project.publicId, run.publicId, page, pagination.pageSize);
-				setSpecs(response.data);
-				setPagination(response.meta.pagination);
-			} catch (error) {
-				addToast('Failed to fetch specs', error instanceof Error ? error.message : 'Unknown error', 'error');
-			} finally {
-				setLoading(false);
-			}
-		},
-		[project.publicId, run.publicId, addToast, pagination.pageSize]
-	);
+	const [initialLoading, setInitialLoading] = useState(true);
 
 	useEffect(() => {
+		let cancelled = false;
 		const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
 
-		fetchSpecs(currentPage);
-	}, [fetchSpecs, searchParams, runUpdatedAt]);
+		void getRunSpecs(project.publicId, run.publicId, currentPage, DEFAULT_PAGE_SIZE)
+			.then((response) => {
+				if (cancelled) {
+					return;
+				}
+
+				setSpecs(response.data);
+				setPagination(response.meta.pagination);
+			})
+			.catch((error: unknown) => {
+				if (cancelled) {
+					return;
+				}
+
+				addToast('Failed to fetch specs', error instanceof Error ? error.message : 'Unknown error', 'error');
+			})
+			.finally(() => {
+				if (!cancelled) {
+					setInitialLoading(false);
+				}
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	}, [addToast, project.publicId, run.publicId, runUpdatedAt, searchParams]);
 
 	return (
 		<>
 			<div className="space-y-4">
-				{loading ? (
+				{initialLoading ? (
 					<SpecsLoadingState />
 				) : specs.length === 0 ? (
 					<div className="rounded-xl border border-dashed border-zinc-950/10 px-6 py-12 text-center text-sm text-zinc-500 dark:border-white/10 dark:text-zinc-400">
