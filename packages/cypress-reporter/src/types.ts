@@ -7,6 +7,7 @@ export interface CypressReporterOptions {
 	runId?: string;
 	runName?: string;
 	runAttributes?: RunAttributeInput[];
+	collectGitMetadata?: boolean;
 	branch?: string;
 	commitSha?: string;
 	commitMessage?: string;
