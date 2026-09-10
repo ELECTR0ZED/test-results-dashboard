@@ -14,9 +14,12 @@ import {
 	type PaginationMeta,
 	type RunWithStats,
 } from '@electr0zed/test-results-dashboard-api-types';
+import { ArrowPathIcon } from '@heroicons/react/20/solid';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { RunCard } from './runCard';
+
+const REFRESH_INTERVAL_MS = 15_000;
 
 export default function ProjectRunsList() {
 	const searchParams = useSearchParams();
@@ -26,6 +29,9 @@ export default function ProjectRunsList() {
 
 	const [runs, setRuns] = useState<RunWithStats[]>([]);
 	const [loadedRequestKey, setLoadedRequestKey] = useState<string>();
+	const loadedRequestKeyRef = useRef<string | undefined>(undefined);
+	const [refreshVersion, setRefreshVersion] = useState(0);
+	const [refreshing, setRefreshing] = useState(false);
 	const [availableAttributes, setAvailableAttributes] = useState<AvailableRunAttribute[]>([]);
 	const [pagination, setPagination] = useState<PaginationMeta>({
 		page: 1,
@@ -45,9 +51,12 @@ export default function ProjectRunsList() {
 	const requestKey = JSON.stringify([project.publicId, page, selectedAttributeKey, selectedAttributeValue]);
 
 	const loading = loadedRequestKey !== requestKey;
+	const hasRunningRuns = runs.some((run) => run.status === 'running');
+	const shouldAutoRefresh = page === 1 || hasRunningRuns;
 
 	useEffect(() => {
 		let cancelled = false;
+		const isBackgroundRefresh = loadedRequestKeyRef.current === requestKey;
 
 		void getProjectRuns(project.publicId, {
 			page,
@@ -63,6 +72,7 @@ export default function ProjectRunsList() {
 				setRuns(response.data);
 				setPagination(response.meta.pagination);
 				setAvailableAttributes(response.meta.availableAttributes);
+				loadedRequestKeyRef.current = requestKey;
 				setLoadedRequestKey(requestKey);
 			})
 			.catch((error: unknown) => {
@@ -72,23 +82,54 @@ export default function ProjectRunsList() {
 
 				addToast('Failed to fetch runs', error instanceof Error ? error.message : 'Unknown error', 'error');
 
-				setRuns([]);
-				setPagination({
-					page,
-					pageSize: DEFAULT_PAGE_SIZE,
-					total: 0,
-					totalPages: 0,
-				});
+				if (!isBackgroundRefresh) {
+					setRuns([]);
+					setPagination({
+						page,
+						pageSize: DEFAULT_PAGE_SIZE,
+						total: 0,
+						totalPages: 0,
+					});
+				}
+
+				loadedRequestKeyRef.current = requestKey;
 				setLoadedRequestKey(requestKey);
+			})
+			.finally(() => {
+				if (!cancelled) {
+					setRefreshing(false);
+				}
 			});
 
 		return () => {
 			cancelled = true;
 		};
-	}, [addToast, page, project.publicId, requestKey, selectedAttributeKey, selectedAttributeValue]);
+	}, [addToast, page, project.publicId, refreshVersion, requestKey, selectedAttributeKey, selectedAttributeValue]);
+
+	useEffect(() => {
+		if (loading || refreshing || !shouldAutoRefresh) {
+			return;
+		}
+
+		const timeout = window.setTimeout(() => {
+			setRefreshing(true);
+			setRefreshVersion((version) => version + 1);
+		}, REFRESH_INTERVAL_MS);
+
+		return () => window.clearTimeout(timeout);
+	}, [loading, refreshing, shouldAutoRefresh]);
 
 	const selectedAttribute = availableAttributes.find((attribute) => attribute.key === selectedAttributeKey);
 	const filtersApplied = Boolean(selectedAttributeKey);
+
+	function refreshRuns() {
+		if (loading || refreshing) {
+			return;
+		}
+
+		setRefreshing(true);
+		setRefreshVersion((version) => version + 1);
+	}
 
 	function updateFilters(attributeKey?: string, attributeValue?: string) {
 		const params = new URLSearchParams(searchParams.toString());
@@ -114,46 +155,64 @@ export default function ProjectRunsList() {
 
 	return (
 		<>
-			{!loading && (pagination.total > 0 || availableAttributes.length > 0 || filtersApplied) && (
+			{!loading && (
 				<div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
 					<div className="text-sm text-zinc-500 dark:text-zinc-400">
 						{pagination.total} {pagination.total === 1 ? 'run' : 'runs'}
 					</div>
 
-					{(availableAttributes.length > 0 || filtersApplied) && (
-						<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-							<Select
-								aria-label="Filter runs by attribute"
-								className="sm:w-44"
-								value={selectedAttributeKey}
-								onChange={(event) => updateFilters(event.target.value || undefined)}
-							>
-								<option value="">All attributes</option>
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+						{(availableAttributes.length > 0 || filtersApplied) && (
+							<>
+								<Select
+									aria-label="Filter runs by attribute"
+									className="sm:w-44"
+									value={selectedAttributeKey}
+									onChange={(event) => updateFilters(event.target.value || undefined)}
+								>
+									<option value="">All attributes</option>
 
-								{availableAttributes.map((attribute) => (
-									<option key={attribute.key} value={attribute.key}>
-										{formatRunAttributeKey(attribute.key)}
-									</option>
-								))}
-							</Select>
+									{availableAttributes.map((attribute) => (
+										<option key={attribute.key} value={attribute.key}>
+											{formatRunAttributeKey(attribute.key)}
+										</option>
+									))}
+								</Select>
 
-							<AttributeValueFilter
-								key={`${selectedAttributeKey}:${selectedAttributeValue}`}
-								attributeKey={selectedAttributeKey}
-								attributeValue={selectedAttributeValue}
-								suggestions={selectedAttribute?.values ?? []}
-								applyFilter={(attributeValue) =>
-									updateFilters(selectedAttributeKey || undefined, attributeValue)
-								}
-							/>
+								<AttributeValueFilter
+									key={`${selectedAttributeKey}:${selectedAttributeValue}`}
+									attributeKey={selectedAttributeKey}
+									attributeValue={selectedAttributeValue}
+									suggestions={selectedAttribute?.values ?? []}
+									applyFilter={(attributeValue) =>
+										updateFilters(selectedAttributeKey || undefined, attributeValue)
+									}
+								/>
 
-							{filtersApplied && (
-								<Button type="button" className="cursor-pointer" plain onClick={() => updateFilters()}>
-									Clear
-								</Button>
-							)}
-						</div>
-					)}
+								{filtersApplied && (
+									<Button
+										type="button"
+										className="cursor-pointer"
+										plain
+										onClick={() => updateFilters()}
+									>
+										Clear
+									</Button>
+								)}
+							</>
+						)}
+
+						<Button
+							type="button"
+							outline
+							className="cursor-pointer"
+							disabled={refreshing}
+							onClick={refreshRuns}
+						>
+							<ArrowPathIcon className={refreshing ? 'animate-spin' : undefined} />
+							{refreshing ? 'Refreshing…' : 'Refresh'}
+						</Button>
+					</div>
 				</div>
 			)}
 
