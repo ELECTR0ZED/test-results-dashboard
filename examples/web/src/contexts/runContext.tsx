@@ -2,11 +2,12 @@
 
 import { getProjectRun } from '@/lib/api/runs';
 import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 
 type RunContextValue = {
 	run: RunWithStats;
 	refreshRun: () => Promise<void>;
+	refreshing: boolean;
 	setRun: (run: RunWithStats) => void;
 };
 
@@ -21,20 +22,38 @@ type RunProviderProps = {
 
 export function RunProvider({ projectId, runId, initialRun, children }: RunProviderProps) {
 	const [run, setRun] = useState<RunWithStats>(initialRun);
+	const [refreshing, setRefreshing] = useState(false);
+	const refreshPromiseRef = useRef<Promise<void> | null>(null);
 
-	const refreshRun = useCallback(async () => {
-		const response = await getProjectRun(projectId, runId);
+	const refreshRun = useCallback(() => {
+		if (refreshPromiseRef.current) {
+			return refreshPromiseRef.current;
+		}
 
-		setRun(response.data);
+		setRefreshing(true);
+
+		const refreshPromise = getProjectRun(projectId, runId)
+			.then((response) => {
+				setRun(response.data);
+			})
+			.finally(() => {
+				refreshPromiseRef.current = null;
+				setRefreshing(false);
+			});
+
+		refreshPromiseRef.current = refreshPromise;
+
+		return refreshPromise;
 	}, [projectId, runId]);
 
 	const value = useMemo(
 		() => ({
 			run,
 			refreshRun,
+			refreshing,
 			setRun,
 		}),
-		[run, refreshRun]
+		[run, refreshRun, refreshing]
 	);
 
 	return <RunContext.Provider value={value}>{children}</RunContext.Provider>;
