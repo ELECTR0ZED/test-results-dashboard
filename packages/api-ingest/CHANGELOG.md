@@ -1,5 +1,11 @@
 # @electr0zed/test-results-dashboard-api-ingest
 
+## 0.7.1
+
+### Patch Changes
+
+- 33b2f42: Update Hono
+
 ## 0.7.0
 
 ### Minor Changes
