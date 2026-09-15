@@ -4,6 +4,7 @@ import {
 	GetProjectRunSchema,
 	GetProjectRunsSchema,
 	RenameProjectRunSchema,
+	RunResultFilter,
 	RunStatus,
 	RunStatusSchema,
 	RunWithStats,
@@ -24,12 +25,14 @@ export function createRunRoutes<TD1Binding extends string>() {
 		const pageSize = c.req.query('pageSize');
 		const attributeKey = c.req.query('attributeKey');
 		const attributeValue = c.req.query('attributeValue');
+		const result = c.req.query('result');
 		const parsedParams = GetProjectRunsSchema.safeParse({
 			publicId,
 			page,
 			pageSize,
 			attributeKey,
 			attributeValue,
+			result,
 		});
 
 		if (!parsedParams.success) {
@@ -51,6 +54,7 @@ export function createRunRoutes<TD1Binding extends string>() {
 
 		const runWhere = {
 			projectId: project.id,
+			...getRunResultWhere(parsedParams.data.result),
 			...(parsedParams.data.attributeKey
 				? {
 						attributes: {
@@ -432,6 +436,45 @@ export function createRunRoutes<TD1Binding extends string>() {
 	});
 
 	return app;
+}
+
+function getRunResultWhere(result: RunResultFilter) {
+	switch (result) {
+		case RunResultFilter.Failed:
+			return {
+				OR: [
+					{ status: RunStatus.Failed },
+					{ specs: { some: { failed: { gt: 0 } } } },
+				],
+			};
+		case RunResultFilter.Passed:
+			return {
+				status: RunStatus.Finished,
+				specs: {
+					some: { tests: { gt: 0 } },
+					none: { failed: { gt: 0 } },
+				},
+			};
+		case RunResultFilter.Running:
+			return { status: RunStatus.Running };
+		case RunResultFilter.Pending:
+			return { specs: { some: { pending: { gt: 0 } } } };
+		case RunResultFilter.Skipped:
+			return { specs: { some: { skipped: { gt: 0 } } } };
+		case RunResultFilter.TimedOut:
+			return { status: RunStatus.TimedOut };
+		case RunResultFilter.Interrupted:
+			return { status: RunStatus.Interrupted };
+		case RunResultFilter.Cancelled:
+			return { status: RunStatus.Cancelled };
+		case RunResultFilter.NoResults:
+			return {
+				status: RunStatus.Finished,
+				specs: { none: { tests: { gt: 0 } } },
+			};
+		case RunResultFilter.All:
+			return {};
+	}
 }
 
 async function getRunWithStats<TD1Binding extends string>(

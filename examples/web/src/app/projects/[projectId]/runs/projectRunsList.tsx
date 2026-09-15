@@ -7,11 +7,12 @@ import { Paginator } from '@/components/paginator';
 import { useProject } from '@/contexts/projectContext';
 import { useToast } from '@/contexts/toastContext';
 import { getProjectRuns } from '@/lib/api/runs';
-import { formatRunAttributeKey } from '@/lib/runPresentation';
+import { formatRunAttributeKey, parseRunResultFilter, RUN_RESULT_FILTER_OPTIONS } from '@/lib/runPresentation';
 import {
 	type AvailableRunAttribute,
 	DEFAULT_PAGE_SIZE,
 	type PaginationMeta,
+	RunResultFilter,
 	type RunWithStats,
 } from '@electr0zed/test-results-dashboard-api-types';
 import { ArrowPathIcon } from '@heroicons/react/20/solid';
@@ -47,8 +48,15 @@ export default function ProjectRunsList() {
 	const selectedAttributeKey = searchParams.get('attributeKey') ?? '';
 
 	const selectedAttributeValue = searchParams.get('attributeValue') ?? '';
+	const selectedResult = parseRunResultFilter(searchParams.get('result'));
 
-	const requestKey = JSON.stringify([project.publicId, page, selectedAttributeKey, selectedAttributeValue]);
+	const requestKey = JSON.stringify([
+		project.publicId,
+		page,
+		selectedAttributeKey,
+		selectedAttributeValue,
+		selectedResult,
+	]);
 
 	const loading = loadedRequestKey !== requestKey;
 	const hasRunningRuns = runs.some((run) => run.status === 'running');
@@ -63,6 +71,7 @@ export default function ProjectRunsList() {
 			pageSize: DEFAULT_PAGE_SIZE,
 			attributeKey: selectedAttributeKey || undefined,
 			attributeValue: selectedAttributeValue || undefined,
+			result: selectedResult,
 		})
 			.then((response) => {
 				if (cancelled) {
@@ -104,7 +113,16 @@ export default function ProjectRunsList() {
 		return () => {
 			cancelled = true;
 		};
-	}, [addToast, page, project.publicId, refreshVersion, requestKey, selectedAttributeKey, selectedAttributeValue]);
+	}, [
+		addToast,
+		page,
+		project.publicId,
+		refreshVersion,
+		requestKey,
+		selectedAttributeKey,
+		selectedAttributeValue,
+		selectedResult,
+	]);
 
 	useEffect(() => {
 		if (loading || refreshing || !shouldAutoRefresh) {
@@ -120,7 +138,8 @@ export default function ProjectRunsList() {
 	}, [loading, refreshing, shouldAutoRefresh]);
 
 	const selectedAttribute = availableAttributes.find((attribute) => attribute.key === selectedAttributeKey);
-	const filtersApplied = Boolean(selectedAttributeKey);
+	const attributeFiltersApplied = Boolean(selectedAttributeKey);
+	const filtersApplied = attributeFiltersApplied || selectedResult !== RunResultFilter.All;
 
 	function refreshRuns() {
 		if (loading || refreshing) {
@@ -147,6 +166,33 @@ export default function ProjectRunsList() {
 			params.delete('attributeValue');
 		}
 
+		pushRunsRoute(params);
+	}
+
+	function updateResultFilter(result: RunResultFilter) {
+		const params = new URLSearchParams(searchParams.toString());
+		params.delete('page');
+
+		if (result === RunResultFilter.All) {
+			params.delete('result');
+		} else {
+			params.set('result', result);
+		}
+
+		pushRunsRoute(params);
+	}
+
+	function clearFilters() {
+		const params = new URLSearchParams(searchParams.toString());
+		params.delete('page');
+		params.delete('attributeKey');
+		params.delete('attributeValue');
+		params.delete('result');
+
+		pushRunsRoute(params);
+	}
+
+	function pushRunsRoute(params: URLSearchParams) {
 		const queryString = params.toString();
 		const pathname = `/projects/${project.publicId}/runs`;
 
@@ -161,8 +207,21 @@ export default function ProjectRunsList() {
 						{pagination.total} {pagination.total === 1 ? 'run' : 'runs'}
 					</div>
 
-					<div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-						{(availableAttributes.length > 0 || filtersApplied) && (
+					<div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-end">
+						<Select
+							aria-label="Filter runs by result"
+							className="sm:w-36"
+							value={selectedResult}
+							onChange={(event) => updateResultFilter(parseRunResultFilter(event.target.value))}
+						>
+							{RUN_RESULT_FILTER_OPTIONS.map((option) => (
+								<option key={option.value} value={option.value}>
+									{option.label}
+								</option>
+							))}
+						</Select>
+
+						{(availableAttributes.length > 0 || attributeFiltersApplied) && (
 							<>
 								<Select
 									aria-label="Filter runs by attribute"
@@ -188,18 +247,13 @@ export default function ProjectRunsList() {
 										updateFilters(selectedAttributeKey || undefined, attributeValue)
 									}
 								/>
-
-								{filtersApplied && (
-									<Button
-										type="button"
-										className="cursor-pointer"
-										plain
-										onClick={() => updateFilters()}
-									>
-										Clear
-									</Button>
-								)}
 							</>
+						)}
+
+						{filtersApplied && (
+							<Button type="button" className="cursor-pointer" plain onClick={clearFilters}>
+								Clear
+							</Button>
 						)}
 
 						<Button
@@ -220,7 +274,7 @@ export default function ProjectRunsList() {
 				{loading ? (
 					<RunsLoadingState />
 				) : runs.length === 0 ? (
-					<RunsEmptyState filtered={filtersApplied} clearFilters={() => updateFilters()} />
+					<RunsEmptyState filtered={filtersApplied} clearFilters={clearFilters} />
 				) : (
 					runs.map((run) => <RunCard key={run.publicId} projectPublicId={project.publicId} run={run} />)
 				)}
@@ -235,6 +289,7 @@ export default function ProjectRunsList() {
 						searchParams={{
 							attributeKey: selectedAttributeKey || undefined,
 							attributeValue: selectedAttributeValue || undefined,
+							result: selectedResult === RunResultFilter.All ? undefined : selectedResult,
 						}}
 					/>
 				</div>
@@ -315,7 +370,7 @@ function RunsEmptyState({ filtered, clearFilters }: { filtered: boolean; clearFi
 			</div>
 
 			{filtered && (
-				<Button type="button" outline className="mt-4" onClick={clearFilters}>
+				<Button type="button" outline className="mt-4 cursor-pointer" onClick={clearFilters}>
 					Clear filters
 				</Button>
 			)}

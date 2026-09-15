@@ -2,6 +2,7 @@ import {
 	ApiSuccess,
 	ProjectRunsApiSuccess,
 	ProjectRunsMeta,
+	RunResultFilter,
 	RunWithStats,
 	RunWithStatsSchema,
 } from '@electr0zed/test-results-dashboard-api-types';
@@ -13,6 +14,7 @@ export type ProjectRunsQuery = {
 	pageSize: number;
 	attributeKey?: string;
 	attributeValue?: string;
+	result?: RunResultFilter;
 };
 
 export function getProjectRuns(
@@ -31,6 +33,10 @@ export function getProjectRuns(
 
 	if (query.attributeValue) {
 		searchParams.set('attributeValue', query.attributeValue);
+	}
+
+	if (query.result && query.result !== RunResultFilter.All) {
+		searchParams.set('result', query.result);
 	}
 
 	return apiRequest<RunWithStats[], ProjectRunsMeta>(

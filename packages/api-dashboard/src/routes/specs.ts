@@ -1,6 +1,11 @@
 import { Hono } from 'hono';
 import type { HonoEnv } from '../types';
-import { FullSpec, GetProjectRunsSpecsSchema, type PaginatedApiSuccess } from '@electr0zed/test-results-dashboard-api-types';
+import {
+	FullSpec,
+	GetProjectRunsSpecsSchema,
+	type PaginatedApiSuccess,
+	SpecResultFilter,
+} from '@electr0zed/test-results-dashboard-api-types';
 import { NotFoundError } from '../services/errors';
 
 export function createSpecRoutes<
@@ -15,7 +20,14 @@ export function createSpecRoutes<
         const runPublicId = c.req.param('runPublicId');
         const page = c.req.query('page');
         const pageSize = c.req.query('pageSize');
-        const parsedParams = GetProjectRunsSpecsSchema.safeParse({ projectPublicId, runPublicId, page, pageSize });
+        const result = c.req.query('result');
+        const parsedParams = GetProjectRunsSpecsSchema.safeParse({
+			projectPublicId,
+			runPublicId,
+			page,
+			pageSize,
+			result,
+		});
         
         if (!parsedParams.success) {
             throw parsedParams.error;
@@ -48,10 +60,13 @@ export function createSpecRoutes<
             throw new NotFoundError(`Run with publicId "${parsedParams.data.runPublicId}" not found.`);
         }
 
+		const specWhere = {
+			runId: run.id,
+			...getSpecResultWhere(parsedParams.data.result),
+		};
+
         const totalSpecs = await ctx.db.spec.count({
-            where: {
-                runId: run.id,
-            },
+            where: specWhere,
         });
 
         const totalPages = Math.max(
@@ -65,9 +80,7 @@ export function createSpecRoutes<
         );
 
         const specs = await ctx.db.spec.findMany({
-            where: {
-                runId: run.id,
-            },
+            where: specWhere,
             orderBy: {
                 startedAt: 'asc',
             },
@@ -192,6 +205,21 @@ export function createSpecRoutes<
     });
 
 	return app;
+}
+
+function getSpecResultWhere(result: SpecResultFilter) {
+	switch (result) {
+		case SpecResultFilter.Failed:
+			return { failed: { gt: 0 } };
+		case SpecResultFilter.Passed:
+			return { status: 'passed' };
+		case SpecResultFilter.Pending:
+			return { pending: { gt: 0 } };
+		case SpecResultFilter.Skipped:
+			return { skipped: { gt: 0 } };
+		case SpecResultFilter.All:
+			return {};
+	}
 }
 
 function addToGroup<T>(
