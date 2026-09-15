@@ -1,5 +1,19 @@
 # @electr0zed/test-results-dashboard-api-dashboard
 
+## 0.9.0
+
+### Minor Changes
+
+- 2992084: Add server-side result filtering for the paginated run specs endpoint.
+- b8d9677: Add server-side result and status filtering to the paginated project runs endpoint.
+
+### Patch Changes
+
+- 33b2f42: Update Hono
+- Updated dependencies [2992084]
+- Updated dependencies [b8d9677]
+  - @electr0zed/test-results-dashboard-api-types@0.10.0
+
 ## 0.8.0
 
 ### Minor Changes
