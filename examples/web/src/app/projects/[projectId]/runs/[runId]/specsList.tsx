@@ -6,9 +6,15 @@ import { useProject } from '@/contexts/projectContext';
 import { useRun } from '@/contexts/runContext';
 import { useToast } from '@/contexts/toastContext';
 import { getRunSpecs } from '@/lib/api/specs';
-import { DEFAULT_PAGE_SIZE, FullSpec, PaginationMeta } from '@electr0zed/test-results-dashboard-api-types';
+import { parseSpecResultFilter } from '@/lib/specResults';
+import {
+	DEFAULT_PAGE_SIZE,
+	type FullSpec,
+	type PaginationMeta,
+	SpecResultFilter,
+} from '@electr0zed/test-results-dashboard-api-types';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function SpecsList() {
 	const searchParams = useSearchParams();
@@ -16,20 +22,26 @@ export default function SpecsList() {
 	const { run } = useRun();
 	const runUpdatedAt = run.updatedAt.getTime();
 	const { addToast } = useToast();
+	const requestedPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
+	const page = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+	const selectedResult = parseSpecResultFilter(searchParams.get('result'));
+	const requestKey = JSON.stringify([project.publicId, run.publicId, page, selectedResult]);
 	const [specs, setSpecs] = useState<FullSpec[]>([]);
+	const [loadedRequestKey, setLoadedRequestKey] = useState<string>();
+	const loadedRequestKeyRef = useRef<string | undefined>(undefined);
 	const [pagination, setPagination] = useState<PaginationMeta>({
 		page: 1,
 		pageSize: DEFAULT_PAGE_SIZE,
 		total: 0,
 		totalPages: 0,
 	});
-	const [initialLoading, setInitialLoading] = useState(true);
+	const loading = loadedRequestKey !== requestKey;
 
 	useEffect(() => {
 		let cancelled = false;
-		const currentPage = Number.parseInt(searchParams.get('page') ?? '1', 10);
+		const isBackgroundRefresh = loadedRequestKeyRef.current === requestKey;
 
-		void getRunSpecs(project.publicId, run.publicId, currentPage, DEFAULT_PAGE_SIZE)
+		void getRunSpecs(project.publicId, run.publicId, page, DEFAULT_PAGE_SIZE, selectedResult)
 			.then((response) => {
 				if (cancelled) {
 					return;
@@ -37,6 +49,8 @@ export default function SpecsList() {
 
 				setSpecs(response.data);
 				setPagination(response.meta.pagination);
+				loadedRequestKeyRef.current = requestKey;
+				setLoadedRequestKey(requestKey);
 			})
 			.catch((error: unknown) => {
 				if (cancelled) {
@@ -44,26 +58,36 @@ export default function SpecsList() {
 				}
 
 				addToast('Failed to fetch specs', error instanceof Error ? error.message : 'Unknown error', 'error');
-			})
-			.finally(() => {
-				if (!cancelled) {
-					setInitialLoading(false);
+
+				if (!isBackgroundRefresh) {
+					setSpecs([]);
+					setPagination({
+						page,
+						pageSize: DEFAULT_PAGE_SIZE,
+						total: 0,
+						totalPages: 0,
+					});
 				}
+
+				loadedRequestKeyRef.current = requestKey;
+				setLoadedRequestKey(requestKey);
 			});
 
 		return () => {
 			cancelled = true;
 		};
-	}, [addToast, project.publicId, run.publicId, runUpdatedAt, searchParams]);
+	}, [addToast, page, project.publicId, requestKey, run.publicId, runUpdatedAt, selectedResult]);
 
 	return (
 		<>
 			<div className="space-y-4">
-				{initialLoading ? (
+				{loading ? (
 					<SpecsLoadingState />
 				) : specs.length === 0 ? (
 					<div className="rounded-xl border border-dashed border-zinc-950/10 px-6 py-12 text-center text-sm text-zinc-500 dark:border-white/10 dark:text-zinc-400">
-						No specs have been recorded for this run.
+						{selectedResult === SpecResultFilter.All
+							? 'No specs have been recorded for this run.'
+							: 'No specs match this result filter.'}
 					</div>
 				) : (
 					specs.map((spec) => <SpecCard key={spec.id} spec={spec} />)
@@ -75,6 +99,9 @@ export default function SpecsList() {
 					currentPage={pagination.page}
 					totalPages={pagination.totalPages}
 					pathname={`/projects/${project.publicId}/runs/${run.publicId}`}
+					searchParams={{
+						result: selectedResult === SpecResultFilter.All ? undefined : selectedResult,
+					}}
 				/>
 			</div>
 		</>
