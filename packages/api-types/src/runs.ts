@@ -1,10 +1,27 @@
-import { z } from 'zod';
 import { RunStatusSchema } from '@electr0zed/test-results-dashboard-core';
+import { z } from 'zod';
 import type { ApiSuccess, PaginatedApiMeta } from './response.js';
 
-export { RunStatus, RunStatusSchema, canCancelRun } from '@electr0zed/test-results-dashboard-core';
+export { canCancelRun, RunStatus, RunStatusSchema } from '@electr0zed/test-results-dashboard-core';
 
 export const RunAttributeKeySchema = z.string().trim().min(1).max(50);
+
+export const RunResultFilter = {
+	All: 'all',
+	Failed: 'failed',
+	Passed: 'passed',
+	Running: 'running',
+	Pending: 'pending',
+	Skipped: 'skipped',
+	TimedOut: 'timedOut',
+	Interrupted: 'interrupted',
+	Cancelled: 'cancelled',
+	NoResults: 'noResults',
+} as const;
+
+export type RunResultFilter = (typeof RunResultFilter)[keyof typeof RunResultFilter];
+
+export const RunResultFilterSchema = z.enum(RunResultFilter);
 
 export const RunAttributeSchema = z.object({
 	key: RunAttributeKeySchema,
@@ -57,6 +74,7 @@ export const GetProjectRunsSchema = z
 		pageSize: z.coerce.number().int().min(1).max(25).optional().default(10),
 		attributeKey: RunAttributeKeySchema.optional(),
 		attributeValue: z.string().trim().min(1).max(255).optional(),
+		result: RunResultFilterSchema.optional().default(RunResultFilter.All),
 	})
 	.refine((params) => !params.attributeValue || params.attributeKey, {
 		message: 'attributeKey is required when attributeValue is provided.',

@@ -1,4 +1,8 @@
-import type { RunWithStats } from '@electr0zed/test-results-dashboard-api-types';
+import {
+	RunResultFilter,
+	RunResultFilterSchema,
+	type RunWithStats,
+} from '@electr0zed/test-results-dashboard-api-types';
 import {
 	ArrowPathIcon,
 	CheckCircleIcon,
@@ -19,6 +23,19 @@ export type RunStatusPresentation = {
 	iconAnimation?: string;
 	Icon: typeof CheckCircleIcon;
 };
+
+export const RUN_RESULT_FILTER_OPTIONS = [
+	{ value: RunResultFilter.All, label: 'All runs' },
+	{ value: RunResultFilter.Failed, label: 'Has failures' },
+	{ value: RunResultFilter.Passed, label: 'Passed' },
+	{ value: RunResultFilter.Running, label: 'Running' },
+	{ value: RunResultFilter.Pending, label: 'Has pending' },
+	{ value: RunResultFilter.Skipped, label: 'Has skipped' },
+	{ value: RunResultFilter.TimedOut, label: 'Timed out' },
+	{ value: RunResultFilter.Interrupted, label: 'Interrupted' },
+	{ value: RunResultFilter.Cancelled, label: 'Cancelled' },
+	{ value: RunResultFilter.NoResults, label: 'Finished without results' },
+] as const;
 
 const STATUS_PRESENTATION: Record<RunDisplayStatus, RunStatusPresentation> = {
 	running: {
@@ -109,6 +126,12 @@ export function getRunDisplayStatus(run: Pick<RunWithStats, 'status' | 'stats'>)
 
 export function getRunStatusPresentation(status: RunDisplayStatus): RunStatusPresentation {
 	return STATUS_PRESENTATION[status];
+}
+
+export function parseRunResultFilter(value: string | null): RunResultFilter {
+	const parsedResult = RunResultFilterSchema.safeParse(value ?? RunResultFilter.All);
+
+	return parsedResult.success ? parsedResult.data : RunResultFilter.All;
 }
 
 export function formatVersionedName(name: string, version: string): string {
